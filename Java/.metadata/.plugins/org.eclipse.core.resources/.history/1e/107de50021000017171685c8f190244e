@@ -1,0 +1,19 @@
+package resource;
+
+import java.io.InputStream;
+import java.net.URL;
+
+public class ResourceLoader {
+	
+	public static InputStream load(InputStream inputStream) {
+		System.out.println(inputStream);
+//		InputStream input = ResourceLoader.class.getResourceAsStream(path);
+		InputStream input = ClassLoader.getSystemClassLoader().getResources(inputStream);
+		if(input == null) {
+			input = ResourceLoader.class.getResourceAsStream("/" + inputStream);
+//			input = ClassLoader.getSystemClassLoader().getResourceAsStream(path);
+		}
+		System.out.println(input);
+		return input;
+	}
+}

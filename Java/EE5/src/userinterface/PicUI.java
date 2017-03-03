@@ -23,49 +23,50 @@ import javafx.util.Callback;
 
 public class PicUI {
 	private static ComboBox<CommPortIdentifier> combo;
-	public static void start() {
+	private static Connection connection = null;
+	public static Connection start() {
 		
+		//create a dialog for the portselect
 		Dialog<ButtonType> portSelect = new Dialog<>();
 		combo = new ComboBox<CommPortIdentifier>();
+		//get the different COM-port connections of the PC
 		Connection.refresh();
+		
+		// create a refresh button for the connection list
 		Button refreshPort = new Button("Refresh ports");
-		
 		refreshPort.setOnMouseClicked(new EventHandler<Event>() {
-		
 			@Override
 			public void handle(Event arg0){
 				combo.setItems(Connection.refresh());
 			}
 		});
 		
+		//create a select port
 		Button selectPort = new Button("Select port");
 		selectPort.setOnMouseClicked(new EventHandler<Event>() {
-
 			@Override
 			public void handle(Event arg0) {
-				
+				//if there is a COM-port selected create a new connection to that port
+				//close the port-selector and start the main UI
 				if(combo.getValue()!=null) {
-					System.out.println(combo.getValue());
 					try {
-						if(combo.getValue() != null) {
-							System.out.println("test");
-							Connection connection = new Connection(combo.getValue());
-							connection.load();
-							portSelect.setResult(ButtonType.FINISH);;
-						}
+						connection = new Connection(combo.getValue());
+						connection.load();
+						portSelect.setResult(ButtonType.FINISH);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
-				else
-					System.out.println(combo.getValue());
 				
 			}
 			
 		});
+		
+		//create a default cancel button
 		ButtonType cancel = new ButtonType("Cancel Program",ButtonData.CANCEL_CLOSE);
 		
+		//add the buttons and combobox in a horizontal box, with 10px spacing
 		HBox buttons = new HBox(10);
 		buttons.getChildren().addAll(refreshPort,combo, selectPort);
 
@@ -81,7 +82,7 @@ public class PicUI {
 		combo.setCellFactory(cellFactory);
 		
 		
-		
+		//fill the dialog window with the different buttons and text
 		portSelect.setHeaderText("Choose the port where your pic is connected");
 		portSelect.setTitle("Choose port");
 		portSelect.setResizable(true);
@@ -92,6 +93,7 @@ public class PicUI {
 		if(cancel.equals(response.get())) {
 			System.exit(0);
 		}
+		return connection;
 		
 	}
 	

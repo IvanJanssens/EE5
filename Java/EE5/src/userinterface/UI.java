@@ -1,12 +1,13 @@
 package userinterface;
 
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-
+import communication.Connection;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -35,14 +36,18 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import resource.ResourceLoader;
 
 public class UI {
 	
 	private static BorderPane osciBody;
-	
-	public static void start(Stage stage) {
+	private static Connection connection;
+	public static void start(Stage stage, Connection conn) {
+		connection = conn;
 		Stage mainStage = stage;
-		mainStage.getIcons().add(new Image("file:SineWave.png",15,0,true,true));
+
+		System.out.println(ResourceLoader.class.getResourceAsStream("SineWave.png"));
+		mainStage.getIcons().add(new Image(ResourceLoader.class.getResourceAsStream("SineWave.png"),15,0,true,true));
 		mainStage.setTitle("LBMS");
 		
 		TabPane main = new TabPane();
@@ -52,6 +57,9 @@ public class UI {
 		main.getTabs().add(Oscilloscope());
 		main.getTabs().add(multimeter());
 		main.getTabs().add(generator());
+		mainStage.setOnCloseRequest(event -> {
+				connection.close();
+		});
 		mainStage.setScene(scene);
 		mainStage.show();
 	}
@@ -274,8 +282,50 @@ public class UI {
 	
 	private static BorderPane multiBorderPane() {
 		BorderPane multiBorderPane = new BorderPane();
+		HBox header = multiButton();
+		multiBorderPane.setTop(header);
+		
 		return multiBorderPane;
 		
+	}
+	
+	private static HBox multiButton() {
+		HBox multiButtons = new HBox(10);
+		multiButtons.getChildren().addAll(led1(),led2(),led3());
+		return multiButtons;
+	}
+	
+	private static Button led1() {
+		Button led1 = new Button("1 led");
+		led1.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e){
+				connection.send(49);
+			}
+		});
+		return led1;
+	}
+	
+	private static Button led2() {
+		Button led2 = new Button("2 leds");
+		led2.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e){
+				connection.send(50);
+			}
+		});
+		return led2;
+	}
+	
+	private static Button led3() {
+		Button led3 = new Button("3 leds");
+		led3.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e){
+				connection.send(51);
+			}
+		});
+		return led3;
 	}
 	
 	private static BorderPane geneBorderPane() {
@@ -302,9 +352,9 @@ public class UI {
 		generator.setAlignment(Pos.TOP_LEFT);
 		
 		RadioButton sine = new RadioButton();
-		sine.setGraphic(new ImageView(new Image("file:SineWave.png",100,0,true,false)));
+		sine.setGraphic(new ImageView(new Image(ResourceLoader.class.getResourceAsStream("SineWave.png"),100,0,true,false)));
 		RadioButton square = new RadioButton();
-		square.setGraphic(new ImageView(new Image("file:SquareWave.png",100,0,true,false)));
+		square.setGraphic(new ImageView(new Image(ResourceLoader.class.getResourceAsStream("SquareWave.png"),100,0,true,false)));
 		
 		ToggleGroup group = new ToggleGroup();
 		sine.setToggleGroup(group);
