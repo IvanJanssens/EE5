@@ -5,7 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
 	<classpathentry kind="lib" path="D:/Docs/4de jaar/2de semester/EE5/EE5/Java/EE5/RXTXcomm.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Program Files/Java/jdk1.8.0_74/jre/bin"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Docs/4de jaar/2de semester/EE5/EE5/Java/EE5"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
