@@ -1,0 +1,18 @@
+package application;
+
+
+
+import communication.Connection;
+import javafx.scene.control.Label;
+
+public class Multimeter {
+
+	Label meter;
+	Connection connection;
+	public Multimeter () {
+	}
+
+	public void updateMeter(double d) {
+		meter.setText(d +" volt");
+	}
+}

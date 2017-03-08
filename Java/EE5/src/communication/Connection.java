@@ -9,6 +9,7 @@ import java.util.Enumeration;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -58,7 +59,8 @@ public class Connection {
 		        this.input = serialPort.getInputStream();
 		        this.output = serialPort.getOutputStream();
 //                
-//                (new Thread(new SerialReader(this.input))).start();
+//                reader = new Thread(new SerialReader(this.input));
+//        		reader.start();
 //                (new Thread(new SerialWriter(out))).start();
 
                 return 0;
@@ -69,34 +71,68 @@ public class Connection {
 		}
 	}
 	
+	public InputStream getInputStream() {
+		return this.input;
+	}
+	
 	//read out the input buffer of the COM port
 	 public static class SerialReader implements Runnable 
 	    {
 	        InputStream in;
+	        int result;
 	        public SerialReader ( InputStream in ) {
 	            this.in = in;
+	            result = 0;
 	        }
 	        public void run () {
-	            byte[] buffer = new byte[1024];
-	            int len = -1;
-	            try {
-	                while ( ( len = in.read(buffer)) > -1 ){
-//	                	System.out.println("available" + in.available());
-//	                	System.out.println("new string" + new String(buffer,0,len));
-	                	if(in.available()>0) {
-	                		System.out.println(buffer.length);
-		                    System.out.println(new String(buffer,0,len));
-	                	}
-	                }
-	            }
-	            catch ( IOException e ) {
-	                e.printStackTrace();
-	            }            
+		            byte[] buffer = new byte[64];
+		            int[] intbuffer = new int[64];
+		            int len = -1;
+		            try {
+
+			        	while(!Thread.interrupted()){
+			                if ( ( len = in.read(buffer)) == -1 ){
+			                	break;
+			                } else {
+			                	if(len> 0) {
+			                		System.out.println(len);
+			                		for(int i = 0; i<len; i++){
+			                			intbuffer[i] = buffer[i] & 0xFF;
+			                			System.out.println("buffer" + i + " : "+ buffer[i]);
+			                			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
+			                		}
+			                		if(len>1) {
+			                			result = (intbuffer[0] << 8) |  intbuffer[1];
+			                			 Platform.runLater(new Runnable() {
+						                    	@Override
+						                    	public void run() {
+						                    		try {
+//						                    			UI.updateMeter((5.11/65536)*result);
+//						                    			UI.addData((5.11/65536)*result);
+						                    		}
+						                    		catch (Exception e) {
+						                    			e.printStackTrace();
+						                    		}
+						                    	}
+						                    });
+			                		}
+				                    System.out.println("string" + new String(intbuffer,0,len));
+				                    System.out.println("result" + result);
+				                    System.out.println("volt" + (5.11/65536)*result);
+				                   
+			                	}
+			                }
+			        	}
+		            }
+		            catch ( IOException e ) {
+		                e.printStackTrace();
+		            }  
 	        }
 	    }
 	
 	 //send an int to the port
 	public void send(int message) {
+		System.out.println(message);
 		try {
 			this.output.write(message);
 		}
@@ -107,6 +143,7 @@ public class Connection {
 	
 	public void close() {
 		if(this.serialPort!=null){
+//			reader.interrupt();
 			try {
 				this.input.close();
 				this.output.close();

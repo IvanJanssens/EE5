@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="communication.Connection"/>
 <fullyQualifiedTypeName name="resource.ResourceLoader"/>
 <fullyQualifiedTypeName name="application.Main"/>
 <fullyQualifiedTypeName name="javax.imageio.ImageIO"/>
 <fullyQualifiedTypeName name="java.io.IOException"/>
 <fullyQualifiedTypeName name="java.awt.image.BufferedImage"/>
+<fullyQualifiedTypeName name="javafx.beans.value.ObservableValue"/>
+<fullyQualifiedTypeName name="javafx.scene.control.Label"/>
+<fullyQualifiedTypeName name="application.Multimeter"/>
+<fullyQualifiedTypeName name="javafx.application.Platform"/>
+<fullyQualifiedTypeName name="application.Generator"/>
+<fullyQualifiedTypeName name="java.io.InputStream"/>
+<fullyQualifiedTypeName name="userinterface.MultimeterUI"/>
+<fullyQualifiedTypeName name="application.Oscilloscope"/>
+<fullyQualifiedTypeName name="javafx.concurrent.Service"/>
+<fullyQualifiedTypeName name="javafx.concurrent.Task"/>
+<fullyQualifiedTypeName name="javafx.scene.control.Button"/>
+<fullyQualifiedTypeName name="userinterface.GeneratorUI"/>
+<fullyQualifiedTypeName name="communication.Connection"/>
+<fullyQualifiedTypeName name="userinterface.OscilloscopeUI"/>
+<fullyQualifiedTypeName name="javafx.scene.chart.XYChart.Data"/>
+<fullyQualifiedTypeName name="userinterface.UI"/>
 </qualifiedTypeNameHistroy>

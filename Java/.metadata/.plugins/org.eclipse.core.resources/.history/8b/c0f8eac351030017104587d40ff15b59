@@ -1,0 +1,27 @@
+package application;
+
+import java.io.InputStream;
+
+import communication.Connection;
+import userinterface.UI;
+
+public class Oscilloscope implements Runnable{
+
+	Connection connection;
+	public Oscilloscope(Connection connection) {
+		this.connection = connection;
+	}
+	@Override
+	public void run() {
+		connection.send((int) '8');
+		InputStream input = connection.getInputStream();
+	}
+	
+	public void lock() {
+		synchronized(this) {
+			while(!UI.tab.equals("Oscilloscope")) {
+				this.wait();
+			}
+		}
+	}
+}

@@ -1,0 +1,25 @@
+package application;
+
+
+
+import communication.Connection;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+
+public class Oscilloscope extends Service<Oscilloscope>{
+
+	Connection connection;
+	public Oscilloscope(Connection connection) {
+		this.connection = connection;
+	}
+	@Override
+	protected Task<Oscilloscope> createTask() {
+		return new Task<Oscilloscope>() {
+			
+			@Override
+			protected Oscilloscope call() throws Exception {
+				return null;
+			}
+		};
+	}
+}
