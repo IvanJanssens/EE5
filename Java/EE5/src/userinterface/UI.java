@@ -18,10 +18,12 @@ import userinterface.GeneratorUI;
 public class UI {
 
 	public static Connection connection; // global connection variable
+	private static Oscilloscope oscilloscope;
+	private static Multimeter multimeter;
 	// messages to be send to the PIC
 	public static final int MULTIMETER = '9';
 	public static final int OSCILLOSCOPE = '8';
-	public static final int STOP = '0';
+	public static final int STOP = '1';
 	//max data shown on the oscilloscope graph
 	public static final int MAX_DATA = 200;
 	
@@ -46,8 +48,8 @@ public class UI {
 		main.getTabs().add(GeneratorUI.generator());
 
 		//Create the new services for background processing
-		Oscilloscope oscilloscope = new Oscilloscope(connection);
-		Multimeter multimeter = new Multimeter(connection);
+		oscilloscope = new Oscilloscope(connection);
+		multimeter = new Multimeter(connection);
 		
 		//Check which tab is selected
 		main.getSelectionModel().selectedItemProperty().addListener(
@@ -56,11 +58,12 @@ public class UI {
 					public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
 						//stop the old tabs background process
 						if(t.getText().equals("Oscilloscope"))
-							oscilloscope.cancel();
+							cancelOsci();
 						else if(t.getText().equals("Multimeter"))
-							multimeter.cancel();
+							cancelMulti();
 						else if(t.getText().equals("Function generator"))
 							System.out.println("close generator");
+
 						
 						//start the new tabs background process
 						if(t1.getText().equals("Oscilloscope"))
@@ -83,5 +86,21 @@ public class UI {
 		mainStage.show();
 		//first tab is oscilloscope so start up that process
 		oscilloscope.restart();
+	}
+	
+	public static void cancelOsci() {
+		oscilloscope.cancel();
+		connection.clearBuffer();
+	}
+	public static void startOsci() {
+		oscilloscope.restart();
+	}
+	
+	public static void cancelMulti() {
+		multimeter.cancel();
+		connection.clearBuffer();
+	}
+	public static void startMulti() {
+		multimeter.restart();
 	}
 }

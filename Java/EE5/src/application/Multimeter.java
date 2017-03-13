@@ -24,43 +24,45 @@ public class Multimeter extends Service<Object> {
 			@Override
 			protected Object call() throws Exception {
 
-				connection.send(UI.STOP); //Send 0 to stop current datastream from pic
-				System.out.println("testing");
-				connection.send(UI.MULTIMETER); //Send 9 to start the multimeter datastream
 				InputStream input = connection.getInputStream();
+				System.out.println("testing");
+				System.out.println(input.available());
+				connection.send(UI.MULTIMETER); //Send 9 to start the multimeter datastream
 				int len = -1;
 				result = 0;
-				byte[] buffer = new byte[64];
-				int[] intbuffer = new int[64];
+				System.out.println(input.available());
+				byte[] buffer = new byte[3];
+				int[] intbuffer = new int[3];
 				try {
 					while(! isCancelled()) {
-						System.out.println(len);
-					if( (len = input.read(buffer)) > 0 ) {
+					if( (input.available()) > 2 ) {
+							len = input.read(buffer,0,3);
 		            		System.out.println(len);
 		            		for(int i = 0; i<len; i++){
 		            			intbuffer[i] = buffer[i] & 0xFF;
-//		            			System.out.println("buffer" + i + " : "+ buffer[i]);
-//		            			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
+		            			System.out.println("bufferTest" + i + " : "+ buffer[i]);
+		            			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
 		            		}
-		            		if(len>1) {
-		            			result = (intbuffer[0] << 8) |  intbuffer[1];
-		            			 Platform.runLater(new Runnable() {
-				                    	@Override
-				                    	public void run() {
-				                    		try {
-				                    			MultimeterUI.updateMeter((5.11/65536)*result);
-				                    		}
-				                    		catch (Exception e) {
-				                    			e.printStackTrace();
-				                    		}
-				                    	}
-				                    });
-		            		}
+	            			result = (intbuffer[1] << 2) |  (intbuffer[2] >> 6);
+	            			 Platform.runLater(new Runnable() {
+			                    	@Override
+			                    	public void run() {
+			                    		try {
+			                    			MultimeterUI.updateMeter((5.11/1024)*result);
+			                    		}
+			                    		catch (Exception e) {
+			                    			e.printStackTrace();
+			                    		}
+			                    	}
+			                    });
 //		                    System.out.println("string" + new String(intbuffer,0,len));
 //		                    System.out.println("result" + result);
 //		                    System.out.println("volt" + (5.11/65536)*result);
 		                   
 		            	}
+					}
+					if(isCancelled()) {
+						connection.send(UI.STOP);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();

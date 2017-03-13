@@ -1,7 +1,9 @@
 package userinterface;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -15,18 +17,28 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
 import javafx.scene.control.Tab;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import resource.ResourceLoader;
 
 public class OscilloscopeUI extends UI{
 
@@ -34,6 +46,14 @@ public class OscilloscopeUI extends UI{
 	private static BorderPane osciBody;
 	private static XYChart.Series<Number, Number> data;
 	private static int datapoint;
+	private static double max;
+	private static double min;
+	private static Label ptp;
+	private static Label rms;
+	private static double sum;
+	private static double triggerValue;
+	private static int max_data = 100;
+	private static double prevValue = 0;
 	
 	// create new tab for the oscilloscope
 	public static Tab Oscilloscope() {
@@ -90,11 +110,25 @@ public class OscilloscopeUI extends UI{
 		save.setOnMouseClicked(new EventHandler<Event>() {
 			@Override
 			public void handle(Event e){
+				UI.cancelOsci();
 				FileChooser saving = new FileChooser();
 				saving.setTitle("Save mesurements");
 				saving.getExtensionFilters().add(new ExtensionFilter("Text file","*.txt"));
 				File selectedFile = saving.showSaveDialog(null);
 				if(selectedFile != null){
+						try {
+							BufferedWriter buffer = new BufferedWriter( new FileWriter(selectedFile));
+							for(int i = 0; i < data.getData().size(); i++) {
+								buffer.write(data.getData().get(i) + "");
+								buffer.newLine();
+							}
+							buffer.flush();
+							buffer.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						UI.startOsci();
 					
 				}
 			}
@@ -108,7 +142,7 @@ public class OscilloscopeUI extends UI{
 		printScreen.setOnMouseClicked(new EventHandler<Event>() {
 			@Override
 			public void handle(Event e){
-				connection.send(STOP); // pause the inputstream of data during the snapshot
+				UI.cancelOsci(); // pause the inputstream of data during the snapshot
 				FileChooser saving = new FileChooser();
 				saving.setTitle("Printscreen");
 				saving.getExtensionFilters().add(new ExtensionFilter("Png","*.png"));
@@ -120,7 +154,7 @@ public class OscilloscopeUI extends UI{
 			            BufferedImage tempImg = SwingFXUtils.fromFXImage(snapshot, null);
 
 			            ImageIO.write(tempImg, "png", selectedFile);
-			            connection.send(OSCILLOSCOPE); // restart the inputstream
+			            UI.startOsci(); // restart the inputstream
 
 			        } catch (IOException ex) {
 			            // TODO Auto-generated catch block
@@ -135,7 +169,51 @@ public class OscilloscopeUI extends UI{
 	private static Button help() {
 		Button help = new Button("Help");
 		help.setPrefWidth(120);
+		help.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e) {
+				UI.cancelOsci();
+				Alert helpAlert = new Alert(AlertType.INFORMATION);
+				helpAlert.setTitle("Help menu");
+				helpAlert.setHeaderText("Help with the oscilloscope");
+				helpAlert.getDialogPane().setPrefHeight(400);
+				helpAlert.setResizable(true);
+				helpAlert.getDialogPane().setContent(helpContent());
+
+				helpAlert.showAndWait();
+				UI.startOsci();
+			}
+		});
 		return help;
+	}
+	
+	private static ScrollPane helpContent() {
+		ScrollPane helpContent = new ScrollPane();
+		helpContent.setFitToWidth(true);
+		VBox content = new VBox(10);
+		content.getChildren().addAll(
+				new Label("This is the graph of the oscilloscope: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("graph.png"),300,0,true,true)),
+				new Separator(),
+				new Label("Open data file to display on the graph: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("open.png"),300,0,true,true)),
+				new Separator(),
+				new Label("Save datapoints of the graph in a file: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("save.png"),300,0,true,true)),
+				new Separator(),
+				new Label("Printscreen the graph and option selection to a PNG image: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("print.png"),300,0,true,true)),
+				new Separator(),
+				new Label("Select input source: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("source.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Select amplification: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("amplification.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Select trigger level: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("trigger.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Select time of the graph (X-axis): "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("time.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Display Root Mean Square (RMS) value of the graph: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("RMS.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Display Peak to Peak value of the graph: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("PtP.png"),200,0,true,true)));
+		helpContent.setContent(content);
+		
+		return helpContent;
 	}
 	
 	private static BorderPane osciBody(){
@@ -149,7 +227,7 @@ public class OscilloscopeUI extends UI{
 	
 	private static VBox osciButtons() {
 		VBox oscibuttons = new VBox(10);
-		oscibuttons.getChildren().addAll(channel(),attenuation(),trigger(),timediv(),rms(),ptp());
+		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp());
 		return oscibuttons;
 	}
 	
@@ -157,6 +235,7 @@ public class OscilloscopeUI extends UI{
 		VBox channel = new VBox(10);
 		RadioButton channel1 = new RadioButton();
 		channel1.setText("Channel 1");
+		channel1.setSelected(true);
 		RadioButton channel2 = new RadioButton();
 		channel2.setText("Channel 2");
 		channel.getChildren().addAll(channel1,channel2);
@@ -183,31 +262,41 @@ public class OscilloscopeUI extends UI{
 		return attenuation;
 	}
 	
-	private static Button trigger() {
-		Button trigger = new Button();
-		trigger.setText("trigger");
+	private static Spinner<Double> trigger() {
+		Spinner<Double> trigger = new Spinner<Double>();
+		trigger.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-5,5));
+		trigger.setEditable(true);
+		trigger.getValueFactory().setValue((double) 0);
 		trigger.setPrefWidth(120);
+		trigger.valueProperty().addListener((obs, oldValue, newValue) -> {
+			triggerValue = newValue;
+		});
 		return trigger;
 	}
 	
-	private static Button timediv() {
-		Button timediv = new Button();
-		timediv.setText("timediv");
+	private static Spinner<Integer> timediv() {
+		Spinner<Integer> timediv = new Spinner<Integer>();
+		timediv.setValueFactory(new IntegerSpinnerValueFactory(100,2000));
 		timediv.setPrefWidth(120);
+		timediv.setEditable(true);
+		timediv.valueProperty().addListener((obs, oldValue, newValue) -> {
+			if(newValue < max_data) {
+				data.getData().remove(newValue, data.getData().size());
+			}
+			max_data = newValue;
+		});
 		return timediv;
 	}
 	
-	private static Button rms() {
-		Button rms = new Button();
+	private static Label rms() {
+		rms = new Label("Root Mean Square\n(RMS): ");
 		rms.setPrefWidth(120);
-		rms.setText("RMS");
 		return rms;
 	}
 	
-	private static Button ptp() {
-		Button ptp = new Button();
+	private static Label ptp() {
+		ptp = new Label("Peak to Peak: ");
 		ptp.setPrefWidth(120);
-		ptp.setText("PTP");
 		return ptp;
 	}
 	
@@ -225,6 +314,9 @@ public class OscilloscopeUI extends UI{
 		graph.getData().add(data);
 		graph.getXAxis().setAutoRanging(false);
 		graph.getYAxis().setAutoRanging(false);
+		graph.setMinWidth(400);
+		graph.setMaxWidth(1000);
+		graph.setAnimated(false);
 		((ValueAxis<Number>) graph.getYAxis()).setUpperBound(5.5);
 		return graph;
 	}
@@ -233,12 +325,46 @@ public class OscilloscopeUI extends UI{
 		
 		//get number of datapoints
         int numOfPoint = data.getData().size();
-        if(numOfPoint >= MAX_DATA) {
-	        data.getData().remove(0); //remove first point
-	        ((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(datapoint-MAX_DATA); //adapt the x-axis of the chart
-        }
-        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(datapoint);
-		data.getData().add(new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
+		if(datapoint >= max_data && newPoint > triggerValue && prevValue <= triggerValue) {
+			datapoint = 0;
+			
+		}
+//        if(numOfPoint >= max_data) {
+//	        data.getData().remove(datapoint); //remove first point
+//	        ((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(datapoint-max_data); //adapt the x-axis of the chart
+//        }
+		((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(0);
+        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(max_data);
+//        System.out.println("1:" + numOfPoint);
+//        System.out.println("2:" + max_data);
+//        System.out.println("3:" +datapoint);
+        if(numOfPoint >= max_data && datapoint < max_data)
+        	data.getData().set(datapoint, new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
+        else if(datapoint < max_data)
+        	data.getData().add(new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
 		datapoint += 1;
+		if(datapoint == max_data){
+			min = (double) data.getData().get(0).getYValue();
+			max = (double) data.getData().get(0).getYValue();
+			sum = 0;
+			data.getData().forEach(value-> {
+				sum += ((double) value.getYValue()*(double) value.getYValue());
+				if((double) value.getYValue() > max)
+					max = (double)value.getYValue();
+				if((double) value.getYValue() < min)
+					min = (double)value.getYValue();
+			});
+			updateRMS(Math.sqrt(sum/max_data));
+			updatePtP(max,min);
+		}
+		prevValue = newPoint;
+	}
+	
+	private static void updateRMS(double rmsValue) {
+		rms.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
+	}
+	
+	private static void updatePtP(double max, double min) {
+		ptp.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
 	}
 }

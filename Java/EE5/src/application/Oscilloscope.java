@@ -23,31 +23,32 @@ public class Oscilloscope extends Service<Object>{
 			int result;
 			@Override
 			protected Object call() throws Exception {
-				connection.send(UI.STOP); //Send 0 to stop current datastream from pic
+				InputStream input = connection.getInputStream();
+				
 				System.out.println("testing2");
 				connection.send(UI.OSCILLOSCOPE); //Send 9 to start the multimeter datastream
-				InputStream input = connection.getInputStream();
 				int len = -1;
 				result = 0;
 				byte[] buffer = new byte[64];
 				int[] intbuffer = new int[64];
 				try {
 					while(! isCancelled()) {
-					if( (len = input.read(buffer)) > 0 ) {
-		            		System.out.println(len);
+					if(input.available() > 2 ) {
+							len = input.read(buffer, 0, 3);
+//		            		System.out.println(len);
 		            		for(int i = 0; i<len; i++){
 		            			intbuffer[i] = buffer[i] & 0xFF;
-//		            			System.out.println("buffer" + i + " : "+ buffer[i]);
+//		            			System.out.println("bufferOsci" + i + " : "+ buffer[i]);
 //		            			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
 		            		}
 		            		if(len>1) {
-		            			result = (intbuffer[0] << 8) |  intbuffer[1];
+		            			result = (intbuffer[1] << 2) |  (intbuffer[2] >> 6);
 		            			 Platform.runLater(new Runnable() {
 				                    	@Override
 				                    	public void run() {
 				                    		try {
 //				                    			MultimeterUI.updateMeter((5.11/65536)*result);
-				                    			OscilloscopeUI.addData((5.11/65536)*result);
+				                    			OscilloscopeUI.addData((5.11/1024)*result);
 				                    		}
 				                    		catch (Exception e) {
 				                    			e.printStackTrace();
@@ -61,11 +62,17 @@ public class Oscilloscope extends Service<Object>{
 		                   
 		            	}
 					}
+					if(isCancelled()) {
+						connection.send(UI.STOP);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				return null;
 			}
+			
+			
 		};
+		
 	}
 }

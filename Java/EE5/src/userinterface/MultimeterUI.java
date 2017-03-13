@@ -10,6 +10,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class MultimeterUI extends UI{
 
@@ -32,9 +33,15 @@ public class MultimeterUI extends UI{
 		HBox header = multiButton();
 		multiBorderPane.setTop(header);
 		BorderPane.setMargin(header, new Insets(10,10,10,10));
-		multiBorderPane.setCenter(meter());
+		multiBorderPane.setCenter(multiCenter());
 		return multiBorderPane;
 		
+	}
+	
+	private static VBox multiCenter(){
+		VBox center = new VBox(10);
+		center.getChildren().add(meter());
+		return center;
 	}
 	
 	private static HBox multiButton() {
@@ -82,6 +89,6 @@ public class MultimeterUI extends UI{
 	}
 	
 	public static void updateMeter(double d) {
-		meter.setText(d +" volt");
+		meter.setText(String.format("%.4f", d) +" volt");
 	}
 }

@@ -1,15 +1,21 @@
 package userinterface;
 
 import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -51,14 +57,40 @@ public class GeneratorUI {
 	
 	private static Button help() {
 		Button help = new Button("help");
+		help.setPrefWidth(120);
+		help.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e) {
+				Alert helpAlert = new Alert(AlertType.INFORMATION);
+				helpAlert.setTitle("Help menu");
+				helpAlert.setHeaderText("Help with the generator");
+				helpAlert.getDialogPane().setPrefHeight(400);
+				helpAlert.setResizable(true);
+				helpAlert.getDialogPane().setContent(helpContent());
+
+				helpAlert.showAndWait();
+			}
+		});
 		return help;
+	}
+	
+	private static ScrollPane helpContent() {
+		ScrollPane helpContent = new ScrollPane();
+		helpContent.setFitToWidth(true);
+		VBox content = new VBox(10);
+		content.getChildren().addAll(new Label("Select waveform, Sine or Square: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("wave.png"),300,0,true,true)), new Separator(), new Label("Select the frequency of the waveform: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("frequency.png"),500,0,true,true)));
+		helpContent.setContent(content);
+		
+		return helpContent;
 	}
 	
 	private static BorderPane geneBody() {
 		BorderPane geneBody = new BorderPane();
 		VBox generator = new VBox(10);
-		generator.setAlignment(Pos.TOP_LEFT);
+		generator.setAlignment(Pos.TOP_CENTER);
 		
+		HBox wave = new HBox(50);
+		wave.setAlignment(Pos.TOP_CENTER);
 		RadioButton sine = new RadioButton();
 		sine.setGraphic(new ImageView(new Image(ResourceLoader.class.getResourceAsStream("SineWave.png"),100,0,true,false)));
 		RadioButton square = new RadioButton();
@@ -93,8 +125,9 @@ public class GeneratorUI {
 		};
 		freqField.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freq.setValue(Integer.parseInt(freqField.getText())));
 		freq.valueProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freqField.textProperty().setValue(String.valueOf((int) freq.getValue())));
-		
-		generator.getChildren().addAll(sine,square,freq,freqField);
+		freqField.setMaxWidth(120);
+		wave.getChildren().addAll(sine, square);
+		generator.getChildren().addAll(wave,freq,freqField);
 		geneBody.setCenter(generator);
 		return geneBody;
 	}

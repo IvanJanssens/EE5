@@ -12,6 +12,7 @@ import gnu.io.SerialPort;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import userinterface.UI;
 
 public class Connection {
 	
@@ -137,6 +138,16 @@ public class Connection {
 			this.output.write(message);
 		}
 		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void clearBuffer() {
+		try {
+			while((input.read())!= UI.STOP) {
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
