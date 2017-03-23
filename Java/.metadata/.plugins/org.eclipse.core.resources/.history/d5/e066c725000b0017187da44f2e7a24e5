@@ -1,0 +1,177 @@
+package application;
+
+
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+
+import communication.Connection;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import userinterface.OscilloscopeUI;
+import userinterface.UI;
+
+public class Oscilloscope extends Service<Object>{
+
+	Connection connection;
+	public Oscilloscope(Connection connection) {
+		this.connection = connection;
+	}
+	@Override
+	protected Task<Object> createTask() {
+		return new Task<Object>() {
+			int result;
+			float max;
+			@Override
+			protected Object call() throws Exception {
+				InputStream input = connection.getInputStream();
+				
+				System.out.println("testing2");
+				connection.send(UI.OSCILLOSCOPE); //Send 9 to start the multimeter datastream
+				int len = -1;
+				result = 0;
+				byte[] buffer = new byte[64];
+				int[] intbuffer = new int[64];
+				float[] fftbuffer = new float[16];
+				int j = 0;
+				try {
+					while(! isCancelled()) {
+					if(input.available() > 2 ) {
+							len = input.read(buffer, 0, 3);
+//		            		System.out.println(len);
+		            		for(int i = 0; i<len; i++){
+		            			intbuffer[i] = buffer[i] & 0xFF;
+//		            			System.out.println("bufferOsci" + i + " : "+ buffer[i]);
+//		            			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
+		            		}
+		            		if(len>1) {
+		            			result = (intbuffer[1] << 2) |  (intbuffer[2] >> 6);
+		            			fftbuffer[j] = (float)result;
+		            			if(j == 15) {
+		            				float fftresult[] = fftbuffer;
+		            				float sampleI[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//		            				System.out.println("test1");
+//		            				for(int k= 0; k< fftresult.length; k++) {
+//			            				System.out.println(fftresult[k]);
+//			            			}
+		            				Fourrier.transform(1, 16, fftresult,sampleI);
+//			            			System.out.println("test");
+		            				float mean = 0;
+		            				float fftmax = 0;
+		            				int fftindex = 0;
+		            				for(int k = 1; k<fftresult.length;k++) {
+		            					mean += fftresult[k];
+		            					if(fftresult[k] > fftmax) {
+		            						fftmax = fftresult[k];
+		            						fftindex = k;
+		            					}
+		            				}
+		            				if(fftmax < fftresult[0]) {
+		            					fftmax = fftresult[0];
+		            				}
+		            				mean = mean/fftresult.length;
+			            			float fftzeropad [] = new float[64];
+//			            			for(int k=0; k<fftresult.length/2;k++) {
+//			            				if(fftresult[k] > mean)
+//			            					fftzeropad[k] = fftresult[k]/fftmax;
+//			            				else
+//			            					fftzeropad[k] = 0;
+//			            			}
+//			            			for(int k = 0; k<64-fftresult.length;k++) {
+//			            				fftzeropad[fftresult.length/2 + k] = 0;
+//			            			}
+//			            			for(int k = 0; k < fftresult.length/2; k++) {
+//			            				if(fftresult[((fftresult.length/2)+k)] > mean)
+//			            					fftzeropad[64 - fftresult.length + k] = fftresult[(fftresult.length/2)+k]/fftmax;
+//			            				else
+//			            					fftzeropad[64 - fftresult.length + k] = 0;
+//			            			}
+			            			for(int k = 0; k<64; k++) {
+			            				fftzeropad[k] = 0;
+			            			}
+			            			fftzeropad[fftindex] = fftresult[fftindex]/fftmax;
+			            			fftzeropad[64-fftindex] = fftresult[16-fftindex]/fftmax;
+			            			System.out.println("fftzero");
+			            			for(int k = 0; k<fftzeropad.length; k++) {
+			            				System.out.println(fftzeropad[k]);
+			            			}
+			            			float fftim [] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//			            			for(int k = 0; k < 64; k++) {
+//			            				System.out.println(fftzeropad)
+//			            			}
+			            			Fourrier.transform(1, fftzeropad.length, fftzeropad, fftim);
+			            			max = 0;
+			            			System.out.println("test");
+			            			for(int k = 0; k<fftzeropad.length; k++){
+			            				System.out.println(fftzeropad[k]);
+			            				if(fftzeropad[k] > max) {
+			            					max = fftzeropad [k];
+			            				}
+			            			}
+//		            				for(int k= 0; k< fftresult.length; k++) {
+//			            				System.out.println(fftresult[k] + "imaginary " + sampleI[k]);
+//			            			}
+		            				Platform.runLater(new Runnable() {
+		            					@Override
+		            					public void run() {
+		            						try {
+		    	                    			OscilloscopeUI.addFftData(fftzeropad, max);
+		            						} catch (Exception e){
+		            							e.printStackTrace();
+		            						}
+		            					}
+		            				});
+		            				j = -1;
+		            			}
+		            			j++;
+		            			
+		            			
+//		            			float samples[] = {0,0.38268352f,0.70710677f,0.9238796f,1,0.9238795f,0.70710677f,0.38268343f,0,-0.38268352f,-0.70710677f,-0.9238796f,-1.0f,-0.9238795f,-0.70710677f,-0.38268343f};
+//		            			float samples[] = {0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+//		            			float samplesi[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//		            			float samplesi[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//		            			for(int i= 0; i< samples.length; i++) {
+//		            				System.out.println(samples[i]);
+//		            			}
+//		            			System.out.println("test");
+//		            			Fourrier.transform(1, 32, samples, samplesi);
+		            //
+//		            			for(int i= 0; i< samples.length; i++) {
+//		            				System.out.println(samples[i]);
+//		            			}
+		            			
+		            			 Platform.runLater(new Runnable() {
+			                    	@Override
+			                    	public void run() {
+			                    		try {
+//			                    			MultimeterUI.updateMeter((5.11/1024)*result);
+			                    			OscilloscopeUI.addData((5.11/1024)*result);
+			                    		}
+			                    		catch (Exception e) {
+			                    			e.printStackTrace();
+			                    		}
+			                    	}
+			                    });
+		            		}
+//		                    System.out.println("string" + new String(intbuffer,0,len));
+//		                    System.out.println("result" + result);
+//		                    System.out.println("volt" + (5.11/65536)*result);
+		                   
+		            	}
+					}
+					if(isCancelled()) {
+						connection.send(UI.STOP);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+			
+			
+		};
+		
+	}
+}

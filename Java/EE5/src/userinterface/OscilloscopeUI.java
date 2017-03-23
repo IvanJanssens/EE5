@@ -3,11 +3,18 @@ package userinterface;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -39,32 +46,38 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import resource.ResourceLoader;
+import application.Oscilloscope;
 
 public class OscilloscopeUI extends UI{
 
 
 	private static BorderPane osciBody;
 	private static XYChart.Series<Number, Number> data;
+	private static XYChart.Series<Number, Number> fftData;
 	private static int datapoint;
+	private static int fftDatapoint;
 	private static double max;
 	private static double min;
 	private static Label ptp;
 	private static Label rms;
 	private static double sum;
 	private static double triggerValue;
-	private static int max_data = 100;
+	private static int max_data = 10;
 	private static double prevValue = 0;
+	private static double prevFftValue = 0;
+	private static Oscilloscope oscilloscope;
 	
 	// create new tab for the oscilloscope
-	public static Tab Oscilloscope() {
-		Tab oscilloscope = new Tab();
-		oscilloscope.setText("Oscilloscope");
+	public static Tab Oscilloscope(Oscilloscope oscillo) {
+		oscilloscope = oscillo;
+		Tab oscilloscopeTab = new Tab();
+		oscilloscopeTab.setText("Oscilloscope");
 		ScrollPane osciPanel = new ScrollPane();
 			osciPanel.setFitToHeight(true);
 			osciPanel.setFitToWidth(true);
 			osciPanel.setContent(osciBorderPane());
-		oscilloscope.setContent(osciPanel);
-		return oscilloscope;
+			oscilloscopeTab.setContent(osciPanel);
+		return oscilloscopeTab;
 	}
 	
 	private static BorderPane osciBorderPane() {
@@ -116,19 +129,21 @@ public class OscilloscopeUI extends UI{
 				saving.getExtensionFilters().add(new ExtensionFilter("Text file","*.txt"));
 				File selectedFile = saving.showSaveDialog(null);
 				if(selectedFile != null){
-						try {
-							BufferedWriter buffer = new BufferedWriter( new FileWriter(selectedFile));
-							for(int i = 0; i < data.getData().size(); i++) {
-								buffer.write(data.getData().get(i) + "");
-								buffer.newLine();
-							}
-							buffer.flush();
-							buffer.close();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						UI.startOsci();
+					try {
+						FileChannel src = new FileInputStream(tempFile).getChannel();
+						FileChannel dest = new FileOutputStream(selectedFile).getChannel();
+						dest.transferFrom(src, 0, src.size());
+//								BufferedWriter buffer = new BufferedWriter( new FileWriter(selectedFile));
+//								for(int i = 0; i < data.getData().size(); i++) {
+//									buffer.write(data.getData().get(i) + "");
+//									buffer.newLine();
+//								}
+//								buffer.flush();
+//								buffer.close();
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+					UI.startOsci();
 					
 				}
 			}
@@ -225,6 +240,12 @@ public class OscilloscopeUI extends UI{
 		return osciBody;
 	}
 	
+//	private static HBox center() {
+//		HBox center = new HBox(10);
+//		center.getChildren().addAll(osciGraph(),fftGraph());
+//		return center;
+//	}
+	
 	private static VBox osciButtons() {
 		VBox oscibuttons = new VBox(10);
 		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp());
@@ -269,21 +290,24 @@ public class OscilloscopeUI extends UI{
 		trigger.getValueFactory().setValue((double) 0);
 		trigger.setPrefWidth(120);
 		trigger.valueProperty().addListener((obs, oldValue, newValue) -> {
-			triggerValue = newValue;
+//			triggerValue = newValue;
+			oscilloscope.updateTrigger(newValue);
 		});
 		return trigger;
 	}
 	
 	private static Spinner<Integer> timediv() {
 		Spinner<Integer> timediv = new Spinner<Integer>();
-		timediv.setValueFactory(new IntegerSpinnerValueFactory(100,2000));
+		timediv.setValueFactory(new IntegerSpinnerValueFactory(10,5000));
 		timediv.setPrefWidth(120);
 		timediv.setEditable(true);
 		timediv.valueProperty().addListener((obs, oldValue, newValue) -> {
 			if(newValue < max_data) {
 				data.getData().remove(newValue, data.getData().size());
 			}
-			max_data = newValue;
+//			max_data = newValue;
+	        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(newValue);
+			oscilloscope.updateTimeDiv(newValue);
 		});
 		return timediv;
 	}
@@ -318,46 +342,50 @@ public class OscilloscopeUI extends UI{
 		graph.setMaxWidth(1000);
 		graph.setAnimated(false);
 		((ValueAxis<Number>) graph.getYAxis()).setUpperBound(5.5);
+		((ValueAxis<Number>) graph.getXAxis()).setLowerBound(0);
+        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(max_data);
 		return graph;
 	}
 	
-	public static void addData(double newPoint) {
+	public static void addData(List<Double>  newPoint) {
 		
 		//get number of datapoints
-        int numOfPoint = data.getData().size();
-		if(datapoint >= max_data && newPoint > triggerValue && prevValue <= triggerValue) {
-			datapoint = 0;
-			
-		}
-//        if(numOfPoint >= max_data) {
-//	        data.getData().remove(datapoint); //remove first point
-//	        ((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(datapoint-max_data); //adapt the x-axis of the chart
-//        }
-		((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(0);
-        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(max_data);
+//        int numOfPoint = data.getData().size();
+//		if(datapoint >= max_data && newPoint > triggerValue && prevValue <= triggerValue) {
+//			datapoint = 0;
+//			
+//		}
+//		((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(0);
+//        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(max_data);
 //        System.out.println("1:" + numOfPoint);
 //        System.out.println("2:" + max_data);
 //        System.out.println("3:" +datapoint);
-        if(numOfPoint >= max_data && datapoint < max_data)
-        	data.getData().set(datapoint, new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
-        else if(datapoint < max_data)
-        	data.getData().add(new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
-		datapoint += 1;
-		if(datapoint == max_data){
-			min = (double) data.getData().get(0).getYValue();
-			max = (double) data.getData().get(0).getYValue();
-			sum = 0;
-			data.getData().forEach(value-> {
-				sum += ((double) value.getYValue()*(double) value.getYValue());
-				if((double) value.getYValue() > max)
-					max = (double)value.getYValue();
-				if((double) value.getYValue() < min)
-					min = (double)value.getYValue();
-			});
-			updateRMS(Math.sqrt(sum/max_data));
-			updatePtP(max,min);
-		}
-		prevValue = newPoint;
+//		if(numOfPoint >= max_data && datapoint < max_data)
+
+        for(int i = 0; i < newPoint.size(); i++) {
+        	if(data.getData().size() >= max_data && i < max_data) {
+        		data.getData().set(i, new XYChart.Data<Number, Number>(i,newPoint.get(i))); // add new datapoint
+        	}
+        	else {
+        		data.getData().add(new XYChart.Data<Number, Number>(i,newPoint.get(i))); // add new datapoint
+        	}
+        }
+//        datapoint += 1;
+//		if(datapoint == max_data){
+//			min = (double) data.getData().get(0).getYValue();
+//			max = (double) data.getData().get(0).getYValue();
+//			sum = 0;
+//			data.getData().forEach(value-> {
+//				sum += ((double) value.getYValue()*(double) value.getYValue());
+//				if((double) value.getYValue() > max)
+//					max = (double)value.getYValue();
+//				if((double) value.getYValue() < min)
+//					min = (double)value.getYValue();
+//			});
+//			updateRMS(Math.sqrt(sum/max_data));
+//			updatePtP(max,min);
+//		}
+//		prevValue = newPoint;
 	}
 	
 	private static void updateRMS(double rmsValue) {
@@ -366,5 +394,55 @@ public class OscilloscopeUI extends UI{
 	
 	private static void updatePtP(double max, double min) {
 		ptp.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
+	}
+	
+	private static LineChart<Number, Number> fftGraph() {
+		NumberAxis xAxis = new NumberAxis();
+		NumberAxis yAxis = new NumberAxis();
+		xAxis.setLabel("Time (s)");
+		yAxis.setLabel("Voltage (V)");
+		LineChart<Number, Number> graph = new LineChart<Number, Number>(xAxis,yAxis);
+		graph.setTitle("Oscilloscope");
+		fftData = new XYChart.Series<Number, Number>();
+		fftData.setName("FFT values");
+		fftDatapoint = 0;
+		graph.getData().add(fftData);
+		graph.getXAxis().setAutoRanging(false);
+		graph.getYAxis().setAutoRanging(false);
+		graph.setMinWidth(400);
+		graph.setMaxWidth(1000);
+		graph.setAnimated(false);
+		((ValueAxis<Number>) graph.getYAxis()).setUpperBound(5.5);
+		return graph;
+	}
+
+	public static void addFftData(float[] fftzeropad, float max) {
+		double newPoint;
+		for(int i = 0; i< fftzeropad.length; i++) {
+			newPoint = (double) (fftzeropad[i]/max*3.2);
+//			System.out.println(newPoint);
+			//get number of datapoints
+	        int numOfPoint = fftData.getData().size();
+			if(fftDatapoint >= 4*max_data && newPoint > triggerValue && prevFftValue <= triggerValue) {
+				fftDatapoint = 0;
+				
+			}
+	//        if(numOfPoint >= max_data) {
+	//	        data.getData().remove(datapoint); //remove first point
+	//	        ((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(datapoint-max_data); //adapt the x-axis of the chart
+	//        }
+			((ValueAxis<Number>) fftData.getChart().getXAxis()).setLowerBound(0);
+	        ((ValueAxis<Number>) fftData.getChart().getXAxis()).setUpperBound(4*max_data);
+	//        System.out.println("1:" + numOfPoint);
+	//        System.out.println("2:" + max_data);
+	//        System.out.println("3:" + datapoint);
+	        if(numOfPoint >= 4*max_data && fftDatapoint < 4*max_data)
+	        	fftData.getData().set(fftDatapoint, new XYChart.Data<Number, Number>(fftDatapoint,newPoint)); // add new datapoint
+	        else if(fftDatapoint < 4*max_data)
+	        	fftData.getData().add(new XYChart.Data<Number, Number>(fftDatapoint,newPoint)); // add new datapoint
+	        fftDatapoint += 1;
+	        prevFftValue = newPoint;
+		}
+		
 	}
 }

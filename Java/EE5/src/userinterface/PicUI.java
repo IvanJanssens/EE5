@@ -37,7 +37,6 @@ public class PicUI {
 		refreshPort.setOnMouseClicked(new EventHandler<Event>() {
 			@Override
 			public void handle(Event arg0){
-				System.out.println((int) '3');
 				combo.setItems(Connection.refresh());
 			}
 		});

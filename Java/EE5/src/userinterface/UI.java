@@ -8,6 +8,10 @@ import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import resource.ResourceLoader;
+
+import java.io.File;
+import java.io.IOException;
+
 import application.Multimeter;
 import application.Oscilloscope;
 import communication.Connection;
@@ -26,11 +30,21 @@ public class UI {
 	public static final int STOP = '1';
 	//max data shown on the oscilloscope graph
 	public static final int MAX_DATA = 200;
+	public static File tempFile;
 	
 	// start the main UI
 	public static void start(Stage stage, Connection conn) {
 		connection = conn;
 		Stage mainStage = stage;
+		try {
+			tempFile = File.createTempFile("TempDataStorage", ".txt");
+			System.out.println(tempFile.getAbsolutePath());
+			System.out.println(tempFile.getName());
+			tempFile.deleteOnExit();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// add an icon and title to the program window
 		mainStage.getIcons().add(new Image(ResourceLoader.class.getResourceAsStream("SineWave.png"),15,0,true,true));
@@ -42,15 +56,16 @@ public class UI {
 		main.setPrefSize(900.00,600.00);
 		main.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 		
+		//Create the new services for background processing
+		oscilloscope = new Oscilloscope(connection,tempFile);
+		multimeter = new Multimeter(connection);
+		
 		//add different tab UI to the main UI
-		main.getTabs().add(OscilloscopeUI.Oscilloscope());
+		main.getTabs().add(OscilloscopeUI.Oscilloscope(oscilloscope));
 		main.getTabs().add(MultimeterUI.multimeter());
 		main.getTabs().add(GeneratorUI.generator());
 
-		//Create the new services for background processing
-		oscilloscope = new Oscilloscope(connection);
-		multimeter = new Multimeter(connection);
-		
+
 		//Check which tab is selected
 		main.getSelectionModel().selectedItemProperty().addListener(
 				new ChangeListener<Tab>() {

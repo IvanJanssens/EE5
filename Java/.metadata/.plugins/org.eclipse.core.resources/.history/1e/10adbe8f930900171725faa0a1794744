@@ -1,0 +1,45 @@
+package application;
+	
+
+
+import communication.Connection;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.stage.Stage;
+import userinterface.PicUI;
+
+
+public class Main extends Application {
+	@Override
+	public void start(Stage primaryStage) {
+		try {
+			// start a small interface to choose the pic and create a connection
+//			Connection connection = PicUI.start();
+			// after the Pic select interface start the main UI
+//			Platform.runLater(new Runnable() {
+//				@Override
+//				public void run(){
+//					userinterface.UI.start(primaryStage,connection);
+//				}
+//			});
+//			float samples[] = {1,0.9238795f,0.70710677f,0.38268343f,0,-0.38268352f,-0.70710677f,-0.9238796f,-1.0f,-0.9238795f,-0.70710677f,-0.38268343f,0,0.38268352f,0.70710677f,0.9238796f,1.0f};
+			float samples[] = {0,1f,0,0,0,0,0,0,-0,0,0,0,0,0,0,0,0};
+			float samplesi[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+			for(int i= 0; i< samples.length; i++) {
+				System.out.println(samples[i]);
+			}
+			System.out.println("test");
+			Fourrier.transform(1, 16, samples, samplesi);
+
+			for(int i= 0; i< samples.length; i++) {
+				System.out.println(samples[i]);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void main(String[] args) {
+		launch(args);
+	}
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;EE5/src/application/FftLab.java.txt&apos; to &apos;FftLab.java&apos;" description="Rename resource &apos;FftLab.java.txt&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/application/FftLab.java.txt" name="FftLab.java" stamp="1489409910509" updateReferences="true"/>
+</session>

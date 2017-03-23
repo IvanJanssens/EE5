@@ -1,9 +1,0 @@
-package application;
-
-import communication.Connection;
-public class Generator {
-
-	public Generator(Connection connection) {
-		
-	}
-}
