@@ -22,7 +22,7 @@ int main(void) {
     //initADC();
     //ADC();
     while(1){
-        //counter();
+        counter();
         PORTB = 0xFFFF;
         //PORTBbits.RB15 = 0;
         //PORTBbits.RB13 = 1;
