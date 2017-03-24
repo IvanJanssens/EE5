@@ -85,3 +85,5 @@ hs_err_pid*
 
 # End of https://www.gitignore.io/api/java,eclipse
 /C/EE5_PIC24.X/nbproject/private/
+/C/EE5_PIC24.X/build/default/
+/C/EE5_PIC24.X/dist/default/
