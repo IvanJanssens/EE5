@@ -4,6 +4,7 @@
 ### C ###
 # Prerequisites
 *.d
+*.DS_Store
 
 # Object files
 *.o
@@ -55,3 +56,5 @@ Mkfile.old
 dkms.conf
 
 # End of https://www.gitignore.io/api/c
+/C/EE5_PIC24.X/build/default/
+/C/EE5_PIC24.X/dist/default/

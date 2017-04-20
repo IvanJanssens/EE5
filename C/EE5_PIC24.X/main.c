@@ -9,13 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "config_EE5.h"
-
+#include "ADC.h"
 
 
 void initChip(void);
 void counter(void);
-void ADC(void);
-void initADC();
 
 int main(void) {
     initChip();
@@ -32,7 +30,6 @@ int main(void) {
 }
 
 void initChip(void) {
-    TRISB = 0x00;
     OSCCONbits.COSC = 2; // Primary Oscillator (XT, HS? EC)
     OSCCONbits.NOSC = 2; // HS: High Frequency
     CLKDIVbits.DOZEN = 0;  //CPU-to-peripheral clock ratio
@@ -63,18 +60,4 @@ void counter(void) {
         }
     }
 }
-
-//void init_ADC(void) {
-//    TRISB = 0;
-//    TRISBbits.TRISB0 = 1;
-//    ADCON1bits.ADON = 0;
-//    ADCON1 = 0x1001; // 0001 0000 0000 0001
-//    ADCON2 = 0x0300; // 0000 0011 0000 0000
-//    ADCON3 = 0x0001; // 0000 0000 0001 0000
-//    ADCON1bits.ADON = 1;
-//    while(!ADSTATHbits.ADREADY);
-//}
-//void ADC() {
-//    
-//}
 
