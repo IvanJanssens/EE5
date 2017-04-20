@@ -1,5 +1,4 @@
 
-
 /***********************
  * RB15(RP29/AN15) = SDO  
  * RF4 (RP10/AN11) = SDI
@@ -53,27 +52,26 @@
 // Use project enums instead of #define for ON and OFF.
 
 #include <xc.h>
-#include <PPS.h>
+#include <PPS.h>                        // Include the header for PPS function     
 
-#define RATIO 13.4217728
 
-void initChip(void);
-unsigned char WriteSPI(unsigned char);
-void Generator(long int, int);
-void SquareWave_10K(void);
+#define RATIO 13.4217728                // Assume the input frequency is 20MHz, RATIO = 2^28 / FMCLK 
+
+void initChip(void);                    // Initialize the chip configuration
+unsigned char WriteSPI(unsigned char);  // Write SPI function
+void Generator(long int, int);          // Generate the output
+void SquareWave_10K(void);              // Testing function: generate the 10KHz square wave
 
 int main(void) {
     initChip();
-    
-    Generator(10000,1);
+
+    Generator(10000,1);                 // Send the command to AD9833
     //SquareWave_10K();
     
     while(1)
     {
-        Nop();
-        //int i;
-        //SquareWave_10K();
-        //for(i = 0; i < 0xff; i++);
+        Nop();                          // Do nothing in the loop
+
     }
 }
 
@@ -81,50 +79,60 @@ void initChip(void)
 {
     
     
-    //configure FSYNC RB14(RP14/AN14)
-    ANSBbits.ANSB14 = 0;        // digital;
-    TRISBbits.TRISB14 = 0;      // output;
-    PORTBbits.RB14 = 1;         // FSYNC = 1 -> STOP transmission; = 0 -> START transmission
+    /*---------- 1. Pins Configuration ----------*/
     
-    // configure SDO RB15(RP29/AN15)
-    ANSBbits.ANSB15 = 0;        // digital;
-    TRISBbits.TRISB15 = 0;      // output;
-    PORTBbits.RB15 = 0;
+    //configure FSYNC RB14 (RP14/AN14)
+    ANSBbits.ANSB14 = 0;        // Digital Pin;
+    TRISBbits.TRISB14 = 0;      // Output;
+    PORTBbits.RB14 = 1;         // FSYNC = 1 -> STOP transmission (set high after transmission); = 0 -> START transmission (set low before transmission)
     
-    // configure SDI RF4(RP10/AN11)
-    ANSFbits.ANSF4 = 0;         // digital;
-    TRISFbits.TRISF4 = 1;       // input;
-    PORTFbits.RF4 = 0;
+    // configure SDO RB15 (RP29/AN15)
+    ANSBbits.ANSB15 = 0;        // Digital Pin;
+    TRISBbits.TRISB15 = 0;      // Output;
+    PORTBbits.RB15 = 0;         // Initial value
+    
+    // configure SDI RF4 (RP10/AN11)
+    ANSFbits.ANSF4 = 0;         // Digital Pin;
+    TRISFbits.TRISF4 = 1;       // Input;
+    PORTFbits.RF4 = 0;          // Initial value
     
     // configure SCK RF5 (RP17/AN10)
-    ANSFbits.ANSF5 = 0;         // digital;
-    TRISFbits.TRISF5 = 0;       // output;
-    PORTFbits.RF5 = 1;
+    ANSFbits.ANSF5 = 0;         // Digital Pin;
+    TRISFbits.TRISF5 = 0;       // Output;
+    PORTFbits.RF5 = 1;          // Initial value (SCK is active low -> initial high)
     
-    // PPS configuration
-    PPSUnLock;  // unlock PPS
-    iPPSOutput(OUT_PIN_PPS_RP14, OUT_FN_PPS_SS1OUT);    // set FSYNC RB14(RP14/AN14) as FSYNC (/SS)
-    iPPSOutput(OUT_PIN_PPS_RP29, OUT_FN_PPS_SDO1);      // set RB15(RP29/AN15) as SDO
-    iPPSInput(IN_FN_PPS_SDI1, IN_PIN_PPS_RP10);         // set RF4(RP10/AN11) as SDI
-    iPPSOutput(OUT_PIN_PPS_RP17, OUT_FN_PPS_SCK1OUT);   // set RF5 (RP17/AN10) as SCK
-    PPSLock;    // lock PPS   
+    /*---------- 2. PPS configuration ----------*/
     
-    // SPI configuration
-    SPI1STATbits.SPIEN = 0;     // disable SPI;
-    SPI1STATbits.SPITBF = 0;    // clear transmission flag;
+    // Defined in the PPS.h
+    // Always follow the sequence: Unlock -> Set configuration -> Lock
+    
+    PPSUnLock;  // Unlock PPS
+    iPPSOutput(OUT_PIN_PPS_RP14, OUT_FN_PPS_SS1OUT);    // Set FSYNC RB14 (RP14/AN14) as FSYNC (/SS)
+    iPPSOutput(OUT_PIN_PPS_RP29, OUT_FN_PPS_SDO1);      // Set RB15 (RP29/AN15) as SDO
+    iPPSInput(IN_FN_PPS_SDI1, IN_PIN_PPS_RP10);         // Set RF4 (RP10/AN11) as SDI
+    iPPSOutput(OUT_PIN_PPS_RP17, OUT_FN_PPS_SCK1OUT);   // Set RF5 (RP17/AN10) as SCK
+    PPSLock;    // Lock PPS   
+    
+    /*---------- 3. SPI configuration ----------*/
+    
+    // SPIxSTAT: SPIx STATUS AND CONTROL REGISTER (16 bits)
+    SPI1STATbits.SPIEN = 0;     // Disable SPI;
+    SPI1STATbits.SPITBF = 0;    // Clear transmission flag;
     SPI1STATbits.SPIROV  = 0;   // Clear read overflow flag
     
+    // SPIXCON1: SPIx CONTROL REGISTER 1 (16 bits)
     SPI1CON1bits.DISSCK = 0;    // Internal SPI clock is enabled;
     SPI1CON1bits.DISSDO = 0;    // SDO pin is controlled by the module;
     SPI1CON1bits.MODE16 = 0;    // Communication is byte-wide (8 bits);
     SPI1CON1bits.SMP = 0;       // Input data is sampled at the middle of data output time;
-    SPI1CON1bits.CKE = 1;       // Data is transmitted on falling clock edge;
+    SPI1CON1bits.CKE = 1;       // Data is transmitted on falling clock edge; (Defined in the datasheet of AD9833)
     SPI1CON1bits.SSEN = 1;      // SSx pin is used by the module; pin is controlled by the port function;
-    SPI1CON1bits.CKP = 1;       // Idle state for the clock is a high level; active state is a low level;
+    SPI1CON1bits.CKP = 1;       // Idle state for the clock is a high level; active state is a low level (Defined in the datasheet of AD9833);
     SPI1CON1bits.MSTEN = 1;     // Master mode;
-    SPI1CON1bits.SPRE = 0b111;  // Secondary prescale 1:1;
-    SPI1CON1bits.PPRE = 0;      // Primary prescale 64:1;
+    SPI1CON1bits.SPRE = 0b111;  // Secondary pre-scale 1:1;
+    SPI1CON1bits.PPRE = 0;      // Primary pre-scale 64:1;
     
+    //SPIxCON2: SPIx CONTROL REGISTER 2 (16 bits)
     SPI1CON2bits.FRMEN = 0;     // Framed SPIx support is disabled;
     SPI1CON2bits.SPIBEN = 0;    // Enhanced buffer is disabled (Legacy mode);
     
@@ -134,32 +142,32 @@ void initChip(void)
 unsigned char WriteSPI(unsigned char data_out)
 {
     char dummy;
-    dummy = SPI1BUF;        // dummy read of the SPI1BUF register to clear the SPIRBF flag
-    SPI1BUF = data_out; // Write command to buffer
-    while( !SPI1STATbits.SPIRBF )               // wait for the data to be sent out
+    
+    dummy = SPI1BUF;        // Dummy read of the SPI1BUF register to clear the SPIRBF flag
+    SPI1BUF = data_out;     // Write command to buffer
+    while( !SPI1STATbits.SPIRBF )               // Wait for the data to be sent out
         ;
   
-  return 1;
+    return 1;
 }
 
-void Generator(long int n,int waveform)
+void Generator(long int n,int waveform)     // n -> output of wanted frequency
 {
-    unsigned char LSB_UP, LSB_LOW, MSB_UP, MSB_LOW;
-    unsigned char RESET_UP,RESET_LOW, UNRESET_UP, UNRESET_LOW;
+    unsigned char LSB_UP, LSB_LOW, MSB_UP, MSB_LOW;     // For frequency register 
+    unsigned char RESET_UP,RESET_LOW, UNRESET_UP, UNRESET_LOW;  // for control bits
     long int MSB,LSB;
-    
     
     /********************************************/
     /* For Control bits                         */ 
     /********************************************/
-    if(waveform == 0 )     //for square wave
+    if(waveform == 0 )     // For square wave
     {
         RESET_UP      = 0b00100001;
         RESET_LOW     = 0b01101000;
         UNRESET_UP    = 0b00100000;
         UNRESET_LOW   = 0b01101000;
     }
-    else                   // for sine wave
+    else                   // For sine wave
     {
         RESET_UP      = 0b00100001;
         RESET_LOW     = 0b00000000;
@@ -171,7 +179,7 @@ void Generator(long int n,int waveform)
     /********************************************/
     /* For Frequency Register Bits              */ 
     /********************************************/
-    if( n < 10)             // frequency output = 10Hz..10MHz
+    if( n < 10)             // Frequency output = 10Hz..10MHz
 		n = 10;
 	
 	if(n > 1000000)
@@ -193,30 +201,31 @@ void Generator(long int n,int waveform)
     /********************************************/
     /* For Data Transfer                        */ 
     /********************************************/
-    //Control 16bits write in
-    PORTBbits.RB14 = 0;  	//Making FSYNC of AD9833 LOW before writing in
+    // Control 16bits write in
+    PORTBbits.RB14 = 0;     // Making FSYNC of AD9833 LOW before writing in
     //PORTGbits.RG9 = 0;
-    WriteSPI(RESET_UP);   //Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
-    WriteSPI(RESET_LOW);   // the internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
-                            // the output is to be a square wave (D5); the square wave frequency is not to be divided by two.
+    WriteSPI(RESET_UP);     // Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
+    WriteSPI(RESET_LOW);    // The internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
+                            // The output is to be a square wave (D5); the square wave frequency is not to be divided by two.
     
-    //FREQ register LSB write in
+    // FREQ register LSB write in
     WriteSPI(LSB_UP);   //LSB
     WriteSPI(LSB_LOW);
     
-    //FREQ register MSB write in
+    // FREQ register MSB write in
     WriteSPI(MSB_UP);   //MSB
     WriteSPI(MSB_LOW);
     
-    //PHASE register write in
-    WriteSPI(0b11000000);   //writing to the PHASE0 register (D15,D14,D13) 
+    // PHASE register write in
+    WriteSPI(0b11000000);   //writing to the PHASE0 register (D15,D14,D13) (No need for phase shift -> all 0s)
     WriteSPI(0b00000000);   //and is writing a twelve bit value of zero (D11-D0)
     
-    //activate the output (disable reset)
+    // Activate the output (disable reset)
     WriteSPI(UNRESET_UP);
     WriteSPI(UNRESET_LOW); 
     //PORTGbits.RG9 = 1;
-    PORTBbits.RB14 = 1;  
+    PORTBbits.RB14 = 1;  // Making FSYNC of AD9833 HIGH after writing in
+    
 }
 
 void SquareWave_10K(void)
