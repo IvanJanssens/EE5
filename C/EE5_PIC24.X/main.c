@@ -56,7 +56,6 @@ void initChip(void) {
 
 void _ISR _ADC1Interrupt(void){
     
-    //__delay_ms(200);
     PORTBbits.RB0 = 0;
     
     if (IFS0bits.AD1IF == 1) {
