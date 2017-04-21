@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "config_EE5.h"
 #include "ADC.h"
+#include "multimeter_pic24.h"
 
 #define CLOCK_FREQ 20000000ULL
 
@@ -10,23 +11,34 @@ void initChip(void);
 void counter(void);
 void _ISR _ADC1Interrupt(void);
 int count = 0;
+char AD_done = 0;
+unsigned int buffer_MM[10] = {0};
+unsigned int buffer_A[1000] = {0};
+unsigned int buffer_B[1000] = {0};
 
 int main(void) {
     initChip();
-    init_ADC();
+    init_ADC(1, 1, 1);
+    init_MM();
     
     while(1){
-        ADC();
-        //counter();
-        //PORTB = 0xFFFF;
-        //PORTBbits.RB15 = 0;
-        //PORTBbits.RB13 = 1;
+        if(ADSTATLbits.SLOV == 1) return 0;
+        if(AD_done){
+            AD_done = 0;
+            buffer_A[count] = ADRES0;
+            buffer_B[count] = ADRES0;
+            count++;
+            if(count == 1000) count = 0;
+            MM(ADRES0);
+            ADC();  
+        }
     }
     
     return 0;
 }
 
 void initChip(void) {
+    //oscillator
     OSCCONbits.COSC = 2; // Primary Oscillator (XT, HS? EC)
     OSCCONbits.NOSC = 2; // HS: High Frequency
     CLKDIVbits.DOZEN = 0;  //CPU-to-peripheral clock ratio
@@ -36,6 +48,9 @@ void initChip(void) {
     OC1CON1 = 0;
     OC1CON1bits.OCTSEL = 7;
     
+    TRISBbits.TRISB14 = 1;
+    TRISBbits.TRISB0 = 0;
+    TRISDbits.TRISD9 = 0;
     
 }
 
@@ -43,21 +58,17 @@ void _ISR _ADC1Interrupt(void){
     
     //__delay_ms(200);
     PORTBbits.RB0 = 0;
+    
     if (IFS0bits.AD1IF == 1) {
         IFS0bits.AD1IF = 0;
-        TRISBbits.TRISB14 = 1;
         count++;
-        PORTB = ADRES0*16; // & 0x0E00; //0000 1110 0000 0000
-        //PORTB = count;
-        TRISBbits.TRISB0 = 0;
+        //PORTB = ADRES0*16; // & 0x0E00; //0000 1110 0000 0000
+        PORTB = count;
         PORTBbits.RB0 = 1;
     } 
     else {
-        TRISDbits.TRISD9 = 0;
         PORTDbits.RD9 = 1;
     }
-    
-    
 }
 
 void counter(void) {
@@ -71,7 +82,7 @@ void counter(void) {
         for (i = 0; i < 5000; i++) {
             for (j = 0; j < 6024; j++) {
             }
-            number = number++;
+            number++;
                 if (number > 256) {
                     number = 1;
                 }

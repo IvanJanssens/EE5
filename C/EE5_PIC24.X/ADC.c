@@ -1,19 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <xc.h>
+#include "ADC.h"
 
-#define VO_B RB5
-#define ANSVO_B ANSB5
-#define TRISVO_B TRISB5
-#define VO_A RB14
-#define ANSVO_A ANSB14
-#define TRISVO_A TRISB14
-#define VO_MM RD2
-#define ANSVO_MM ANSD2
-#define TRISVO_MM TRISD2
-
-
-void init_ADC(void) {
+void init_ADC(char MM, char osc_A, char osc_B) {
     ANSB = 0;
     TRISB = 0;
     TRISD = 0;
