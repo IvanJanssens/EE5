@@ -3,7 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/Zaple1/Documents/EE5Git/EE5/C/EE5_PIC24.X/FunctionGenerator.c</file>
+            <file>file:/Users/Jerom/eclipse/java-neon/EE5/C/EE5_PIC24.X/ADC.h</file>
+            <file>file:/Users/Jerom/eclipse/java-neon/EE5/C/EE5_PIC24.X/FunctionGenerator.c</file>
+            <file>file:/Users/Jerom/eclipse/java-neon/EE5/C/EE5_PIC24.X/config_EE5.h</file>
+            <file>file:/Users/Jerom/eclipse/java-neon/EE5/C/EE5_PIC24.X/main.c</file>
+            <file>file:/Users/Jerom/eclipse/java-neon/EE5/C/EE5_PIC24.X/ADC.c</file>
         </group>
     </open-files>
 </project-private>

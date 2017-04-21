@@ -80,3 +80,4 @@ dkms.conf
 # End of https://www.gitignore.io/api/c
 /C/EE5_PIC24.X/build/default/
 /C/EE5_PIC24.X/dist/default/
+/bin/
