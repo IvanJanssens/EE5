@@ -1,11 +1,6 @@
 #ifndef ADC_H
 #define	ADC_H
 
-void init_ADC(char MM, char osc_A, char osc_B);
-//initialize the bits that have to do with the ADC for the pic_24
-
-void ADC(void);
-
 #define VO_B RB5
 #define ANSVO_B ANSB5
 #define TRISVO_B TRISB5
@@ -16,6 +11,12 @@ void ADC(void);
 #define ANSVO_MM ANSD2
 #define TRISVO_MM TRISD2
 
+extern char A, B, M;
+
+void init_ADC();
+//initialize the bits that have to do with the ADC for the pic_24
+
+char ADC(void );
 
 #endif	/* ADC_H */
 

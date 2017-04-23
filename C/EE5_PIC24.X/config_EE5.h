@@ -46,7 +46,7 @@
 #pragma config FWPSA = PR128            // WDT Prescaler Ratio Select (1:128)
 #pragma config WINDIS = OFF             // Windowed WDT Disable (Standard Watchdog Timer)
 #pragma config FWDTEN = WDT_SW          // Watchdog Timer Enable (WDT controlled with the SWDTEN bit)
-#pragma config ICS = PGx1               // Emulator Pin Placement Select bits (Emulator functions are shared with PGEC1/PGED1)
+#pragma config ICS = PGx2               // Emulator Pin Placement Select bits (Emulator functions are shared with PGEC1/PGED1)
 #pragma config LPCFG = OFF              // Low power regulator control (Disabled - regardless of RETEN)
 #pragma config GWRP = OFF               // General Segment Write Protect (Disabled)
 #pragma config GCP = OFF                // General Segment Code Protect (Code protection is disabled)

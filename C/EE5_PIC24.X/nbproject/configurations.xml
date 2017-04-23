@@ -37,7 +37,7 @@
         <targetDevice>PIC24FJ128GC006</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>Simulator</platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.31</languageToolchainVersion>
         <platform>4</platform>
