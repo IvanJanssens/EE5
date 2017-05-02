@@ -22,12 +22,12 @@ unsigned int buffer_B[1000] = {0};
 int main(void) {
     initChip();
     init_ADC(A, B, M); //check here which channel you want to configure
-    //if(M) init_MM();
+    init_MM();
     
     while(1){
         if(!AD_done){
-            if(C_M == 0) C_M = 1;
-            PORTD = (buffer_A[C_A-1]);
+            MM(buffer_A[C_A]);
+            ///// LATD = (buffer_A[C_A-1]);
             AD_done = ADC();  
         }
     }
@@ -52,14 +52,14 @@ void initChip(void) {
     
     //which module you want to use
     A = 1;
-    B = 1;
+    B = 0;
     M = 0; //M is not right
     
 }
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
     
-    PORTBbits.RB0 = 1;
+    LATBbits.LATB0 = 1;
     
     if (IFS0bits.AD1IF == 1) {
         //while(AD_done != 0) {
@@ -67,16 +67,15 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
             if(ADL2STATbits.ADLIF) { //Multimeter
                 ADL2STATbits.ADLIF = 0;
                 buffer_MM[C_M] = ADRES2;
-                //MM(buffer_MM[C_M]);
                 C_M++;
                 if(C_M >= 10) C_M = 0;
                 AD_done--;
             }
             if(ADL0STATbits.ADLIF) { // VOUT_A
                 ADL0STATbits.ADLIF = 0;
-                buffer_A[C_A] = ADRES0;
                 C_A++;
                 if(C_A >= 1000) C_A = 0;
+                buffer_A[C_A] = ADRES0;
                 AD_done--;
             }
             if(ADL1STATbits.ADLIF) { // Vout_B
@@ -88,9 +87,9 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
             }
         //}
         //count++;
-        //PORTB = ADRES0*8; // & 0x0E00; //0000 1110 0000 0000
-        //PORTB = count;
-    PORTBbits.RB0 = 0;
+        //LATB = ADRES0*8; // & 0x0E00; //0000 1110 0000 0000
+        //LATB = count;
+    LATBbits.LATB0 = 0;
     } 
 }
 
@@ -98,7 +97,7 @@ void counter(void) {
     int i = 0;
     int j = 0;
     unsigned int number = 16;
-    PORTB = 1;
+    LATB = 1;
     
 
     while (1) {
@@ -109,7 +108,7 @@ void counter(void) {
                 if (number > 256) {
                     number = 1;
                 }
-                PORTB = number;
+                LATB = number;
         }
     }
 }

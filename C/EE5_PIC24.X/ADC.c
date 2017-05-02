@@ -19,7 +19,7 @@ void init_ADC() {
     ADCON1bits.ADON = 0;
     ADCON1 = 0x1041; // 0001 0000 0100 0001 checked
     ADCON2 = 0x0700; // 0000 0111 0000 0000 checked //indexed buffer
-    ADCON3 = 0x0031; // 0000 0000 0000 0001 checked
+    ADCON3 = 0x0003; // 0000 0000 0001 0000 checked
     ADCON3bits.SLEN0 = A;
     ADCON3bits.SLEN1 = B;
     ADCON3bits.SLEN2 = M;
