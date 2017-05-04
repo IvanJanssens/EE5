@@ -1,5 +1,4 @@
 INDEX VERSION 1.127+D:\Docs\4de jaar\2de semester\EE5\EE5\Java\.metadata\.plugins\org.eclipse.jdt.core
-225664846.index
 843494433.index
 2221491804.index
 1841280308.index

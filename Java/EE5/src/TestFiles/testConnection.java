@@ -4,17 +4,14 @@ package TestFiles;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Scanner;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import userinterface.UI;
 
 public class testConnection {
 	
@@ -100,7 +97,6 @@ public class testConnection {
 	        }
 	        public void run () {
 		            byte[] buffer = new byte[64];
-		            int[] intbuffer = new int[64];
 		            int len = -1;
 		            try {
 
@@ -112,28 +108,7 @@ public class testConnection {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
 			                			System.out.println((char)buffer[i]);
-			                			intbuffer[i] = buffer[i] & 0xFF;
-//			                			System.out.println("buffer" + i + " : "+ buffer[i]);
-//			                			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
 			                		}
-			                		if(len>1) {
-			                			result = (intbuffer[0] << 8) |  intbuffer[1];
-			                			 Platform.runLater(new Runnable() {
-						                    	@Override
-						                    	public void run() {
-						                    		try {
-//						                    			UI.updateMeter((5.11/65536)*result);
-//						                    			UI.addData((5.11/65536)*result);
-						                    		}
-						                    		catch (Exception e) {
-						                    			e.printStackTrace();
-						                    		}
-						                    	}
-						                    });
-			                		}
-//				                    System.out.println("string" + new String(intbuffer,0,len));
-//				                    System.out.println("result" + result);
-//				                    System.out.println("volt" + (5.11/65536)*result);
 				                   
 			                	}
 			                }
@@ -156,32 +131,5 @@ public class testConnection {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public void clearBuffer() {
-		try {
-			byte[] buffer = new byte[3];
-			while(!Arrays.equals(buffer, UI.STOP)) {
-				if(input.available() > 2) {
-					input.read(buffer, 0, 3);
-				}
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void close() {
-		if(serialPort!=null){
-			try {
-				input.close();
-				output.close();
-			}
-			catch (IOException e){
-				e.printStackTrace();
-			}
-	        port.close(); //close serial port
-	    }
 	}
 }
