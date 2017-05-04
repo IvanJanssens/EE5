@@ -4,6 +4,8 @@
 #include "config_EE5.h"
 #include "ADC.h"
 #include "multimeter_pic24.h"
+#include "UART.h"
+#include "connectionprotocol.h"
 
 #define CLOCK_FREQ 20000000ULL
 
@@ -21,14 +23,14 @@ unsigned int buffer_B[1000] = {0};
 
 int main(void) {
     initChip();
-    init_ADC(A, B, M); //check here which channel you want to configure
-    init_MM();
-    
+//    init_ADC(A, B, M); //check here which channel you want to configure
+//    init_MM();
+    uart();
     while(1){
         if(!AD_done){
-            MM(buffer_A[C_A]);
+//            MM(buffer_A[C_A]);
             ///// LATD = (buffer_A[C_A-1]);
-            AD_done = ADC();  
+//            AD_done = ADC();  
         }
     }
     return 0;

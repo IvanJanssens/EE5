@@ -279,6 +279,24 @@ public class OscilloscopeUI extends UI{
 		x5.setToggleGroup(group);
 		x10.setToggleGroup(group);
 		group.selectToggle(x2);
+		x2.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e) {
+				oscilloscope.updateAttenuation(2);
+			}
+		});
+		x5.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e) {
+				oscilloscope.updateAttenuation(5);
+			}
+		});
+		x10.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e) {
+				oscilloscope.updateAttenuation(10);
+			}
+		});
 		attenuation.getChildren().addAll(x2,x5,x10);
 		return attenuation;
 	}
@@ -290,8 +308,9 @@ public class OscilloscopeUI extends UI{
 		trigger.getValueFactory().setValue((double) 0);
 		trigger.setPrefWidth(120);
 		trigger.valueProperty().addListener((obs, oldValue, newValue) -> {
-//			triggerValue = newValue;
-			oscilloscope.updateTrigger(newValue);
+			System.out.println("updateTrigger: " + newValue);
+			triggerValue = newValue;
+//			oscilloscope.updateTrigger(newValue);
 		});
 		return trigger;
 	}
@@ -305,9 +324,9 @@ public class OscilloscopeUI extends UI{
 			if(newValue < max_data) {
 				data.getData().remove(newValue, data.getData().size());
 			}
-//			max_data = newValue;
+			max_data = newValue;
 	        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(newValue);
-			oscilloscope.updateTimeDiv(newValue);
+//			oscilloscope.updateTimeDiv(newValue);
 		});
 		return timediv;
 	}
@@ -347,45 +366,44 @@ public class OscilloscopeUI extends UI{
 		return graph;
 	}
 	
-	public static void addData(List<Double>  newPoint) {
-		
-		//get number of datapoints
-//        int numOfPoint = data.getData().size();
-//		if(datapoint >= max_data && newPoint > triggerValue && prevValue <= triggerValue) {
-//			datapoint = 0;
-//			
-//		}
-//		((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(0);
-//        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(max_data);
-//        System.out.println("1:" + numOfPoint);
-//        System.out.println("2:" + max_data);
-//        System.out.println("3:" +datapoint);
-//		if(numOfPoint >= max_data && datapoint < max_data)
+	public static void addData(double  newPoint) {
 
-        for(int i = 0; i < newPoint.size(); i++) {
-        	if(data.getData().size() >= max_data && i < max_data) {
-        		data.getData().set(i, new XYChart.Data<Number, Number>(i,newPoint.get(i))); // add new datapoint
-        	}
-        	else {
-        		data.getData().add(new XYChart.Data<Number, Number>(i,newPoint.get(i))); // add new datapoint
-        	}
-        }
-//        datapoint += 1;
-//		if(datapoint == max_data){
-//			min = (double) data.getData().get(0).getYValue();
-//			max = (double) data.getData().get(0).getYValue();
-//			sum = 0;
-//			data.getData().forEach(value-> {
-//				sum += ((double) value.getYValue()*(double) value.getYValue());
-//				if((double) value.getYValue() > max)
-//					max = (double)value.getYValue();
-//				if((double) value.getYValue() < min)
-//					min = (double)value.getYValue();
-//			});
-//			updateRMS(Math.sqrt(sum/max_data));
-//			updatePtP(max,min);
-//		}
-//		prevValue = newPoint;
+		System.out.println("result 3" + newPoint);
+		//get number of datapoints
+        int numOfPoint = data.getData().size();
+		if(datapoint >= max_data && newPoint > (double)triggerValue && prevValue <= (double)triggerValue) {
+			datapoint = 0;
+			
+		}
+		((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(0);
+        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(max_data);
+		if(numOfPoint >= max_data && datapoint < max_data) {
+
+//        for(int i = 0; i < newPoint.size(); i++) {
+//    	if(data.getData().size() >= max_data && datapoint < max_data) {
+			data.getData().set(datapoint, new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
+		}
+		else if(numOfPoint < max_data && datapoint < max_data){
+			data.getData().add(new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
+		}
+		System.out.println("tick" + data.getChart().getYAxis().getTickLabelGap());
+//        }
+        datapoint += 1;
+		if(datapoint == max_data){
+			min = (double) data.getData().get(0).getYValue();
+			max = (double) data.getData().get(0).getYValue();
+			sum = 0;
+			data.getData().forEach(value-> {
+				sum += ((double) value.getYValue()*(double) value.getYValue());
+				if((double) value.getYValue() > max)
+					max = (double)value.getYValue();
+				if((double) value.getYValue() < min)
+					min = (double)value.getYValue();
+			});
+			updateRMS(Math.sqrt(sum/max_data));
+			updatePtP(max,min);
+		}
+		prevValue = newPoint;
 	}
 	
 	private static void updateRMS(double rmsValue) {

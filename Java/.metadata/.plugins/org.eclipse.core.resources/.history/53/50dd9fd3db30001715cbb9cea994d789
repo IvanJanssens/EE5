@@ -1,0 +1,27 @@
+package TestFiles;
+	
+
+
+import testConnection;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.stage.Stage;
+import userinterface.PicUI;
+
+
+public class Main extends Application {
+	@Override
+	public void start(Stage primaryStage) {
+		try {
+			// start a small interface to choose the pic and create a connection
+			testConnection connection = TestUI.start();
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void main(String[] args) {
+		launch(args);
+	}
+}

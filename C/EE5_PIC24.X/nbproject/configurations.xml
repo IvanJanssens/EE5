@@ -7,7 +7,12 @@
       <itemPath>config_EE5.h</itemPath>
       <itemPath>ADC.h</itemPath>
       <itemPath>multimeter_pic24.h</itemPath>
+<<<<<<< HEAD
       <itemPath>DAC.h</itemPath>
+=======
+      <itemPath>UART.h</itemPath>
+      <itemPath>connectionprotocol.h</itemPath>
+>>>>>>> 422cf1fa70d79994f610c03190fcbdf27d75d5ac
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -20,7 +25,12 @@
       <itemPath>FunctionGenerator.c</itemPath>
       <itemPath>ADC.c</itemPath>
       <itemPath>multimeter_pic24.c</itemPath>
+<<<<<<< HEAD
       <itemPath>DAC.c</itemPath>
+=======
+      <itemPath>UART.c</itemPath>
+      <itemPath>connectionprotocol.c</itemPath>
+>>>>>>> 422cf1fa70d79994f610c03190fcbdf27d75d5ac
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -41,8 +51,13 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
+<<<<<<< HEAD
         <languageToolchainVersion>1.30</languageToolchainVersion>
         <platform>4</platform>
+=======
+        <languageToolchainVersion>1.31</languageToolchainVersion>
+        <platform>3</platform>
+>>>>>>> 422cf1fa70d79994f610c03190fcbdf27d75d5ac
       </toolsSet>
       <compileType>
         <linkerTool>

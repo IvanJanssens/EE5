@@ -20,7 +20,7 @@ public class Multimeter extends Service<Object> {
 	@Override
 	protected Task<Object> createTask() {
 		return new Task<Object>() {
-			int result;
+			double result;
 			@Override
 			protected Object call() throws Exception {
 
@@ -37,18 +37,19 @@ public class Multimeter extends Service<Object> {
 					while(! isCancelled()) {
 					if( (input.available()) > 2 ) {
 							len = input.read(buffer,0,3);
-		            		System.out.println(len);
+//		            		System.out.println(len);
 		            		for(int i = 0; i<len; i++){
 		            			intbuffer[i] = buffer[i] & 0xFF;
 		            			System.out.println("bufferTest" + i + " : "+ buffer[i]);
 		            			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
 		            		}
-	            			result = (intbuffer[1] << 2) |  (intbuffer[2] >> 6);
-	            			 Platform.runLater(new Runnable() {
+	            			result = (double)(((intbuffer[1] << 2) |  (intbuffer[2] >> 6)) * (5.11/1024));
+	            			System.out.println(result);
+            				Platform.runLater(new Runnable() {
 			                    	@Override
 			                    	public void run() {
 			                    		try {
-			                    			MultimeterUI.updateMeter((5.11/1024)*result);
+			                    			MultimeterUI.updateMeter(result);
 			                    		}
 			                    		catch (Exception e) {
 			                    			e.printStackTrace();
