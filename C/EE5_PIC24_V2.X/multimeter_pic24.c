@@ -8,8 +8,7 @@
 int this_case;
 float LSB;
 
-void init_MM(void)
-{
+void init_MM(void) {
     LSB = ((Vrefp - Vrefm)/(resolution));
     this_case = cases(0);
 }
@@ -23,7 +22,7 @@ void MM(int value) {
 ////////////////////////////////////////////////////////////////////////////////
 // amplify
 int amplify(float voltage, int this_case) {   
-    if(this_case == 0){ // /10 S2 0 S1 1 S0 1
+    if(this_case == 0){ // /10
         if(voltage < (0.4f)){
             return cases(1);
         }
