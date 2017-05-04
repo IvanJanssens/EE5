@@ -7,6 +7,7 @@
       <itemPath>config_EE5.h</itemPath>
       <itemPath>ADC.h</itemPath>
       <itemPath>multimeter_pic24.h</itemPath>
+      <itemPath>DAC.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -19,6 +20,7 @@
       <itemPath>FunctionGenerator.c</itemPath>
       <itemPath>ADC.c</itemPath>
       <itemPath>multimeter_pic24.c</itemPath>
+      <itemPath>DAC.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -39,7 +41,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.31</languageToolchainVersion>
+        <languageToolchainVersion>1.30</languageToolchainVersion>
         <platform>4</platform>
       </toolsSet>
       <compileType>
@@ -54,8 +56,6 @@
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
-        <subordinates>
-        </subordinates>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
