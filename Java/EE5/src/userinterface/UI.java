@@ -25,9 +25,10 @@ public class UI {
 	private static Oscilloscope oscilloscope;
 	private static Multimeter multimeter;
 	// messages to be send to the PIC
-	public static final int MULTIMETER = '9';
-	public static final int OSCILLOSCOPE = '8';
-	public static final int STOP = '1';
+	public static final byte[] OSCILLOSCOPE = {(byte) 0b11000000};
+	public static final byte[] MULTIMETER = {(byte) 0b10000000};
+	public static final byte[] FUNCTION = {(byte) 0b01000000 };
+	public static final byte[] STOP = {(byte) 0b00000000, (byte) 0b11111111, (byte) 0b00000000};
 	//max data shown on the oscilloscope graph
 	public static final int MAX_DATA = 200;
 	public static File tempFile;

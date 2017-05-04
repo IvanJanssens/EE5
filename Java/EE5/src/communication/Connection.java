@@ -4,7 +4,9 @@ package communication;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Scanner;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
@@ -19,7 +21,7 @@ public class Connection {
 	private CommPortIdentifier commPortIdentifier;
 	private CommPort port;
 	private SerialPort serialPort;
-	private OutputStream output;
+	private static OutputStream output;
 	private InputStream input;
 
 	//Connection object
@@ -55,26 +57,36 @@ public class Connection {
 			
 			if(port instanceof SerialPort) {
 				this.serialPort = (SerialPort) port;
-                serialPort.setSerialPortParams(57600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+                serialPort.setSerialPortParams(9600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
 
 		        this.input = serialPort.getInputStream();
 		        this.output = serialPort.getOutputStream();
 //                
-//                reader = new Thread(new SerialReader(this.input));
-//        		reader.start();
-//                (new Thread(new SerialWriter(out))).start();
+                Thread reader = new Thread(new SerialReader(this.input));
+        		reader.start();
+        		Thread writer = new Thread(new Writer());
+        		writer.start();
 
                 return 0;
 			}
-			//else {
-				
-			//}
+			else {
+				return 1;
+			}
 		}
-		return 1;
 	}
 	
 	public InputStream getInputStream() {
 		return this.input;
+	}
+	
+	public static class Writer implements Runnable {
+		public void run() {
+			while(!Thread.interrupted()) {
+				Scanner input = new Scanner(System.in);
+				byte[] message = input.next().getBytes();
+				send(message);
+			}
+		}
 	}
 	
 	//read out the input buffer of the COM port
@@ -97,11 +109,13 @@ public class Connection {
 			                	break;
 			                } else {
 			                	if(len> 0) {
-			                		System.out.println(len);
+//			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
+
+			                			System.out.println((char)buffer[i]);
 			                			intbuffer[i] = buffer[i] & 0xFF;
-			                			System.out.println("buffer" + i + " : "+ buffer[i]);
-			                			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
+//			                			System.out.println("buffer" + i + " : "+ buffer[i]);
+//			                			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
 			                		}
 			                		if(len>1) {
 			                			result = (intbuffer[0] << 8) |  intbuffer[1];
@@ -118,9 +132,9 @@ public class Connection {
 						                    	}
 						                    });
 			                		}
-				                    System.out.println("string" + new String(intbuffer,0,len));
-				                    System.out.println("result" + result);
-				                    System.out.println("volt" + (5.11/65536)*result);
+//				                    System.out.println("string" + new String(intbuffer,0,len));
+//				                    System.out.println("result" + result);
+//				                    System.out.println("volt" + (5.11/65536)*result);
 				                   
 			                	}
 			                }
@@ -131,12 +145,14 @@ public class Connection {
 		            }  
 	        }
 	    }
-	
+	 
+	 
 	 //send an int to the port
-	public void send(int message) {
-		System.out.println(message);
+	public static void send(byte[] message) {
 		try {
-			this.output.write(message);
+			for(int i = 0 ; i < message.length; i++) {
+				output.write(message[i]);
+			}
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -145,7 +161,11 @@ public class Connection {
 	
 	public void clearBuffer() {
 		try {
-			while((input.read())!= UI.STOP) {
+			byte[] buffer = new byte[3];
+			while(!Arrays.equals(buffer, UI.STOP)) {
+				if(input.available() > 2) {
+					input.read(buffer, 0, 3);
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -154,16 +174,15 @@ public class Connection {
 	}
 	
 	public void close() {
-		if(this.serialPort!=null){
-//			reader.interrupt();
+		if(serialPort!=null){
 			try {
-				this.input.close();
-				this.output.close();
+				input.close();
+				output.close();
 			}
 			catch (IOException e){
 				e.printStackTrace();
 			}
-	        this.port.close(); //close serial port
+	        port.close(); //close serial port
 	    }
 	}
 }
