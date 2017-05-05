@@ -1,20 +1,14 @@
 package userinterface;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -62,7 +56,7 @@ public class OscilloscopeUI extends UI{
 	private static Label rms;
 	private static double sum;
 	private static double triggerValue;
-	private static int max_data = 10;
+	private static int max_data = 500;
 	private static double prevValue = 0;
 	private static double prevFftValue = 0;
 	private static Oscilloscope oscilloscope;
@@ -248,7 +242,7 @@ public class OscilloscopeUI extends UI{
 	
 	private static VBox osciButtons() {
 		VBox oscibuttons = new VBox(10);
-		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp());
+		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp(),fft());
 		return oscibuttons;
 	}
 	
@@ -318,6 +312,7 @@ public class OscilloscopeUI extends UI{
 	private static Spinner<Integer> timediv() {
 		Spinner<Integer> timediv = new Spinner<Integer>();
 		timediv.setValueFactory(new IntegerSpinnerValueFactory(10,5000));
+		timediv.getValueFactory().setValue(max_data);
 		timediv.setPrefWidth(120);
 		timediv.setEditable(true);
 		timediv.valueProperty().addListener((obs, oldValue, newValue) -> {
@@ -341,6 +336,12 @@ public class OscilloscopeUI extends UI{
 		ptp = new Label("Peak to Peak: ");
 		ptp.setPrefWidth(120);
 		return ptp;
+	}
+	private static ToggleButton fft() {
+		ToggleButton fft = new ToggleButton("fft");
+		fft.setPrefWidth(120);
+		return fft;
+		
 	}
 	
 	//Linechart

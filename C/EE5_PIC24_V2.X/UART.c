@@ -16,10 +16,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
 
 void InitUART2(void) 
 {
-	// This is an EXAMPLE, so brutal typing goes into explaining all bit sets
-
-	// The Explorer 16 board has a DB9 connector wired to UART2, so we will
-	// be configuring this port only
 
 	// configure U2MODE
 	U2MODEbits.UARTEN = 0;	// Bit15 TX, RX DISABLED, ENABLE at end of func
@@ -40,7 +36,7 @@ void InitUART2(void)
     // U2RG = Sysclk/32/Baudrate-1
     //      = 20000000/32/9600 - 1 = 64 = 0x0040
 
-	// Load all values in for U1STA SFR
+	// Load all values in for U2STA SFR
 	U2STAbits.UTXISEL1 = 0;	//Bit15 Int when Char is transferred (1/2 config!)
 	U2STAbits.UTXINV = 0;	//Bit14 N/A, IRDA config
 	U2STAbits.UTXISEL0 = 0;	//Bit13 Other half of Bit15
@@ -69,16 +65,14 @@ void InitUART2(void)
 void InitPorts(void) 
 {
     TRISF = 0x0008; // pin RF3 is input
-    ANSFbits.ANSF3 = 0;
+    ANSFbits.ANSF3 = 0; // pin RF3 is digital (not analog)
 }
 
 
 void uart(void) 
 {
-    InitPorts();	// LEDs outputs, Switches Inputs
+    InitPorts();
 	// I/O remap, PPS
-//#if defined (__PIC24FJ256GB110__) || defined (__PIC24FJ256GA110__)
-	// remap pins before intialising SPI2
 	// Unlock Registers
 	__builtin_write_OSCCONL(OSCCON & 0xbf);
 	// Configure Input Functions **********************
@@ -89,7 +83,6 @@ void uart(void)
 	RPOR8bits.RP17R = 5;
 	// Lock Registers
 	__builtin_write_OSCCONL(OSCCON | 0x40);
-//#endif
 
 	InitUART2();	// Initialize UART2 for 9600,8,N,1 TX/RX
 

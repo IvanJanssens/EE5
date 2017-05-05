@@ -10,24 +10,43 @@
 
 void parseData(char data);
 
-static char moduleSelect[8];
-    /*
-     * bit 7: Oscilloscope ON/OFF;
-     * bit 6: Multimeter ON/OFF;
-     * bit 5: Function generator ON/OFF;
-     * bit 4 - 0: Free bits
-     */
-static char oscilloscopeParam[8];
-    /*
-     * bit 7 - 5: sampling speed of oscilloscope (fixed rates)
-     * bit 4 - 0: Free bits
-     */
+const unsigned char ERROR = 0b10101010;
 
-static char functionGeneratorParam[24];
-    /*
-     * bit 23 - 20: Wave type select
-     * bit 16 - 0: Frequency
-     */
+union _moduleSelect {
+    char allBits;
+    struct {
+        unsigned int oscilloscope    :1; //oscilloscope ON/OFF
+        unsigned int multimeter    :1; //multimeter ON/OFF
+        unsigned int functiongenerator    :1; //function generator ON/OFF
+    };
+} moduleSelect;
+
+extern union _oscilloscopeParam {
+    char allBits;
+    struct {
+        unsigned int samplingspeed    :3; //sampling speed of oscilloscope (fixed rates)
+        unsigned int oscilloscope     :1; //Oscilloscope selection 1: A, 0: B
+        unsigned int gainA            :2; //gain of oscilloscope A
+        unsigned int gainB            :2; //gain of oscilloscope B
+    };
+} oscilloscopeParam;
+
+extern union _functionGeneratorParam {
+    char allBits;
+    struct {
+        unsigned int waveType   :4; //wave type select
+        unsigned int frequency  :20; // frequency
+    };
+} functionGeneratorParam;
+
+union _paramSelect {
+    char allBits;
+    struct {
+        unsigned int incomingParam  : 1; //if param incoming = 1, if module incoming = 0
+        unsigned int paramForMod : 1; //0 if param are for oscilloscope, 1 if param are for functiongenerator
+        unsigned int numOfParam : 2; //number of param received
+    };
+} paramSelect;
 
 
 #endif	/* CONNECTIONPROTOCOL_H */

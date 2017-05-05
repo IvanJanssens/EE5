@@ -10,6 +10,7 @@
       <itemPath>connectionprotocol.h</itemPath>
       <itemPath>DAC.h</itemPath>
       <itemPath>multimeter_pic24.h</itemPath>
+      <itemPath>UART.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -26,14 +27,13 @@
       <itemPath>main.c</itemPath>
       <itemPath>main_1.c</itemPath>
       <itemPath>multimeter_pic24.c</itemPath>
+      <itemPath>UART.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
-    <itemPath>UART.c</itemPath>
-    <itemPath>UART.h</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -46,7 +46,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.31</languageToolchainVersion>
-        <platform>4</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -112,6 +112,9 @@
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
       </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
       <C30-LD>
         <property key="additional-options-use-response-files" value="false"/>
         <property key="boot-eeprom" value="no_eeprom"/>
@@ -172,6 +175,12 @@
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
       </C30Global>
+      <item path="DAC.c" ex="true" overriding="false">
+      </item>
+      <item path="FunctionGenerator.c" ex="true" overriding="false">
+      </item>
+      <item path="main_1.c" ex="true" overriding="false">
+      </item>
     </conf>
   </confs>
 </configurationDescriptor>

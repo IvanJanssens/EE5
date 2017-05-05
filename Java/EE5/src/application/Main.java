@@ -16,12 +16,12 @@ public class Main extends Application {
 			// start a small interface to choose the pic and create a connection
 			Connection connection = PicUI.start();
 			// after the Pic select interface start the main UI
-//			Platform.runLater(new Runnable() {
-//				@Override
-//				public void run(){
-//					userinterface.UI.start(primaryStage,connection);
-//				}
-//			});
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run(){
+					userinterface.UI.start(primaryStage,connection);
+				}
+			});
 //			float samples[] = {1202.5f,213f,182f,91f,-51f,-78f,-162f,151f,-68.5f,-307f,6f,-78f,-137.75f,-303f,-709f,49f,49f};
 //			float samples[] = {0.25f,525.45215f,818.3952f,1326.833f,2287.25f,1495.0245f,1902.0581f,734.5388f,524.25f,553.28516f,73.104675f,1148.2507f,969.25f,2163.238f,2497.442f,2221.3774f,49.0f};
 

@@ -28,9 +28,10 @@ public class UI {
 	public static final byte[] OSCILLOSCOPE = {(byte) 0b11000000};
 	public static final byte[] MULTIMETER = {(byte) 0b10000000};
 	public static final byte[] FUNCTION = {(byte) 0b01000000 };
-	public static final byte[] STOP = {(byte) 0b00000000, (byte) 0b11111111, (byte) 0b00000000};
+//	public static final byte[] STOP = {(byte) 0b00000000, (byte) 0b11111111, (byte) 0b00000000};
+	public static final byte[] STOP = {(byte) 0b00000000};
 	//max data shown on the oscilloscope graph
-	public static final int MAX_DATA = 200;
+	public static final int MAX_DATA = 500;
 	public static File tempFile;
 	
 	// start the main UI
@@ -38,7 +39,7 @@ public class UI {
 		connection = conn;
 		Stage mainStage = stage;
 		try {
-			tempFile = File.createTempFile("TempDataStorage", ".txt");
+			tempFile = File.createTempFile("Temp_EE5_Data", ".txt");
 			System.out.println(tempFile.getAbsolutePath());
 			System.out.println(tempFile.getName());
 			tempFile.deleteOnExit();
