@@ -77,10 +77,10 @@ public class Connection {
 	 //send an int to the port
 	public void send(byte[] message) {
 		try {
-			for(int i = 0 ; i < message.length; i++) {
+			for(int i= 0; i<message.length; i++){
 				System.out.println(message[i]);
-				output.write(message[i]);
 			}
+				output.write(message);
 		}
 		catch (IOException e) {
 			e.printStackTrace();

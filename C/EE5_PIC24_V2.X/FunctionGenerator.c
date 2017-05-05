@@ -261,7 +261,7 @@ void SquareWave_10K(void)
     
     WriteSPI(0b00000000);
     WriteSPI(0b01101000);
-    PORTBbits.RB14 = 0;
+    PORTBbits.RB14 = 1;
    
 }
 
