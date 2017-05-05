@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <xc.h>
+#include "DAC.h"
+
 
 int dac_abits_mem, dac_bbits_mem;
 float dac_a, dac_b;
+
+
 
 void initDAC(void) {
     // control DAC1 for OSC_A (10bit), hex code : 0x98FE, binary code : 1 0 011 00 0 1 11111 10
@@ -31,12 +35,12 @@ void DAC_write(bit dac_a, bit dac_b, int dac_aBits, int dac_bBits) {
 }
 
 float get_osc_input(float famp, float acq, bit a_not_b) {
-
+    // if a_not_b is one, the fucntion will calculate the input of osc_a, else of osc_b
+    
     // first_step = (1.65f) -((1.00f) / famp)*((acq) - (1.65f));
-    // input = DAC - (10.0f)*(first_step - DAC);
-
-
-
+    // input = DAC - (10.0f)*(first_step - DAC)
+    
+    
     if (a_not_b == 1) {
 
         dac_abits_mem = dac_abits_mem / (2 * 2 * 2 * 2 * 2 * 2);
