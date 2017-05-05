@@ -1,10 +1,3 @@
-/* 
- * File:   connectionprotocol.h
- * Author: Ivan
- *
- * Created on 4 mei 2017, 16:31
- */
-
 #ifndef CONNECTIONPROTOCOL_H
 #define	CONNECTIONPROTOCOL_H
 

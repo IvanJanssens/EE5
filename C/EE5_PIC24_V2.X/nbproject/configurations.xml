@@ -4,7 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>ADC_Pipeline.h</itemPath>
       <itemPath>ADC.h</itemPath>
       <itemPath>config_EE5.h</itemPath>
       <itemPath>connectionprotocol.h</itemPath>
@@ -20,7 +19,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>ADC.c</itemPath>
-      <itemPath>ADC_Pipeline.c</itemPath>
       <itemPath>connectionprotocol.c</itemPath>
       <itemPath>DAC.c</itemPath>
       <itemPath>FunctionGenerator.c</itemPath>

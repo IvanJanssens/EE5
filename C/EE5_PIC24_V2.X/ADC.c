@@ -4,6 +4,13 @@
 #include "ADC.h"
 
 char A, B, M;
+unsigned int buffer_MM[10] = {0};
+unsigned int buffer_A[1000] = {0};
+unsigned int buffer_B[1000] = {0};
+int C_A = 0;
+int C_B = 0;
+int C_M  = 0;
+int AD_done;
 
 void init_ADC() {
     
@@ -53,19 +60,55 @@ void init_ADC() {
     ADSTATL = 0; //clearing all interrupt flag bits
 }
 char ADC(void) {
-    char AD_done = 0;
+    char done = 0;
     if(A) {
         ADL0CONLbits.SLEN = 1;
-        AD_done++;
+        done++;
     } 
     if(B) {
         ADL1CONLbits.SLEN = 1;
-        AD_done++;
+        done++;
     }
     if(M) {
         ADL2CONLbits.SLEN = 1;
-        AD_done++;
+        done++;
     }
-    return AD_done;
+    return done;
+}
+
+void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
+    
+    LATBbits.LATB0 = 1;
+    
+    if (IFS0bits.AD1IF == 1) {
+        //while(AD_done != 0) {
+            IFS0bits.AD1IF = 0;
+            if(ADL2STATbits.ADLIF) { //Multimeter
+                ADL2STATbits.ADLIF = 0;
+                buffer_MM[C_M] = ADRES2;
+                C_M++;
+                if(C_M >= 10) C_M = 0;
+                AD_done--;
+            }
+            if(ADL0STATbits.ADLIF) { // VOUT_A
+                ADL0STATbits.ADLIF = 0;
+                C_A++;
+                if(C_A >= 1000) C_A = 0;
+                buffer_A[C_A] = ADRES0;
+                AD_done--;
+            }
+            if(ADL1STATbits.ADLIF) { // Vout_B
+                ADL1STATbits.ADLIF = 0;
+                buffer_B[C_B] = ADRES1;
+                C_B++;
+                if(C_B >= 1000) C_B = 0;
+                AD_done--;
+            }
+        //}
+        //count++;
+        //LATB = ADRES0*8; // & 0x0E00; //0000 1110 0000 0000
+        //LATB = count;
+    LATBbits.LATB0 = 0;
+    } 
 }
 

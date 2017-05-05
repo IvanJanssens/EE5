@@ -13,10 +13,13 @@
 
 extern char A, B, M;
 
+
 void init_ADC();
 //initialize the bits that have to do with the ADC for the pic_24
 
 char ADC(void );
+
+void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void);
 
 #endif	/* ADC_H */
 

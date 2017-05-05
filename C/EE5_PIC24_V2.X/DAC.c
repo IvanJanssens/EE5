@@ -1,13 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <xc.h>
 #include "DAC.h"
 
-
 int dac_abits_mem, dac_bbits_mem;
-float dac_a, dac_b;
-
-
+//float dac_a, dac_b;
 
 void initDAC(void) {
     // control DAC1 for OSC_A (10bit), hex code : 0x98FE, binary code : 1 0 011 00 0 1 11111 10
@@ -103,5 +98,4 @@ void dac_amp_select(int sel_a, int sel_b, bit osc_a, int osc_b) {
         }
 
     }
-
 }

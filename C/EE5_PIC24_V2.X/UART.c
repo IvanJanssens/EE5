@@ -1,6 +1,6 @@
-
 #include <xc.h>
 #include "connectionprotocol.h"
+#include "UART.h"
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     IFS4bits.U2ERIF = 0;
@@ -69,8 +69,7 @@ void InitPorts(void)
 }
 
 
-void uart(void) 
-{
+void uart(void) {
     InitPorts();
 	// I/O remap, PPS
 	// Unlock Registers

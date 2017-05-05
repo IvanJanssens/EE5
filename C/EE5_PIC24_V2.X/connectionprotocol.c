@@ -1,13 +1,4 @@
-/*
- * File:   connectionprotocol.c
- * Author: Ivan
- *
- * Created on 4 mei 2017, 16:29
- */
-
-
 #include <xc.h>
-
 #include "connectionprotocol.h"
 
 const unsigned char ERROR = 0b10101010;
@@ -90,6 +81,5 @@ void parseData(unsigned int data) {
             }
         }
     }
-    
     U2TXREG = data;
 }
