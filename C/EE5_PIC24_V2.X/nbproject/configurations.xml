@@ -28,7 +28,10 @@
       <itemPath>main_1.c</itemPath>
       <itemPath>multimeter_pic24.c</itemPath>
       <itemPath>UART.c</itemPath>
+<<<<<<< HEAD
       <itemPath>storage.c</itemPath>
+=======
+>>>>>>> e3d221e7f7294d10e63f22818f2e1a63fe39e43b
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -46,8 +49,13 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
+<<<<<<< HEAD
         <languageToolchainVersion>1.30</languageToolchainVersion>
         <platform>4</platform>
+=======
+        <languageToolchainVersion>1.31</languageToolchainVersion>
+        <platform>3</platform>
+>>>>>>> e3d221e7f7294d10e63f22818f2e1a63fe39e43b
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -174,6 +182,42 @@
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
       </C30Global>
+      <item path="DAC.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="FunctionGenerator.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="main_1.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
     </conf>
   </confs>
 </configurationDescriptor>

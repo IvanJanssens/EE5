@@ -21,7 +21,7 @@ public class Generator {
 
 	static Connection connection;
 	public Generator(Connection connection) {
-		this.connection = connection;
+		Generator.connection = connection;
 	}
 	
 	public static Tab generator() {

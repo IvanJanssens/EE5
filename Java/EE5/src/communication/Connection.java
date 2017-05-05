@@ -6,12 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Scanner;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import userinterface.UI;
@@ -21,7 +19,7 @@ public class Connection {
 	private CommPortIdentifier commPortIdentifier;
 	private CommPort port;
 	private SerialPort serialPort;
-	private static OutputStream output;
+	private OutputStream output;
 	private InputStream input;
 
 	//Connection object
@@ -34,11 +32,11 @@ public class Connection {
 	public static ObservableList<CommPortIdentifier> refresh() {
 		ObservableList<CommPortIdentifier> choices = FXCollections.observableArrayList();
 		
-		    Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
+			Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
 
 		    //add the different ports of the enumeration to the ObservableList (needed for combobox)
 		    while (portList.hasMoreElements()) {
-		      CommPortIdentifier cpi = (CommPortIdentifier) portList.nextElement();
+		      CommPortIdentifier cpi = portList.nextElement();
 		      choices.add(cpi);
 		    }
 	    return choices;
@@ -61,11 +59,6 @@ public class Connection {
 
 		        this.input = serialPort.getInputStream();
 		        this.output = serialPort.getOutputStream();
-//                
-                Thread reader = new Thread(new SerialReader(this.input));
-        		reader.start();
-        		Thread writer = new Thread(new Writer());
-        		writer.start();
 
                 return 0;
 			}
@@ -79,81 +72,15 @@ public class Connection {
 		return this.input;
 	}
 	
-	public static class Writer implements Runnable {
-		public void run() {
-			while(!Thread.interrupted()) {
-				Scanner input = new Scanner(System.in);
-				byte[] message = input.nextLine().getBytes();
-				send(message);
-			}
-		}
-	}
-	
-	//read out the input buffer of the COM port
-	 public static class SerialReader implements Runnable 
-	    {
-	        InputStream in;
-	        int result;
-	        public SerialReader ( InputStream in ) {
-	            this.in = in;
-	            result = 0;
-	        }
-	        public void run () {
-		            byte[] buffer = new byte[64];
-		            int[] intbuffer = new int[64];
-		            int len = -1;
-		            try {
-
-			        	while(!Thread.interrupted()){
-			                if ( ( len = in.read(buffer)) == -1 ){
-			                	break;
-			                } else {
-			                	if(len> 0) {
-//			                		System.out.println(len);
-			                		for(int i = 0; i<len; i++){
-			                			System.out.println(buffer[i]);
-			                			System.out.println((char)buffer[i]);
-			                			intbuffer[i] = buffer[i] & 0xFF;
-//			                			System.out.println("buffer" + i + " : "+ buffer[i]);
-//			                			System.out.println("intbuffer" + i + " : "+ intbuffer[i]);
-			                		}
-			                		if(len>1) {
-			                			result = (intbuffer[0] << 8) |  intbuffer[1];
-			                			 Platform.runLater(new Runnable() {
-						                    	@Override
-						                    	public void run() {
-						                    		try {
-//						                    			UI.updateMeter((5.11/65536)*result);
-//						                    			UI.addData((5.11/65536)*result);
-						                    		}
-						                    		catch (Exception e) {
-						                    			e.printStackTrace();
-						                    		}
-						                    	}
-						                    });
-			                		}
-//				                    System.out.println("string" + new String(intbuffer,0,len));
-//				                    System.out.println("result" + result);
-//				                    System.out.println("volt" + (5.11/65536)*result);
-				                   
-			                	}
-			                }
-			        	}
-		            }
-		            catch ( IOException e ) {
-		                e.printStackTrace();
-		            }  
-	        }
-	    }
 	 
 	 
 	 //send an int to the port
-	public static void send(byte[] message) {
+	public void send(byte[] message) {
 		try {
-			for(int i = 0 ; i < message.length; i++) {
+			for(int i= 0; i<message.length; i++){
 				System.out.println(message[i]);
-				output.write(message[i]);
 			}
+				output.write(message);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -162,11 +89,13 @@ public class Connection {
 	
 	public void clearBuffer() {
 		try {
-			byte[] buffer = new byte[3];
+//			byte[] buffer = new byte[3];
+			byte[] buffer = new byte[1];
 			while(!Arrays.equals(buffer, UI.STOP)) {
-				if(input.available() > 2) {
-					input.read(buffer, 0, 3);
-				}
+//				if(input.available() > 2) {
+//					input.read(buffer, 0, 3);
+//				}
+				input.read(buffer);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
