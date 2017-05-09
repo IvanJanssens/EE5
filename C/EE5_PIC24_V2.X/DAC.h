@@ -12,11 +12,11 @@
 
 void Init_DAC(void);
 
-//void DAC_write(bit dac_a, bit dac_b, int dac_a_bits, int dac_b_bits);
+void DAC_write(int dac_a, int dac_b, int dac_a_bits, int dac_b_bits);
 
-//float get_osc_input(float famp, float acq, bit a_not_b);
+float get_osc_input(float famp, float acq, int a_not_b);
 
-//void dac_amp_select(int sel_a, int sel_b, bit osc_a, int osc_b);
+void dac_amp_select(int sel_a, int sel_b, int osc_a, int osc_b);
 
 
 

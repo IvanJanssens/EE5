@@ -10,13 +10,15 @@
 
 #define CLOCK_FREQ 20000000ULL
 
-void initChip(void);
+void init_Chip(void);
 int AD_count = 0;
 
 int main(void) {
-    initChip();
-    init_ADC(1, 1, 0); //check here which channel you want to configure
-//    init_MM();
+    init_Chip();
+    init_ADC();
+    init_MM(0);
+    init_A(0);
+    init_B(0);
     SET_UART();
     while(1){
         if(AD_count == 0){
@@ -28,7 +30,7 @@ int main(void) {
     return 0;
 }
 
-void initChip(void) {
+void init_Chip(void) {
     TRISB = 0x40E0; // 0100 0000 0000 1110 0000
     TRISCbits.TRISC12 = 1;
     TRISCbits.TRISC15 = 0;

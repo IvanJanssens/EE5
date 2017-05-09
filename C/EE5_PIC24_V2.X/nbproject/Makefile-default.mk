@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ADC.c connectionprotocol.c FunctionGenerator.c main.c multimeter_pic24.c UART.c storage.c
+SOURCEFILES_QUOTED_IF_SPACED=ADC.c connectionprotocol.c DAC.c FunctionGenerator.c main.c multimeter_pic24.c UART.c storage.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADC.o ${OBJECTDIR}/connectionprotocol.o ${OBJECTDIR}/FunctionGenerator.o ${OBJECTDIR}/main.o ${OBJECTDIR}/multimeter_pic24.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/storage.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/connectionprotocol.o.d ${OBJECTDIR}/FunctionGenerator.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/multimeter_pic24.o.d ${OBJECTDIR}/UART.o.d ${OBJECTDIR}/storage.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADC.o ${OBJECTDIR}/connectionprotocol.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/FunctionGenerator.o ${OBJECTDIR}/main.o ${OBJECTDIR}/multimeter_pic24.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/storage.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/connectionprotocol.o.d ${OBJECTDIR}/DAC.o.d ${OBJECTDIR}/FunctionGenerator.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/multimeter_pic24.o.d ${OBJECTDIR}/UART.o.d ${OBJECTDIR}/storage.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ADC.o ${OBJECTDIR}/connectionprotocol.o ${OBJECTDIR}/FunctionGenerator.o ${OBJECTDIR}/main.o ${OBJECTDIR}/multimeter_pic24.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/storage.o
+OBJECTFILES=${OBJECTDIR}/ADC.o ${OBJECTDIR}/connectionprotocol.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/FunctionGenerator.o ${OBJECTDIR}/main.o ${OBJECTDIR}/multimeter_pic24.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/storage.o
 
 # Source Files
-SOURCEFILES=ADC.c connectionprotocol.c FunctionGenerator.c main.c multimeter_pic24.c UART.c storage.c
+SOURCEFILES=ADC.c connectionprotocol.c DAC.c FunctionGenerator.c main.c multimeter_pic24.c UART.c storage.c
 
 
 CFLAGS=
@@ -101,6 +101,13 @@ ${OBJECTDIR}/connectionprotocol.o: connectionprotocol.c  nbproject/Makefile-${CN
 	@${RM} ${OBJECTDIR}/connectionprotocol.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  connectionprotocol.c  -o ${OBJECTDIR}/connectionprotocol.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/connectionprotocol.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/connectionprotocol.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/DAC.o: DAC.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/DAC.o.d 
+	@${RM} ${OBJECTDIR}/DAC.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  DAC.c  -o ${OBJECTDIR}/DAC.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/DAC.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/DAC.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/FunctionGenerator.o: FunctionGenerator.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -151,6 +158,13 @@ ${OBJECTDIR}/connectionprotocol.o: connectionprotocol.c  nbproject/Makefile-${CN
 	@${RM} ${OBJECTDIR}/connectionprotocol.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  connectionprotocol.c  -o ${OBJECTDIR}/connectionprotocol.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/connectionprotocol.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/connectionprotocol.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/DAC.o: DAC.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/DAC.o.d 
+	@${RM} ${OBJECTDIR}/DAC.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  DAC.c  -o ${OBJECTDIR}/DAC.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/DAC.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/DAC.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/FunctionGenerator.o: FunctionGenerator.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 

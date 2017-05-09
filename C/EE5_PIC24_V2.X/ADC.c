@@ -66,7 +66,7 @@ void init_MM(int ADC_MM) {
     
 }
 
-void init_OSC_A(int ADC_A) {
+void init_A(int ADC_A) {
     A = ADC_A;
     ANSBbits.ANSVO_A = A;
     TRISBbits.TRISVO_A = A;
@@ -81,7 +81,7 @@ void init_OSC_A(int ADC_A) {
     
 }
 
-void init_OSC_B(int ADC_B) {
+void init_B(int ADC_B) {
     B = ADC_B;
     ANSBbits.ANSVO_B = B;
     TRISBbits.TRISVO_B = B;

@@ -23,7 +23,6 @@
       <itemPath>DAC.c</itemPath>
       <itemPath>FunctionGenerator.c</itemPath>
       <itemPath>main.c</itemPath>
-      <itemPath>main_1.c</itemPath>
       <itemPath>multimeter_pic24.c</itemPath>
       <itemPath>UART.c</itemPath>
       <itemPath>storage.c</itemPath>
@@ -193,7 +192,7 @@
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
       </C30Global>
-      <item path="DAC.c" ex="true" overriding="false">
+      <item path="DAC.c" ex="false" overriding="false">
         <C30>
         </C30>
         <C30-AR>
@@ -719,18 +718,6 @@
                   value=""/>
         <property key="warningmessagebreakoptions.warningmessages" value="holdstate"/>
       </Simulator>
-      <item path="main_1.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AR>
-        </C30-AR>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

@@ -2,42 +2,69 @@
 #include "connectionprotocol.h"
 #include "ADC.h"
 
-const unsigned char ERROR = 0b10101010;
+//const unsigned char ERROR = 0b10101010;
 
 info_t info;
 
 void Parse_Data(unsigned int new_data) {
-    
-    data_t data = new_data;
-    
-    if(data.module == 0){
-        if(data.FG_select == 0){
-            info.FG.bits0 = data.FG_data;
+
+    data_t data;
+    data.allBits = new_data;
+    switch (data.module) {
+        case 0: {
+            switch (data.FG_select) {
+                case 0:{
+                    info.FG.bits0 = data.FG_data;
+                    break;
+                }
+                case 1:{
+                    info.FG.bits1 = data.FG_data;
+                    break;
+                }
+                case 2: {
+                    info.FG.bits2 = data.FG_data;
+                    break;
+                }
+                case 3:{
+                    info.FG.bits3 = data.FG_data;
+                    break;
+                }
+                case 4:{
+                    info.FG.bits4 = data.FG_data;
+                    break;
+                }
+                case 5:{
+                    info.FG.bits5 = data.FG_data;
+                    break;
+                }
+                case 6:{
+                    info.FG.bits6 = data.FG_data;
+                    break;
+                }
+                default:{
+                    info.FG.wave = data.FG_data;
+                    break;
+                }
+
+            }
         }
-        else if(data.FG_select == 1){
-            info.FG.bits1 = data.FG_data;
+        case 1: {
+            info.A.AC_DC = data.AC_DC;
+            info.A.ON = data.O_ON;
+            break;
         }
-        else if(data.FG_select == 2){
-            info.FG.bits2 = data.FG_data;
+        case 2: {
+            info.B.AC_DC = data.AC_DC;
+            info.B.ON = data.O_ON;
+            break;
         }
-        else if(data.FG_select == 3){
-            info.FG.bits3 = data.FG_data;
+        default: {
+            info.MM.ON = data.M_ON;
+            info.MM.gain = data.M_gain;
+            break;
         }
-        else if(data.FG_select == 4){
-            info.FG.bits4 = data.FG_data;
-        }
-        else if(data.FG_select == 5){
-            info.FG.bits5 = data.FG_data;
-        }
-        else if(data.FG_select == 6){
-            info.FG.bits6 = data.FG_data;
-        }
-        else info.FG.wave = data.FG_data;
     }
-    else if (data.module == 1){
-        info.A.AC_DC = data.AC_DC;
-        info.A.ON = data.O_ON;
-    }
+}
 //    if(param.incomingParam == 0) {
 //        if(data & 0x0080) { // Module select check
 //            if(data & 0x0040) { // check for 6th bit (oscilloscope on/off)
@@ -94,5 +121,3 @@ void Parse_Data(unsigned int new_data) {
 //        }
 //    }
 //    U2TXREG = data;
-    
-}
