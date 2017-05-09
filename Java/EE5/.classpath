@@ -3,10 +3,10 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
-	<classpathentry kind="lib" path="D:/Docs/4de jaar/2de semester/EE5/EE5/Java/EE5/rxtx-2.2.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="EE5/src/resource"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="rxtx-2.2.jar"/>
+	<classpathentry kind="lib" path="RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="javafx-0.2.jar"/>
+	<classpathentry kind="lib" path="rxtx-native-macosx.jar"/>
+	<classpathentry kind="lib" path="/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/javafx-mx.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
