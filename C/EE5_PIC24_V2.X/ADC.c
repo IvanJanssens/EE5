@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <xc.h>
 #include "ADC.h"
+#include "multimeter_pic24.h"
 
 int A, B, M;
 unsigned int buffer_MM[10] = {0};
@@ -50,8 +51,7 @@ void init_ADC(void) {
 }
 
 void init_MM(int ADC_MM) {
-    LSB = ((Vrefp - Vrefm)/(resolution));
-    this_case = cases(0);
+    cases(0);
     M = ADC_MM;
     ANSDbits.ANSVO_MM = M;
     TRISDbits.TRISVO_MM = M;
@@ -66,7 +66,7 @@ void init_MM(int ADC_MM) {
     
 }
 
-init_OSC_A(int ADC_A) {
+void init_OSC_A(int ADC_A) {
     A = ADC_A;
     ANSBbits.ANSVO_A = A;
     TRISBbits.TRISVO_A = A;
@@ -81,7 +81,7 @@ init_OSC_A(int ADC_A) {
     
 }
 
-init_OSC_B(int ADC_B) {
+void init_OSC_B(int ADC_B) {
     B = ADC_B;
     ANSBbits.ANSVO_B = B;
     TRISBbits.TRISVO_B = B;
