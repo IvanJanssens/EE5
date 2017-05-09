@@ -10,9 +10,9 @@
 #define S1_A LATFbits.LATF4
 
 
-void initDAC(void);
+void Init_DAC(void);
 
-//void DAC_write(bit dac_a, bit dac_b, int dac_aBits, int dac_bBits);
+//void DAC_write(bit dac_a, bit dac_b, int dac_a_bits, int dac_b_bits);
 
 //float get_osc_input(float famp, float acq, bit a_not_b);
 

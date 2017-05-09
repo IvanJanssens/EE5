@@ -3,7 +3,7 @@
 #include <xc.h>
 #include "ADC.h"
 
-char A, B, M;
+int A, B, M;
 unsigned int buffer_MM[10] = {0};
 unsigned int buffer_A[1000] = {0};
 unsigned int buffer_B[1000] = {0};
@@ -12,24 +12,13 @@ int C_B = 0;
 int C_M  = 0;
 int AD_done;
 
-void init_ADC() {
-    
+void init_ADC(void) {
     ANSB = 0;
-    ANSBbits.ANSVO_A = 1;
-    ANSBbits.ANSVO_B = 1;
-    ANSDbits.ANSVO_MM = 1;
-    
-    TRISBbits.TRISVO_A = 1;
-    TRISBbits.TRISVO_B = 1;
-    TRISDbits.TRISVO_MM = 1;
     
     ADCON1bits.ADON = 0;
     ADCON1 = 0x1041; // 0001 0000 0100 0001 checked
     ADCON2 = 0x0700; // 0000 0111 0000 0000 checked //indexed buffer
     ADCON3 = 0x0003; // 0000 0000 0001 0000 checked
-    ADCON3bits.SLEN0 = A;
-    ADCON3bits.SLEN1 = B;
-    ADCON3bits.SLEN2 = M;
     
     int i;
     for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
@@ -59,8 +48,56 @@ void init_ADC() {
     ADL0STAT = 0; //clearing the ADLIF: A/D Sample List Interrupt Event Flag bit
     ADSTATL = 0; //clearing all interrupt flag bits
 }
-char ADC(void) {
-    char done = 0;
+
+void init_MM(int ADC_MM) {
+    LSB = ((Vrefp - Vrefm)/(resolution));
+    this_case = cases(0);
+    M = ADC_MM;
+    ANSDbits.ANSVO_MM = M;
+    TRISDbits.TRISVO_MM = M;
+    
+    ADCON1bits.ADON = 0;
+    
+    ADCON3bits.SLEN2 = M;
+    int i;
+    for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
+    ADCON1bits.ADON = 1;
+    while(!ADSTATHbits.ADREADY);
+    
+}
+
+init_OSC_A(int ADC_A) {
+    A = ADC_A;
+    ANSBbits.ANSVO_A = A;
+    TRISBbits.TRISVO_A = A;
+    
+    ADCON1bits.ADON = 0;
+    ADCON3bits.SLEN0 = A;
+    
+    int i;
+    for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
+    ADCON1bits.ADON = 1;
+    while(!ADSTATHbits.ADREADY);
+    
+}
+
+init_OSC_B(int ADC_B) {
+    B = ADC_B;
+    ANSBbits.ANSVO_B = B;
+    TRISBbits.TRISVO_B = B;
+    
+    ADCON1bits.ADON = 0;
+    ADCON3bits.SLEN1 = B;
+    
+    int i;
+    for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
+    ADCON1bits.ADON = 1;
+    while(!ADSTATHbits.ADREADY);
+    
+}
+
+int ADC(void) {
+    int done = 0;
     if(A) {
         ADL0CONLbits.SLEN = 1;
         done++;

@@ -11,13 +11,15 @@
 #define ANSVO_MM ANSD2
 #define TRISVO_MM TRISD2
 
-extern char A, B, M;
+#define Vrefp 3.3f // +/- 5 volts
+#define Vrefm 0 // 0 volts
+#define resolution (4096.0f) // 12 bit
 
+void init_ADC_A(int ADC_A);
+void init_ADC_B(int ADC_B);
+void init_MM(int ADC_MM);
 
-void init_ADC();
-//initialize the bits that have to do with the ADC for the pic_24
-
-char ADC(void );
+int ADC(void ); //initialize the bits that have to do with the ADC for the pic_24
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void);
 

@@ -4,8 +4,8 @@
 #include "config_EE5.h"
 #include "ADC.h"
 #include "DAC.h"
-#include "multimeter_pic24.h"
 #include "UART.h"
+#include "multimeter_pic24.h"
 #include "connectionprotocol.h"
 
 #define CLOCK_FREQ 20000000ULL
@@ -15,9 +15,9 @@ int AD_count = 0;
 
 int main(void) {
     initChip();
-//    init_ADC(A, B, M); //check here which channel you want to configure
+    init_ADC(1, 1, 0); //check here which channel you want to configure
 //    init_MM();
-    uart();
+    SET_UART();
     while(1){
         if(AD_count == 0){
             //MM(buffer_A[C_A]);
@@ -43,11 +43,5 @@ void initChip(void) {
     RPOR5bits.RP10R = 18; // RP10 is configured as output of output compare 1
     OC1CON1 = 0;
     OC1CON1bits.OCTSEL = 7;
-    
-    //which module you want to use
-    A = 1;
-    B = 0;
-    M = 0; //M is not right
-    
 }
 

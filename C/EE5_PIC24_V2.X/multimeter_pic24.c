@@ -7,20 +7,15 @@
 int this_case;
 float LSB;
 
-void init_MM(void) {
-    LSB = ((Vrefp - Vrefm)/(resolution));
-    this_case = cases(0);
-}
-
 void MM(int value) {
     //PORTB = value;  // port B are bit 2-10 from right left address
-    this_case = amplify(value*LSB,this_case); // amplify will return current case
+    this_case = set_Case(value*LSB,this_case); // amplify will return current case
     assert(this_case != -1);
     delay(50);
 }
 ////////////////////////////////////////////////////////////////////////////////
 // amplify
-int amplify(float voltage, int this_case) {   
+int set_Case(float voltage, int this_case) {   
     if(this_case == 0){ // /10
         if(voltage < (0.4f)){
             return cases(1);
