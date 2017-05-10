@@ -3,7 +3,7 @@
 #include <PPS.h>                        // Include the header for PPS function    
 #include "FunctionGenerator.h" 
 
-void initFG(void)
+void init_FG(void)
 {
     
     
@@ -67,7 +67,7 @@ void initFG(void)
     SPI1STATbits.SPIEN   = 1;   // Enable SPI module.
 }
 
-unsigned char WriteSPI(unsigned char data_out)
+unsigned char write_SPI(unsigned char data_out)
 {
     char dummy;
     
@@ -79,7 +79,7 @@ unsigned char WriteSPI(unsigned char data_out)
     return 1;
 }
 
-void Generator(long int n,int waveform)     // n -> output of wanted frequency
+void generator(long int n,int waveform)     // n -> output of wanted frequency
 {
     unsigned char LSB_UP, LSB_LOW, MSB_UP, MSB_LOW;     // For frequency register 
     unsigned char RESET_UP,RESET_LOW, UNRESET_UP, UNRESET_LOW;  // for control bits
@@ -132,25 +132,25 @@ void Generator(long int n,int waveform)     // n -> output of wanted frequency
     // Control 16bits write in
     PORTBbits.RB14 = 0;     // Making FSYNC of AD9833 LOW before writing in
     //PORTGbits.RG9 = 0;
-    WriteSPI(RESET_UP);     // Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
-    WriteSPI(RESET_LOW);    // The internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
+    write_SPI(RESET_UP);     // Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
+    write_SPI(RESET_LOW);    // The internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
                             // The output is to be a square wave (D5); the square wave frequency is not to be divided by two.
     
     // FREQ register LSB write in
-    WriteSPI(LSB_UP);   //LSB
-    WriteSPI(LSB_LOW);
+    write_SPI(LSB_UP);   //LSB
+    write_SPI(LSB_LOW);
     
     // FREQ register MSB write in
-    WriteSPI(MSB_UP);   //MSB
-    WriteSPI(MSB_LOW);
+    write_SPI(MSB_UP);   //MSB
+    write_SPI(MSB_LOW);
     
     // PHASE register write in
-    WriteSPI(0b11000000);   //writing to the PHASE0 register (D15,D14,D13) (No need for phase shift -> all 0s)
-    WriteSPI(0b00000000);   //and is writing a twelve bit value of zero (D11-D0)
+    write_SPI(0b11000000);   //writing to the PHASE0 register (D15,D14,D13) (No need for phase shift -> all 0s)
+    write_SPI(0b00000000);   //and is writing a twelve bit value of zero (D11-D0)
     
     // Activate the output (disable reset)
-    WriteSPI(UNRESET_UP);
-    WriteSPI(UNRESET_LOW); 
+    write_SPI(UNRESET_UP);
+    write_SPI(UNRESET_LOW); 
     //PORTGbits.RG9 = 1;
     PORTBbits.RB14 = 1;  // Making FSYNC of AD9833 HIGH after writing in
     
@@ -161,34 +161,34 @@ void SquareWave_10K(void)
     //Control 16bits write in
     PORTBbits.RB14 = 0;  	//Making FSYNC of AD9833 LOW before writing in
     
-    WriteSPI(0b00100001);   //Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
-    WriteSPI(0b01101000);   // the internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
+    write_SPI(0b00100001);   //Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
+    write_SPI(0b01101000);   // the internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
                             // the output is to be a square wave (D5); the square wave frequency is not to be divided by two(D3).
    
   
     
     //FREQ register LSB write in
    
-    WriteSPI(0b01011000);   //LSB
-    WriteSPI(0b10010011);
+    write_SPI(0b01011000);   //LSB
+    write_SPI(0b10010011);
    
     
     //FREQ register MSB write in
     
-    WriteSPI(0b01000000);   //MSB
-    WriteSPI(0b00010000);
+    write_SPI(0b01000000);   //MSB
+    write_SPI(0b00010000);
     
     
     //PHASE register write in
     
-    WriteSPI(0b11000000);   //writing to the PHASE0 register (D15,D14,D13) 
-    WriteSPI(0b00000000);   //and is writing a twelve bit value of zero (D11-D0)
+    write_SPI(0b11000000);   //writing to the PHASE0 register (D15,D14,D13) 
+    write_SPI(0b00000000);   //and is writing a twelve bit value of zero (D11-D0)
     
     
     //activate the output (disable reset)
     
-    WriteSPI(0b00000000);
-    WriteSPI(0b01101000);
+    write_SPI(0b00000000);
+    write_SPI(0b01101000);
     PORTBbits.RB14 = 1;
    
 }

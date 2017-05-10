@@ -11,12 +11,14 @@
 #define ANSVO_MM ANSD2
 #define TRISVO_MM TRISD2
 
-extern char A, B, M;
+void init_ADC(void);
+void init_A(int ADC_A);
+void init_B(int ADC_B);
+void init_MM(int ADC_MM);
 
-void init_ADC();
-//initialize the bits that have to do with the ADC for the pic_24
+int ADC(void ); //initialize the bits that have to do with the ADC for the pic_24
 
-char ADC(void );
+void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void);
 
 #endif	/* ADC_H */
 

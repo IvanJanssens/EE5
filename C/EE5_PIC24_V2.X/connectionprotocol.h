@@ -1,37 +1,66 @@
-/* 
- * File:   connectionprotocol.h
- * Author: Ivan
- *
- * Created on 4 mei 2017, 16:31
- */
-
 #ifndef CONNECTIONPROTOCOL_H
 #define	CONNECTIONPROTOCOL_H
 
-void parseData(unsigned int data);
-
-extern union _oscilloscopeParam{
-    char allBits;
+typedef union {
+    unsigned int allBits;
     struct {
-        unsigned int samplingspeed    :3; //sampling speed of oscilloscope (fixed rates)
-        unsigned int oscilloscope     :1; //Oscilloscope selection 1: A, 0: B
-        unsigned int gainA            :2; //gain of oscilloscope A
-        unsigned int gainB            :2; //gain of oscilloscope B
-        unsigned int ACDCA            :1; // AD/DC mode oscilloscope A
-        unsigned int ACDCB            :1; // AC/DC mode oscilloscope B
+        unsigned int module: 2;
+        unsigned int data: 6;
     };
-} oscilloscopeParam;
-
-
-extern union _functionGeneratorParam{
-    char allBits;
     struct {
-        unsigned int waveType   :4; //wave type select
-        unsigned long int frequency  :20; // frequency
+        unsigned int FG_module: 2; // FG = 00
+        unsigned int FG_select: 3;
+        unsigned int FG_data: 3;
     };
-} functionGeneratorParam;
+    struct {
+        unsigned int O_module: 2; //A = 01, B = 10
+        unsigned int O_ON: 1;
+        unsigned int AC_DC: 1; // AC=0, DC = 1
+        unsigned int O_select: 1;
+        unsigned int O_data: 3;
+    };
+    struct {
+        unsigned int M_module: 2; //MM = 11
+        unsigned int M_ON: 1;
+        unsigned int M_gain: 3;
+    };
+} data_t;
 
+typedef struct {
+    struct {
+        unsigned int ON: 1;
+        unsigned int AC_DC: 1;
+        unsigned int gain: 3;
+        unsigned int speed: 3;
+    } A;
+    struct {
+        unsigned int ON: 1;
+        unsigned int AC_DC: 1;
+        unsigned int gain: 3;
+        unsigned int speed: 3;
+    } B;
+    struct {
+        unsigned int ON: 1;
+        unsigned int gain: 3;
+    } MM;
+    struct {
+        unsigned int wave: 3;
+        union {
+            long int allBits;
+            unsigned int bits0: 3;
+            unsigned int bits1: 3;
+            unsigned int bits2: 3;
+            unsigned int bits3: 3;
+            unsigned int bits4: 3;
+            unsigned int bits5: 3;
+            unsigned int bits6: 3;
+        };
+    } FG;
+} info_t;
 
+void Parse_Data(unsigned int data);
+
+extern info_t info;
 
 #endif	/* CONNECTIONPROTOCOL_H */
 

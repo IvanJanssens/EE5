@@ -1,10 +1,3 @@
-/* 
- * File:   config_EE5.h
- * Author: Jerom
- *
- * Created on March 24, 2017, 2:13 PM
- */
-
 #ifndef CONFIG_EE5_H
 #define	CONFIG_EE5_H
 
