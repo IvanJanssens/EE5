@@ -57,6 +57,7 @@ public class MultimeterUI extends UI{
 		for(int i = 0; i < 3; i ++) {
 			center.getChildren().addAll(display.getDots()[i]);
 		}
+		display.start();
 		return center;
 	}
 	

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="userinterface.MultimeterUI"/>
 <fullyQualifiedTypeName name="javafx.concurrent.Service"/>
 <fullyQualifiedTypeName name="javafx.concurrent.Task"/>
 <fullyQualifiedTypeName name="javafx.scene.control.Button"/>
@@ -60,4 +59,5 @@
 <fullyQualifiedTypeName name="java.util.Scanner"/>
 <fullyQualifiedTypeName name="java.lang.System"/>
 <fullyQualifiedTypeName name="javafx.geometry.Pos"/>
+<fullyQualifiedTypeName name="javafx.scene.control.TextField"/>
 </qualifiedTypeNameHistroy>

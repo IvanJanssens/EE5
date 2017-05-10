@@ -77,9 +77,6 @@ public class Connection {
 	 //send an int to the port
 	public void send(byte[] message) {
 		try {
-			for(int i= 0; i<message.length; i++){
-				System.out.println(message[i]);
-			}
 				output.write(message);
 		}
 		catch (IOException e) {
@@ -91,11 +88,13 @@ public class Connection {
 		try {
 //			byte[] buffer = new byte[3];
 			byte[] buffer = new byte[1];
+			input.read(buffer);
 			while(!Arrays.equals(buffer, UI.STOP)) {
 //				if(input.available() > 2) {
 //					input.read(buffer, 0, 3);
 //				}
 				input.read(buffer);
+				System.out.println(buffer[0]);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -50,8 +50,7 @@ public class Oscilloscope extends Service<Object>{
 			protected Object call() throws Exception {
 				InputStream input = connection.getInputStream();
 				
-				System.out.println("testing2");
-				connection.send(UI.OSCILLOSCOPE); //Send 9 to start the multimeter datastream
+				connection.send(UI.OSCILLOSCOPE); //Send UI.OSCILLOSCOPE to start the oscilloscope datastream
 				int len = -1;
 				result = 0;
 				byte[] buffer = new byte[64];

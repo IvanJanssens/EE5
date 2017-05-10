@@ -119,21 +119,7 @@ public class GeneratorUI {
 			freqSlider.setShowTickLabels(true);
 			freqSlider.setMajorTickUnit(50);
 			
-			TextField freqField = new TextField("330") {
-				@Override
-				public void replaceText(int start, int end, String text){
-					if(text.matches("[0-9]*")) {
-						super.replaceText(start, end, text);
-					}
-				}
-				
-				@Override
-				public void replaceSelection(String text) {
-					if(text.matches("[0-9]*")) {
-						super.replaceSelection(text);
-					}
-				}
-			};
+			NumbField freqField = new NumbField("330");
 			freqField.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freqSlider.setValue(Integer.parseInt(freqField.getText())));
 			freqSlider.valueProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freqField.textProperty().setValue(String.valueOf((int) freqSlider.getValue())));
 			freqField.setMaxWidth(120);

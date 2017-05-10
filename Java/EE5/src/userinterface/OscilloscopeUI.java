@@ -29,6 +29,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
@@ -127,13 +128,6 @@ public class OscilloscopeUI extends UI{
 						FileChannel src = new FileInputStream(tempFile).getChannel();
 						FileChannel dest = new FileOutputStream(selectedFile).getChannel();
 						dest.transferFrom(src, 0, src.size());
-//								BufferedWriter buffer = new BufferedWriter( new FileWriter(selectedFile));
-//								for(int i = 0; i < data.getData().size(); i++) {
-//									buffer.write(data.getData().get(i) + "");
-//									buffer.newLine();
-//								}
-//								buffer.flush();
-//								buffer.close();
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
@@ -236,7 +230,7 @@ public class OscilloscopeUI extends UI{
 	
 	private static VBox osciButtons() {
 		VBox oscibuttons = new VBox(10);
-		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp(),fft());
+		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp(),fft(),prevData());
 		return oscibuttons;
 	}
 	
@@ -333,7 +327,20 @@ public class OscilloscopeUI extends UI{
 		ToggleButton fft = new ToggleButton("fft");
 		fft.setPrefWidth(120);
 		return fft;
-		
+	}
+	
+	private static VBox prevData() {
+		VBox prevData = new VBox(10);
+		HBox from = new HBox(10);
+		from.getChildren().addAll(
+					new Label("Data from: "),
+					new NumbField("0"));
+		HBox till = new HBox(10);
+		till.getChildren().addAll(
+					new Label("till: "),
+					new TextField("100"));
+		prevData.getChildren().addAll(from,till);
+		return prevData;
 	}
 	
 	//Linechart
