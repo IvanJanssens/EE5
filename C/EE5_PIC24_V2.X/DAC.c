@@ -1,8 +1,12 @@
 #include <xc.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "DAC.h"
 
 int dac_abits_mem, dac_bbits_mem;
 float dac_a, dac_b;
+
+
 
 void initDAC(void) {
     // control DAC1 for OSC_A (10bit), hex code : 0x98FE, binary code : 1 0 011 00 0 1 11111 10
@@ -16,6 +20,28 @@ void initDAC(void) {
 
     DAC2DAT = 0x7440; // gives 1.5 at DAC_B output
     dac_bbits_mem = 0x7440; // bin : 0111010001000000
+}
+
+void AC_DC_mode(int mode_a, int mode_b){
+    // switches between AC mode ( mode_x == 0 ) and DC mode (mode_x == 1)   
+    if (mode_a == 1){
+        
+        DC_A = 1;
+        
+    }else{
+        
+        DC_A = 0;
+    }
+    
+    if (mode_b == 1){
+        
+        DC_B = 1;
+        
+    }else{
+        
+        DC_B = 0;
+    }
+    
 }
 
 void DAC_write(int dac_a, int dac_b, int dac_aBits, int dac_bBits) {
