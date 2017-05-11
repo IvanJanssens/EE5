@@ -15,14 +15,14 @@ void init_fifo(void){
     count = 0;
 }
 
-void write_FIFO(data_t data ) {
+void write_FIFO(unsigned char data ) {
     fifo[i] = data;
     i++;
     count++;
     if(i == 100) i = 0;
 }
 
-data_t read_FIFO(void) {
+unsigned char read_FIFO(void) {
     j++;
     count--;
     if(j == 100) j = 0;
