@@ -12,9 +12,9 @@
 #define TRISVO_MM TRISD2
 
 void init_ADC(void);
-void init_A(int ADC_A);
-void init_B(int ADC_B);
-void init_MM(int ADC_MM);
+void init_A(void);
+void init_B(void);
+void init_MM(void);
 
 int ADC(void ); //initialize the bits that have to do with the ADC for the pic_24
 

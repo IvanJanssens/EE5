@@ -111,6 +111,7 @@ public class Connection {
 			catch (IOException e){
 				e.printStackTrace();
 			}
+			this.serialPort.close();
 	        port.close(); //close serial port
 	    }
 	}

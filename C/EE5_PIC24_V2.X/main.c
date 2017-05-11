@@ -15,11 +15,17 @@ int AD_count = 0;
 
 int main(void) {
     init_Chip();
+    
+    info.A = 0;
+    info.B = 0;
+    info.MM = 0;
+    info.FG = 0;
+    
     init_ADC();
-    init_MM(0);
-    init_A(0);
-    init_B(0);
-    SET_UART();
+    init_MM();
+    init_A();
+    init_B();
+    set_UART();
     while(1){
         if(AD_count == 0){
             //MM(buffer_A[C_A]);

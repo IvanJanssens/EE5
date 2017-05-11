@@ -3,6 +3,7 @@
 #include <xc.h>
 #include "ADC.h"
 #include "multimeter_pic24.h"
+#include "connectionprotocol.h"
 
 int A, B, M;
 unsigned int buffer_MM[10] = {0};
@@ -50,9 +51,9 @@ void init_ADC(void) {
     ADSTATL = 0; //clearing all interrupt flag bits
 }
 
-void init_MM(int ADC_MM) {
+void init_MM(void) {
     cases(0);
-    M = ADC_MM;
+    M = info.MM.ON;
     ANSDbits.ANSVO_MM = M;
     TRISDbits.TRISVO_MM = M;
     
@@ -66,8 +67,8 @@ void init_MM(int ADC_MM) {
     
 }
 
-void init_A(int ADC_A) {
-    A = ADC_A;
+void init_A(void) {
+    A = info.A.ON;
     ANSBbits.ANSVO_A = A;
     TRISBbits.TRISVO_A = A;
     
@@ -81,8 +82,8 @@ void init_A(int ADC_A) {
     
 }
 
-void init_B(int ADC_B) {
-    B = ADC_B;
+void init_B(void) {
+    B = info.B.ON;
     ANSBbits.ANSVO_B = B;
     TRISBbits.TRISVO_B = B;
     

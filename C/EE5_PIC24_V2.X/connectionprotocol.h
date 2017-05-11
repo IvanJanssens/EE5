@@ -2,60 +2,73 @@
 #define	CONNECTIONPROTOCOL_H
 
 typedef union {
-    unsigned int allBits;
+    unsigned char allBits;
+
     struct {
-        unsigned int module: 2;
-        unsigned int data: 6;
+        unsigned char module : 2;
+        unsigned char data : 6;
     };
+
     struct {
-        unsigned int FG_module: 2; // FG = 00
-        unsigned int FG_select: 3;
-        unsigned int FG_data: 3;
+        unsigned char FG_module : 2; // FG = 00
+        unsigned char FG_select : 3;
+        unsigned char FG_data : 3;
     };
+
     struct {
-        unsigned int O_module: 2; //A = 01, B = 10
-        unsigned int O_ON: 1;
-        unsigned int AC_DC: 1; // AC=0, DC = 1
-        unsigned int O_select: 1;
-        unsigned int O_data: 3;
+        unsigned char O_module : 2; //A = 01, B = 10
+        unsigned char O_ON : 1;
+        unsigned char AC_DC : 1; // AC=0, DC = 1
+        unsigned char O_select : 1;
+        unsigned char O_data : 3;
     };
+
     struct {
-        unsigned int M_module: 2; //MM = 11
-        unsigned int M_ON: 1;
-        unsigned int M_gain: 3;
+        unsigned char M_module : 2; //MM = 11
+        unsigned char M_ON : 1;
+        unsigned char M_nothing : 5;
     };
 } data_t;
 
-typedef struct {
-    struct {
-        unsigned int ON: 1;
-        unsigned int AC_DC: 1;
-        unsigned int gain: 3;
-        unsigned int speed: 3;
-    } A;
-    struct {
-        unsigned int ON: 1;
-        unsigned int AC_DC: 1;
-        unsigned int gain: 3;
-        unsigned int speed: 3;
-    } B;
-    struct {
-        unsigned int ON: 1;
-        unsigned int gain: 3;
-    } MM;
-    struct {
-        unsigned int wave: 3;
-        union {
-            long int allBits;
-            unsigned int bits0: 3;
-            unsigned int bits1: 3;
-            unsigned int bits2: 3;
-            unsigned int bits3: 3;
-            unsigned int bits4: 3;
-            unsigned int bits5: 3;
-            unsigned int bits6: 3;
-        };
-    } FG;
+typedef union {
+    long long int allbits; //64bits
+    struct { // 3*8 + 35 = 57 bit
+        struct { // 8bit
+            unsigned char ON : 1;
+            unsigned char AC_DC : 1;
+            unsigned char gain : 3;
+            unsigned char speed : 3;
+        } A;
+
+        struct { //8bit
+            unsigned char ON : 1;
+            unsigned char AC_DC : 1;
+            unsigned char gain : 3;
+            unsigned char speed : 3;
+        } B;
+
+        struct { //8bit
+            unsigned char ON : 1;
+            unsigned char nothing : 7;
+        } MM;
+
+        struct { // 35bit
+            unsigned char wave : 3;
+            union {
+                long int allBits; //32bit
+                struct { //32 bit
+                    unsigned int nothing : 12;
+                    unsigned char bits6 : 2;
+                    unsigned char bits5 : 3;
+                    unsigned char bits4 : 3;
+                    unsigned char bits3 : 3;
+                    unsigned char bits2 : 3;
+                    unsigned char bits1 : 3;
+                    unsigned char bits0 : 3;
+                };
+            };
+        } FG;
+    };
 } info_t;
 
 void Parse_Data(unsigned int data);

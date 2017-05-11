@@ -20,7 +20,7 @@
 
 void init_FG(void);                    // Initialize the Function Generator configuration
 unsigned char write_SPI(unsigned char);  // Write SPI function
-void generator(long int, int);          // Generate the output
+void generator(void);          // Generate the output
 void SquareWave_10K(void);              // Testing function: generate the 10KHz square wave
 
 #endif //FUNCTION_GENERATOR__H
