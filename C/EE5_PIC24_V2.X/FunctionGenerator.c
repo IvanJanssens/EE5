@@ -8,24 +8,24 @@ void init_FG(void) {
     /*---------- 1. Pins Configuration ----------*/
     
     //configure FSYNC RB14 (RP14/AN14)
-    ANSBbits.ANSB14 = 0;        // Digital Pin;
-    TRISBbits.TRISB14 = 0;      // Output;
-    PORTBbits.RB14 = 1;         // FSYNC = 1 -> STOP transmission (set high after transmission); = 0 -> START transmission (set low before transmission)
+    ANSDbits.ANSD8 = 0;        // Digital Pin;
+    TRISDbits.TRISD8 = 0;      // Output;
+    PORTDbits.RD8 = 1;         // FSYNC = 1 -> STOP transmission (set high after transmission); = 0 -> START transmission (set low before transmission)
     
     // configure SDO RB15 (RP29/AN15)
-    ANSBbits.ANSB15 = 0;        // Digital Pin;
-    TRISBbits.TRISB15 = 0;      // Output;
-    PORTBbits.RB15 = 0;         // Initial value
+    ANSDbits.ANSD10 = 0;        // Digital Pin;
+    TRISDbits.TRISD10 = 0;      // Output;
+    PORTDbits.RD10 = 0;         // Initial value
     
     // configure SDI RF4 (RP10/AN11)
-    ANSFbits.ANSF4 = 0;         // Digital Pin;
-    TRISFbits.TRISF4 = 1;       // Input;
-    PORTFbits.RF4 = 0;          // Initial value
+    ANSBbits.ANSB1 = 0;         // Digital Pin;
+    TRISBbits.TRISB1 = 1;       // Input;
+    PORTBbits.RB1 = 0;          // Initial value
     
     // configure SCK RF5 (RP17/AN10)
-    ANSFbits.ANSF5 = 0;         // Digital Pin;
-    TRISFbits.TRISF5 = 0;       // Output;
-    PORTFbits.RF5 = 1;          // Initial value (SCK is active low -> initial high)
+    ANSDbits.ANSD9 = 0;         // Digital Pin;
+    TRISDbits.TRISD9 = 0;       // Output;
+    PORTDbits.RD9 = 1;          // Initial value (SCK is active low -> initial high)
     
     /*---------- 2. PPS configuration ----------*/
     
@@ -33,10 +33,10 @@ void init_FG(void) {
     // Always follow the sequence: Unlock -> Set configuration -> Lock
     
     PPSUnLock;  // Unlock PPS
-    iPPSOutput(OUT_PIN_PPS_RP14, OUT_FN_PPS_SS1OUT);    // Set FSYNC RB14 (RP14/AN14) as FSYNC (/SS)
-    iPPSOutput(OUT_PIN_PPS_RP29, OUT_FN_PPS_SDO1);      // Set RB15 (RP29/AN15) as SDO
-    iPPSInput(IN_FN_PPS_SDI1, IN_PIN_PPS_RP10);         // Set RF4 (RP10/AN11) as SDI
-    iPPSOutput(OUT_PIN_PPS_RP17, OUT_FN_PPS_SCK1OUT);   // Set RF5 (RP17/AN10) as SCK
+    iPPSOutput(OUT_PIN_PPS_RP2, OUT_FN_PPS_SS1OUT);    // Set FSYNC RD8 (RP2) as FSYNC (/SS)
+    iPPSOutput(RPOR1bits.RP3R, OUT_FN_PPS_SDO1);      // Set RD10 (RP3) as SDO
+    iPPSInput(IN_FN_PPS_SDI1, IN_PIN_PPS_RP1);         // Set RB1 (RP1) as SDI
+    iPPSOutput(OUT_PIN_PPS_RP4, OUT_FN_PPS_SCK1OUT);   // Set RD9 (RP4) as SCK
     PPSLock;    // Lock PPS   
     
     /*---------- 3. SPI configuration ----------*/

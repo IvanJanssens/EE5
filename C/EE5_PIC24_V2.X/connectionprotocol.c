@@ -44,10 +44,10 @@ void parse_Data(unsigned char new_data) {
                 }
                 default:{
                     info.FG.wave = data.FG_data;
+                    generator();
                     break;
                 }
             }
-            generator();
         }
         case 1: { //01
             info.A.AC_DC = data.AC_DC;

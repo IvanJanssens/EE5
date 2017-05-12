@@ -13,7 +13,7 @@
 #define DC_B LATBbits.LATB2 
 
 
-void Init_DAC(void);
+void init_DAC(void);
 
 void AC_DC_mode(void);
 

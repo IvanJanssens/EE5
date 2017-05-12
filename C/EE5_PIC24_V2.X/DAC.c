@@ -7,17 +7,20 @@
 int dac_abits_mem, dac_bbits_mem;
 float dac_a, dac_b;
 
-void initDAC(void) {
-    // control DAC1 for OSC_A (10bit), hex code : 0x98FE, binary code : 1 0 011 00 0 1 11111 10
-    DAC1CON = 0x98FE; // 
+void init_DAC(void) {
+    // control DAC1 for OSC_A (10bit), hex code : 0x98FE, binary code : 0001 1000 1111 1110
+    DAC1CONbits.DACEN = 0;
+    DAC1CON = 0x18FE; // 
 
     DAC1DAT = 0x7440; // gives 1.5 at DAC_A output
     dac_abits_mem = 0x7440; // bin : 0111010001000000
-
-    // control DAC2 for OSC_B (10bit), hex code : 0x98FE, binary code : 1 0 011 00 0 1 11111 10
-    DAC2CON = 0x98FE;
+    DAC1CONbits.DACEN = 1;
+    // control DAC2 for OSC_B (10bit), hex code : 0x98FE, binary code : 0001 1000 1111 1110
+    DAC2CONbits.DACEN = 0;
+    DAC2CON = 0x18FE;
 
     DAC2DAT = 0x7440; // gives 1.5 at DAC_B output
+    DAC2CONbits.DACEN = 1;
     dac_bbits_mem = 0x7440; // bin : 0111010001000000
 }
 
