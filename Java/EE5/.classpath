@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+<<<<<<< HEAD
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="rxtx-2.2.jar"/>
@@ -11,5 +12,12 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Kris/Desktop/KRISSX/EE5/Java/EE5/javafx-0.2.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Kris/Desktop/KRISSX/EE5/Java/EE5/rxtx-native-macosx.jar"/>
+=======
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
+	<classpathentry kind="lib" path="rxtx-2.2.jar"/>
+	<classpathentry kind="lib" path="RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/javafx-mx.jar"/>
+>>>>>>> 2facdc3f70ef276bae63b0429e77476947d54807
 	<classpathentry kind="output" path="bin"/>
 </classpath>

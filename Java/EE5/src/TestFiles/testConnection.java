@@ -16,10 +16,10 @@ import javafx.collections.ObservableList;
 public class testConnection {
 	
 	private CommPortIdentifier commPortIdentifier;
-	private CommPort port;
-	private SerialPort serialPort;
+	private static CommPort port;
+	private static SerialPort serialPort;
 	private static OutputStream output;
-	private InputStream input;
+	private static InputStream input;
 
 	//Connection object
 	public testConnection(CommPortIdentifier commPortIdentifier) {
@@ -80,8 +80,12 @@ public class testConnection {
 		public void run() {
 			while(!Thread.interrupted()) {
 				Scanner input = new Scanner(System.in);
-				byte[] message = input.nextLine().getBytes();
-				send(message);
+				String message = input.nextLine();
+				if(message.equals("exit")) {
+					close();
+					System.exit(0);
+				}
+				send(null);
 			}
 		}
 	}
@@ -130,11 +134,25 @@ public class testConnection {
 //				output.write(message[i]);
 //			}
 //			output.write(message);
-			byte[] test = {(byte) 0b00000001, (byte) 0b01111111, (byte) 0b00000001, (byte) 0b00001111, (byte) 0b00010000, (byte) 0b00010001, (byte) 0b10000000, (byte) 0b11111111, (byte) 0b11111110};
+			byte[] test = {(byte) 0b00101010, (byte) 0b10101010 };
 			output.write(test);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	static void close() {
+		if(serialPort!=null){
+			try {
+				input.close();
+				output.close();
+			}
+			catch (IOException e){
+				e.printStackTrace();
+			}
+			serialPort.close();
+	        port.close(); //close serial port
+	    }
 	}
 }

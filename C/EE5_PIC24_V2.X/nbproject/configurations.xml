@@ -10,6 +10,8 @@
       <itemPath>DAC.h</itemPath>
       <itemPath>multimeter_pic24.h</itemPath>
       <itemPath>UART.h</itemPath>
+      <itemPath>FunctionGenerator.h</itemPath>
+      <itemPath>FIFO.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -25,7 +27,7 @@
       <itemPath>main.c</itemPath>
       <itemPath>multimeter_pic24.c</itemPath>
       <itemPath>UART.c</itemPath>
-      <itemPath>storage.c</itemPath>
+      <itemPath>FIFO.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -33,6 +35,9 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">
@@ -41,10 +46,10 @@
         <targetDevice>PIC24FJ128GC006</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>ICD3PlatformTool</platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.30</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>4</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
