@@ -3,11 +3,11 @@
 #include "FunctionGenerator.h"
 #include "ADC.h"
 
-//const unsigned char ERROR = 0b10101010;
+//const unsigned char ERROR = 0b11111111;
 
 info_t info;
 
-void Parse_Data(unsigned int new_data) {
+void parse_Data(unsigned char new_data) {
 
     data_t data;
     data.allBits = new_data;

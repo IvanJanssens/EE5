@@ -15,7 +15,7 @@
 
 void Init_DAC(void);
 
-void AC_DC_mode(int mode_a, int mode_b);
+void AC_DC_mode(void);
 
 void DAC_write(int dac_a, int dac_b, int dac_aBits, int dac_bBits);
 

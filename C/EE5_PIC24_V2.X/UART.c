@@ -3,9 +3,11 @@
 #include "FIFO.h"
 #include "UART.h"
 
+
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     IFS4bits.U2ERIF = 0;
-    write_FIFO((data_t.allBits)U2RXREG);
+    //write_FIFO(U2RXREG);
+    U2TXREG = U2RXREG;
 	IFS1bits.U2RXIF = 0; // Clear the Recieve Interrupt Flag
 }
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {

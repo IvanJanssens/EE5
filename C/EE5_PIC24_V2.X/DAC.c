@@ -2,11 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "DAC.h"
+#include "connectionprotocol.h"
 
 int dac_abits_mem, dac_bbits_mem;
 float dac_a, dac_b;
-
-
 
 void initDAC(void) {
     // control DAC1 for OSC_A (10bit), hex code : 0x98FE, binary code : 1 0 011 00 0 1 11111 10
@@ -22,26 +21,10 @@ void initDAC(void) {
     dac_bbits_mem = 0x7440; // bin : 0111010001000000
 }
 
-void AC_DC_mode(int mode_a, int mode_b){
+void AC_DC_mode(void){
     // switches between AC mode ( mode_x == 0 ) and DC mode (mode_x == 1)   
-    if (mode_a == 1){
-        
-        DC_A = 1;
-        
-    }else{
-        
-        DC_A = 0;
-    }
-    
-    if (mode_b == 1){
-        
-        DC_B = 1;
-        
-    }else{
-        
-        DC_B = 0;
-    }
-    
+    DC_A = info.A.AC_DC;
+    DC_B = info.B.AC_DC;
 }
 
 void DAC_write(int dac_a, int dac_b, int dac_aBits, int dac_bBits) {

@@ -3,15 +3,14 @@
 #include "FIFO.h"
 #include "connectionprotocol.h"
 
-data_t fifo[100];
-int i;
-int j;
-int count;
+unsigned char fifo[100] = {0};
+unsigned int i;
+unsigned int j;
+unsigned int count;
 
-void init_fifo(void){
-    fifo = {0};
+void init_FIFO(void){
     i = 0;
-    j = -1;
+    j = 99;
     count = 0;
 }
 
@@ -19,14 +18,16 @@ void write_FIFO(unsigned char data ) {
     fifo[i] = data;
     i++;
     count++;
-    if(i == 100) i = 0;
+    if(i >= 100) i = 0;
 }
 
-unsigned char read_FIFO(void) {
-    j++;
-    count--;
-    if(j == 100) j = 0;
-    return fifo[j];
+void read_FIFO(void) {
+    while(count){
+        j++;
+        count--;
+        if(j >= 100) j = 0;
+        parse_Data(fifo[j]);
+    }
 }
 
 int get_count(void) {

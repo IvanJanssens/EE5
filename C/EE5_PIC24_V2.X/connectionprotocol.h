@@ -3,7 +3,6 @@
 
 typedef union {
     unsigned char allBits;
-
     struct {
         unsigned char module : 2;
         unsigned char data : 6;
@@ -71,7 +70,7 @@ typedef union {
     };
 } info_t;
 
-void Parse_Data(unsigned int data);
+void parse_Data(unsigned char data);
 
 extern info_t info;
 
