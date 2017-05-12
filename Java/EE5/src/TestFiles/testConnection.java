@@ -17,10 +17,10 @@ import javafx.collections.ObservableList;
 public class testConnection {
 	
 	private CommPortIdentifier commPortIdentifier;
-	private CommPort port;
-	private SerialPort serialPort;
+	private static CommPort port;
+	private static SerialPort serialPort;
 	private static OutputStream output;
-	private InputStream input;
+	private static InputStream input;
 
 	//Connection object
 	public testConnection(CommPortIdentifier commPortIdentifier) {
@@ -81,8 +81,13 @@ public class testConnection {
 		public void run() {
 			while(!Thread.interrupted()) {
 				Scanner input = new Scanner(System.in);
-				byte[] message = (input.nextLine().getBytes());
-				System.out.println(message[0]);
+
+				byte message = (byte) input.nextInt();
+				System.out.println("I send this " + message);
+				if(message == 0) {
+					close();
+					Runtime.getRuntime().halt(0);
+				}
 				send(message);
 			}
 		}
@@ -108,8 +113,9 @@ public class testConnection {
 			                	if(len> 0) {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
-			                			System.out.println((char)buffer[i] +" => " + String.format("%8s", Integer.toBinaryString(buffer[i]).replace(' ', '0')) + " => " + buffer[i]);
 
+			                			System.out.println(Byte.toString(buffer[i]) + " => " + buffer[i]);
+			                			
 			                		}
 				                   
 			                	}
@@ -124,18 +130,34 @@ public class testConnection {
 	 
 	 
 	 //send an int to the port
-	public static void send(byte[] message) {
+	public static void send(byte message) {
 		try {
 //			for(int i = 0 ; i < message.length; i++) {
 //				System.out.println("send: " + (char) message[i] + " => " + message[i]);
 //				output.write(message[i]);
 //			}
 //			output.write(message);
-			byte[] test = {(byte) 0b00000001, (byte) 0b01111111, (byte) 0b00000001, (byte) 0b00001111, (byte) 0b00010000, (byte) 0b00010001, (byte) 0b10000000, (byte) 0b11111111, (byte) 0b11111110};
-			output.write(test);
+			//byte[] test = {(byte) 0b00101010, (byte) 0b10101010 };
+			output.write(message);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	static void close() {
+		if(serialPort!=null){
+			try {
+				input.close();
+				output.close();
+			}
+			catch (IOException e){
+				e.printStackTrace();
+			}
+			serialPort.removeEventListener();
+			serialPort.close();
+	        port.close(); //close serial port
+	        System.out.println("closed");
+	    }
 	}
 }

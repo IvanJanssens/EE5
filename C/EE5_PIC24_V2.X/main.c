@@ -7,25 +7,34 @@
 #include "UART.h"
 #include "multimeter_pic24.h"
 #include "connectionprotocol.h"
+#include "FIFO.h"
 
 #define CLOCK_FREQ 20000000ULL
 
 void init_Chip(void);
+void init_ALL(void);
 int AD_count = 0;
+
+
 
 int main(void) {
     init_Chip();
-    init_ADC();
-    init_MM(0);
-    init_A(0);
-    init_B(0);
-    SET_UART();
+    init_ALL();
+    int i;
+    unsigned char buffer[5] = {1, 5, 70, 90, 3};
+    info.allbits = 0;
     while(1){
-        if(AD_count == 0){
-            //MM(buffer_A[C_A]);
-            ///// LATD = (buffer_A[C_A-1]);
-            AD_count = ADC();  
+
+        for(i = 0; i < 5; i++){
+            write_FIFO_tx(buffer[i]);
         }
+        if (get_count_rx() != 0) read_FIFO_rx();
+        if(get_count_tx() != 0) send_FIFO_tx();
+//        if(AD_count == 0){
+//            //MM(buffer_A[C_A]);
+//            ///// LATD = (buffer_A[C_A-1]);
+//            AD_count = ADC();  
+//        }
     }
     return 0;
 }
@@ -47,3 +56,11 @@ void init_Chip(void) {
     OC1CON1bits.OCTSEL = 7;
 }
 
+void init_ALL() {
+    init_ADC();
+    init_MM();
+    init_A();
+    init_B();
+    init_FIFO();
+    set_UART();
+}
