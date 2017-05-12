@@ -6,7 +6,20 @@
 int dac_abits_mem, dac_bbits_mem;
 float dac_a, dac_b;
 
-
+void AC_amp( int mode_a, int mode_b) 
+{
+    if ( mode_a == 1 )
+    {
+        
+        
+    }
+    
+    if ( mode_b == 1 )
+    {
+              
+        
+    }
+}
 
 void initDAC(void) {
     // control DAC1 for OSC_A (10bit), hex code : 0x98FE, binary code : 1 0 011 00 0 1 11111 10
