@@ -37,9 +37,6 @@ public class MultimeterUI extends UI{
 	
 	private static BorderPane multiBorderPane() {
 		BorderPane multiBorderPane = new BorderPane();
-//		HBox header = multiButton();
-//		multiBorderPane.setTop(header);
-//		BorderPane.setMargin(header, new Insets(10,10,10,10));
 		FlowPane center = multiCenter();
 		multiBorderPane.setCenter(center);
 		center.setAlignment(Pos.CENTER);
@@ -60,63 +57,17 @@ public class MultimeterUI extends UI{
 		for(int i = 0; i < 3; i ++) {
 			center.getChildren().addAll(display.getDots()[i]);
 		}
+		display.start();
 		return center;
 	}
 	
 	private static FlowPane multiCenter(){
 		FlowPane center = new FlowPane(Orientation.HORIZONTAL);
-		
-//		HBox center = new HBox(10);
 		Label meter = meter();
 		HBox.setMargin(meter, new Insets(120,0,0,0));
 		center.getChildren().addAll(digits(),meter);
 		return center;
 	}
-	
-//	private static HBox multiButton() {
-//		HBox multiButtons = new HBox(10);
-//		multiButtons.getChildren().addAll(led1(),led2(),led3());
-//		return multiButtons;
-//	}
-	
-//	private static Button led1() {
-//		Button led1 = new Button("1 led");
-//		led1.setOnMouseClicked(new EventHandler<Event>() {
-//			@Override
-//			public void handle(Event e){
-//				connection.send());
-//			}
-//		});
-//		return led1;
-//	}
-//	
-//	private static Button led2() {
-//		Button led2 = new Button("2 leds");
-//		led2.setOnMouseClicked(new EventHandler<Event>() {
-//			@Override
-//			public void handle(Event e){
-//				int test = (int) '2';
-//				System.out.println(test);
-//				System.out.println((byte) test);
-////				connection.send((int)'2');
-//			}
-//		});
-//		return led2;
-//	}
-//	
-//	private static Button led3() {
-//		Button led3 = new Button("3 leds");
-//		led3.setOnMouseClicked(new EventHandler<Event>() {
-//			@Override
-//			public void handle(Event e){
-//				int test = (int) '3';
-//				System.out.println(test);
-//				System.out.println((byte) test);
-////				connection.send((int)'3');
-//			}
-//		});
-//		return led3;
-//	}
 	
 	private static Label meter() {
 		meter = new Label(" volt");
@@ -126,7 +77,6 @@ public class MultimeterUI extends UI{
 	}
 	
 	public static void updateMeter(double d) {
-//		meter.setText(String.format("%.4f", d) +" volt");
 		display.writeNumber(d);
 		if(d < 1)
 			meter.setText("miliVolt");

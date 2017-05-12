@@ -16,10 +16,10 @@ import javafx.collections.ObservableList;
 public class testConnection {
 	
 	private CommPortIdentifier commPortIdentifier;
-	private CommPort port;
-	private SerialPort serialPort;
+	private static CommPort port;
+	private static SerialPort serialPort;
 	private static OutputStream output;
-	private InputStream input;
+	private static InputStream input;
 
 	//Connection object
 	public testConnection(CommPortIdentifier commPortIdentifier) {
@@ -80,8 +80,12 @@ public class testConnection {
 		public void run() {
 			while(!Thread.interrupted()) {
 				Scanner input = new Scanner(System.in);
-				byte[] message = input.nextLine().getBytes();
-				send(message);
+				String message = input.nextLine();
+				if(message.equals("exit")) {
+					close();
+					System.exit(0);
+				}
+				send(null);
 			}
 		}
 	}
@@ -107,7 +111,8 @@ public class testConnection {
 			                	if(len> 0) {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
-			                			System.out.println((char)buffer[i]);
+			                			System.out.println((char)buffer[i] +" => " + String.format("%8s", Integer.toBinaryString(buffer[i]).replace(' ', '0')) + " => " + buffer[i]);
+			                			
 			                		}
 				                   
 			                	}
@@ -124,12 +129,30 @@ public class testConnection {
 	 //send an int to the port
 	public static void send(byte[] message) {
 		try {
-			for(int i = 0 ; i < message.length; i++) {
-				output.write(message[i]);
-			}
+//			for(int i = 0 ; i < message.length; i++) {
+//				System.out.println("send: " + (char) message[i] + " => " + message[i]);
+//				output.write(message[i]);
+//			}
+//			output.write(message);
+			byte[] test = {(byte) 0b00101010, (byte) 0b10101010 };
+			output.write(test);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	static void close() {
+		if(serialPort!=null){
+			try {
+				input.close();
+				output.close();
+			}
+			catch (IOException e){
+				e.printStackTrace();
+			}
+			serialPort.close();
+	        port.close(); //close serial port
+	    }
 	}
 }

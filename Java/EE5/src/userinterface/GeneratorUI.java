@@ -89,6 +89,12 @@ public class GeneratorUI {
 		VBox generator = new VBox(10);
 		generator.setAlignment(Pos.TOP_CENTER);
 		
+		generator.getChildren().addAll(wave(),freq(),stop());
+		geneBody.setCenter(generator);
+		return geneBody;
+	}
+	
+	private static HBox wave() {
 		HBox wave = new HBox(50);
 		wave.setAlignment(Pos.TOP_CENTER);
 		RadioButton sine = new RadioButton();
@@ -100,35 +106,31 @@ public class GeneratorUI {
 		sine.setToggleGroup(group);
 		square.setToggleGroup(group);
 		group.selectToggle(sine);
-		
-		Slider freq = new Slider();
-		freq.setMin(0);
-		freq.setMax(1000);
-		freq.setValue(330);
-		freq.setShowTickLabels(true);
-		freq.setMajorTickUnit(50);
-		
-		TextField freqField = new TextField("330") {
-			@Override
-			public void replaceText(int start, int end, String text){
-				if(text.matches("[0-9]*")) {
-					super.replaceText(start, end, text);
-				}
-			}
-			
-			@Override
-			public void replaceSelection(String text) {
-				if(text.matches("[0-9]*")) {
-					super.replaceSelection(text);
-				}
-			}
-		};
-		freqField.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freq.setValue(Integer.parseInt(freqField.getText())));
-		freq.valueProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freqField.textProperty().setValue(String.valueOf((int) freq.getValue())));
-		freqField.setMaxWidth(120);
 		wave.getChildren().addAll(sine, square);
-		generator.getChildren().addAll(wave,freq,freqField);
-		geneBody.setCenter(generator);
-		return geneBody;
+		return wave;
+	}
+	
+	private static VBox freq() {
+		VBox freq = new VBox(20);
+			Slider freqSlider = new Slider();
+			freqSlider.setMin(0);
+			freqSlider.setMax(1000);
+			freqSlider.setValue(330);
+			freqSlider.setShowTickLabels(true);
+			freqSlider.setMajorTickUnit(50);
+			
+			NumbField freqField = new NumbField("330");
+			freqField.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freqSlider.setValue(Integer.parseInt(freqField.getText())));
+			freqSlider.valueProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freqField.textProperty().setValue(String.valueOf((int) freqSlider.getValue())));
+			freqField.setMaxWidth(120);
+		freq.setAlignment(Pos.TOP_CENTER);
+		freq.getChildren().addAll(freqSlider,freqField);
+		return freq;
+	}
+	
+	private static Button stop() {
+		Button stop = new Button("Stop Generator");
+		stop.setPrefWidth(120);
+		return stop;
 	}
 }

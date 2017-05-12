@@ -28,6 +28,7 @@ public class sevenSegments {
     private final static int seven[] = { ON, ON, ON, OFF, OFF, OFF, OFF };
     private final static int eight[] = { ON, ON, ON, ON, ON, ON, ON };
     private final static int nine[] = { ON, ON, ON, ON, OFF, ON, ON };
+    private final static int err[] = {OFF, OFF, OFF, OFF, OFF, OFF, ON};
 
     private final static Color off = Color.RED.darker().darker().darker().darker();
     private final static Color on = Color.RED.brighter().brighter().brighter().brighter().brighter();
@@ -51,6 +52,17 @@ public class sevenSegments {
 	}
 	public Polygon[] getDots() {
 		return dots;
+	}
+	
+	public void start() {
+		dots[0].setFill(off);
+		dots[1].setFill(off);
+		dots[2].setFill(off);
+		for(int i = 0; i < 4; i++) {
+			number[i] = err;
+			for (int j=0; j<SEGMENT_NUMBER; j++)
+	            setSegmentState(segments[i][j], number[i][j]);
+		}
 	}
 	
 	public void writeNumber(double data) {
