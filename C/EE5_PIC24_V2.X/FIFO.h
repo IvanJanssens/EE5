@@ -2,9 +2,14 @@
 #define	FIFO_H
 
 void init_FIFO(void);
-void write_FIFO(unsigned char data);
-void read_FIFO(void);
+void write_FIFO_rx(unsigned char data );
+void read_FIFO_rx(void);
 
-int get_count(void);
+void write_FIFO_tx(unsigned char data );
+void send_FIFO_tx(void);
+
+
+int get_count_rx(void);
+int get_count_tx(void);
 #endif	/* FIFO_H */
 

@@ -4,6 +4,7 @@
 #include "ADC.h"
 #include "multimeter_pic24.h"
 #include "connectionprotocol.h"
+#include "DAC.h"
 
 int A, B, M;
 unsigned int buffer_MM[10] = {0};
@@ -69,6 +70,8 @@ void init_MM(void) {
 
 void init_A(void) {
     A = info.A.ON;
+    dac_gain_select_A();
+    
     ANSBbits.ANSVO_A = A;
     TRISBbits.TRISVO_A = A;
     
@@ -84,6 +87,8 @@ void init_A(void) {
 
 void init_B(void) {
     B = info.B.ON;
+    dac_gain_select_B();
+    
     ANSBbits.ANSVO_B = B;
     TRISBbits.TRISVO_B = B;
     

@@ -15,18 +15,26 @@ void init_Chip(void);
 void init_ALL(void);
 int AD_count = 0;
 
+
+
 int main(void) {
     init_Chip();
     init_ALL();
-    
+    int i;
+    unsigned char buffer[5] = {1, 5, 70, 90, 3};
     info.allbits = 0;
     while(1){
-        if (get_count() != 0) read_FIFO();
-        if(AD_count == 0){
-            //MM(buffer_A[C_A]);
-            ///// LATD = (buffer_A[C_A-1]);
-            AD_count = ADC();  
+
+        for(i = 0; i < 5; i++){
+            write_FIFO_tx(buffer[i]);
         }
+        if (get_count_rx() != 0) read_FIFO_rx();
+        if(get_count_tx() != 0) send_FIFO_tx();
+//        if(AD_count == 0){
+//            //MM(buffer_A[C_A]);
+//            ///// LATD = (buffer_A[C_A-1]);
+//            AD_count = ADC();  
+//        }
     }
     return 0;
 }

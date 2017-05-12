@@ -112,7 +112,7 @@ public class testConnection {
 			                	if(len> 0) {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
-			                			System.out.println((char)buffer[i] +" => " + Byte.toString(buffer[i]) + " => " + buffer[i]);
+			                			System.out.println(Byte.toString(buffer[i]) + " => " + buffer[i]);
 			                			
 			                		}
 				                   
