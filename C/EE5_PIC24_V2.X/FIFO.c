@@ -38,7 +38,7 @@ void read_FIFO_rx(void) {
 }
 
 void write_FIFO_tx(unsigned char data) {
-    fifo_tx[i] = data;
+    fifo_tx[k] = data;
     k++;
     count_tx++;
     if (k >= 500) k = 0;
@@ -46,10 +46,12 @@ void write_FIFO_tx(unsigned char data) {
 
 void send_FIFO_tx(void) {
     while (count_tx) {
+        if(U2STAbits.UTXBF) return;
         l++;
         count_tx--;
         if (l >= 500) l = 0;
         U2TXREG = fifo_tx[l];
+        
     }
 }
 

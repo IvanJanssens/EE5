@@ -6,7 +6,7 @@ void write_FIFO_rx(unsigned char data );
 void read_FIFO_rx(void);
 
 void write_FIFO_tx(unsigned char data );
-void read_FIFO_tx(void);
+void send_FIFO_tx(void);
 
 
 int get_count_rx(void);

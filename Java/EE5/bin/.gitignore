@@ -1,6 +1,6 @@
-<<<<<<< HEAD
-/userinterface/
-=======
 /TestFiles/
->>>>>>> 2facdc3f70ef276bae63b0429e77476947d54807
+/src/
+/userinterface/
+/application/
 /communication/
+/resource/
