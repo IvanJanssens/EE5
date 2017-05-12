@@ -1,21 +1,24 @@
 package userinterface;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 
+import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
@@ -29,7 +32,6 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
@@ -41,26 +43,22 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import resource.ResourceLoader;
+import application.Main;
 import application.Oscilloscope;
 
 public class OscilloscopeUI extends UI{
 
 
 	private static BorderPane osciBody;
-	private static XYChart.Series<Number, Number> data;
-	private static XYChart.Series<Number, Number> fftData;
-	private static int datapoint;
-	private static int fftDatapoint;
-	private static double max;
-	private static double min;
 	private static Label ptp;
 	private static Label rms;
-	private static double sum;
-	private static double triggerValue;
-	private static int max_data = 500;
-	private static double prevValue = 0;
-	private static double prevFftValue = 0;
 	private static Oscilloscope oscilloscope;
+	private static NumbField dataFrom;
+	private static NumbField dataTill;
+	private static VBox prevData;
+	private static VBox oscibuttons;
+	private static HBox mainButtons;
+	private static File loadFile;
 	
 	// create new tab for the oscilloscope
 	public static Tab Oscilloscope(Oscilloscope oscillo) {
@@ -86,30 +84,104 @@ public class OscilloscopeUI extends UI{
 	}
 	
 	private static HBox mainButtons() {
-		HBox mainButtons = new HBox(10);
+		mainButtons = new HBox(10);
 		mainButtons.setAlignment(Pos.CENTER_LEFT);
-		mainButtons.getChildren().addAll(Open(),Save(),printScreen(),help());
+		mainButtons.getChildren().addAll(Load(),Save(),printScreen(),help());
 		return mainButtons;
 	}
 	
 	//open basic filechooser
-	private static Button Open(){
-		Button open = new Button("Open");
-		open.setPrefWidth(120);
-		open.setOnMouseClicked(new EventHandler<Event>() {
+	private static Button Load(){
+		Button load = new Button("Load");
+		load.setPrefWidth(120);
+		load.setOnMouseClicked(new EventHandler<Event>() {
 			@Override
 			public void handle(Event e){
 				FileChooser open = new FileChooser();
-				open.setTitle("Open mesurements");
+				open.setTitle("Load mesurements");
 				open.getExtensionFilters().add(new ExtensionFilter("text","*.txt"));
-				File selectedFile = open.showOpenDialog(null);
-				if(selectedFile != null){
-					
+				loadFile = open.showOpenDialog(null);
+				if(loadFile != null){
+					oscibuttons.getChildren().clear();
+					oscibuttons.getChildren().addAll(rms(),ptp(),prevData);
+					mainButtons.getChildren().remove(0, 2);
+					mainButtons.getChildren().add(0,newMes());
+					mainButtons.getChildren().add(0,loadNew());
+					readFile(loadFile);
 				}
 					
 			}
 		});
-		return open;
+		return load;
+	}
+	private static Button newMes() {
+		Button newMes = new Button("Start oscilloscope");
+		newMes.setPrefWidth(120);
+		newMes.setOnMouseClicked(new EventHandler<Event> () {
+			@Override
+			public void handle(Event e) {
+				oscibuttons.getChildren().clear();
+				oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp(),fft());
+				mainButtons.getChildren().remove(0,2);
+				mainButtons.getChildren().add(0,Save());
+				mainButtons.getChildren().add(0,Load());
+			}
+		});
+		return newMes;
+	}
+	
+	private static Button loadNew() {
+		Button loadNew = new Button("Load new");
+		loadNew.setPrefWidth(120);
+		loadNew.setOnMouseClicked(new EventHandler<Event> () {
+			@Override
+			public void handle(Event e) {
+				FileChooser open = new FileChooser();
+				open.setTitle("Load mesurements");
+				open.getExtensionFilters().add(new ExtensionFilter("text","*.txt"));
+				loadFile = open.showOpenDialog(null);
+				if(loadFile != null){
+					readFile(loadFile);
+				}
+			}
+		});
+		return loadNew;
+	}
+	
+	private static void readFile(File file) {
+		GraphUI.clearGraph();
+		int from = Integer.parseInt(dataFrom.getText());
+		int till = Integer.parseInt(dataTill.getText());
+		int currentData = from;
+		int max_data = till-from + 1;
+        BufferedReader in = null;
+		try {
+			in = new BufferedReader(new FileReader(file));
+			int currentLineNo = 0;
+			while(currentLineNo < from){
+				if(in.readLine() == null) {
+					throw new IOException("File too small");
+				}
+				currentLineNo++;
+			}
+			while(currentLineNo <= till) {
+				String nextLine = in.readLine();
+				if(nextLine == null)
+					return;
+				GraphUI.addData(Double.parseDouble(nextLine),from,(till - from), currentData,GraphUI.OsciUI);
+				currentLineNo++;
+				currentData++;
+			}
+		} catch (IOException ex) {
+			Main.LOGGER.log(Level.SEVERE,"Couldn't read dataFile",ex);
+		} finally {
+			try {
+				if(in!=null)
+					in.close();
+			} catch(IOException ex) {
+				Main.LOGGER.log(Level.WARNING, "Datafile not closed", ex);
+			}
+		}
 	}
 	
 	private static Button Save() {
@@ -129,7 +201,7 @@ public class OscilloscopeUI extends UI{
 						FileChannel dest = new FileOutputStream(selectedFile).getChannel();
 						dest.transferFrom(src, 0, src.size());
 					} catch (Exception ex) {
-						ex.printStackTrace();
+						Main.LOGGER.log(Level.SEVERE,"Coudn't copy temp file to new",ex);
 					}
 					UI.startOsci();
 					
@@ -160,8 +232,7 @@ public class OscilloscopeUI extends UI{
 			            UI.startOsci(); // restart the inputstream
 
 			        } catch (IOException ex) {
-			            // TODO Auto-generated catch block
-			            ex.printStackTrace();
+						Main.LOGGER.log(Level.SEVERE,"Coudn't make a screenshot",ex);
 			        }
 				}
 			}
@@ -224,13 +295,15 @@ public class OscilloscopeUI extends UI{
 		VBox osciButtons = osciButtons();
 		osciBody.setRight(osciButtons);
 		BorderPane.setMargin(osciButtons, new Insets(10,10,10,10));
-		osciBody.setCenter(osciGraph());
+		LineChart<Number,Number> graph = GraphUI.osciGraph();
+		osciBody.setCenter(graph);
 		return osciBody;
 	}
 	
 	private static VBox osciButtons() {
-		VBox oscibuttons = new VBox(10);
-		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp(),fft(),prevData());
+		oscibuttons = new VBox(10);
+		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp(),fft());
+		prevData();
 		return oscibuttons;
 	}
 	
@@ -287,11 +360,10 @@ public class OscilloscopeUI extends UI{
 		Spinner<Double> trigger = new Spinner<Double>();
 		trigger.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-5,5));
 		trigger.setEditable(true);
-		trigger.getValueFactory().setValue((double) 0);
+		trigger.getValueFactory().setValue(UI.TRIGGER);
 		trigger.setPrefWidth(120);
 		trigger.valueProperty().addListener((obs, oldValue, newValue) -> {
-			System.out.println("updateTrigger: " + newValue);
-			triggerValue = newValue;
+			Oscilloscope.updateTrigger(newValue);
 		});
 		return trigger;
 	}
@@ -299,15 +371,11 @@ public class OscilloscopeUI extends UI{
 	private static Spinner<Integer> timediv() {
 		Spinner<Integer> timediv = new Spinner<Integer>();
 		timediv.setValueFactory(new IntegerSpinnerValueFactory(10,5000));
-		timediv.getValueFactory().setValue(max_data);
+		timediv.getValueFactory().setValue(UI.MAX_DATA);
 		timediv.setPrefWidth(120);
 		timediv.setEditable(true);
 		timediv.valueProperty().addListener((obs, oldValue, newValue) -> {
-			if(newValue < max_data) {
-				data.getData().remove(newValue, data.getData().size());
-			}
-			max_data = newValue;
-	        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(newValue);
+	        Oscilloscope.updateTimeDiv(newValue);
 		});
 		return timediv;
 	}
@@ -329,126 +397,25 @@ public class OscilloscopeUI extends UI{
 		return fft;
 	}
 	
-	private static VBox prevData() {
-		VBox prevData = new VBox(10);
-		HBox from = new HBox(10);
-		from.getChildren().addAll(
-					new Label("Data from: "),
-					new NumbField("0"));
-		HBox till = new HBox(10);
-		till.getChildren().addAll(
-					new Label("till: "),
-					new TextField("100"));
-		prevData.getChildren().addAll(from,till);
-		return prevData;
+	private static void prevData() {
+		prevData = new VBox(10);
+		dataFrom = new NumbField("0");
+		dataFrom.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> readFile(loadFile));
+		dataTill = new NumbField("350");
+		dataTill.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> readFile(loadFile));
+		prevData.getChildren().addAll(new Label("Data from: "),
+				dataFrom,new Label("Till: "),dataTill);
 	}
 	
-	//Linechart
-	private static LineChart<Number, Number> osciGraph() {
-		NumberAxis xAxis = new NumberAxis();
-		NumberAxis yAxis = new NumberAxis();
-		xAxis.setLabel("Time (s)");
-		yAxis.setLabel("Voltage (V)");
-		LineChart<Number, Number> graph = new LineChart<Number, Number>(xAxis,yAxis);
-		graph.setTitle("Oscilloscope");
-		data = new XYChart.Series<Number, Number>();
-		data.setName("values");
-		datapoint = 0;
-		graph.getData().add(data);
-		graph.getXAxis().setAutoRanging(false);
-		graph.getYAxis().setAutoRanging(false);
-		graph.setMinWidth(400);
-		graph.setMaxWidth(1000);
-		graph.setAnimated(false);
-		((ValueAxis<Number>) graph.getYAxis()).setUpperBound(5.5);
-		((ValueAxis<Number>) graph.getXAxis()).setLowerBound(0);
-        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(max_data);
-		return graph;
-	}
 	
-	public static void addData(double  newPoint) {
-		
-		//get number of datapoints
-        int numOfPoint = data.getData().size();
-        
-		if(datapoint >= max_data && newPoint > (double)triggerValue && prevValue <= (double)triggerValue) {
-			datapoint = 0;
-			
-		}
-		((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(0);
-        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(max_data);
-		if(numOfPoint >= max_data && datapoint < max_data) {
-			data.getData().set(datapoint, new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
-		}
-		else if(numOfPoint < max_data && datapoint < max_data){
-			data.getData().add(new XYChart.Data<Number, Number>(datapoint,newPoint)); // add new datapoint
-		}
-        datapoint += 1;
-		if(datapoint == max_data){
-			min = (double) data.getData().get(0).getYValue();
-			max = (double) data.getData().get(0).getYValue();
-			sum = 0;
-			data.getData().forEach(value-> {
-				sum += ((double) value.getYValue()*(double) value.getYValue());
-				if((double) value.getYValue() > max)
-					max = (double)value.getYValue();
-				if((double) value.getYValue() < min)
-					min = (double)value.getYValue();
-			});
-			updateRMS(Math.sqrt(sum/max_data));
-			updatePtP(max,min);
-		}
-		prevValue = newPoint;
-	}
 	
-	private static void updateRMS(double rmsValue) {
+	public static void updateRMS(double rmsValue) {
 		rms.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
 	}
 	
-	private static void updatePtP(double max, double min) {
+	public static void updatePtP(double max, double min) {
 		ptp.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
 	}
 	
-	private static LineChart<Number, Number> fftGraph() {
-		NumberAxis xAxis = new NumberAxis();
-		NumberAxis yAxis = new NumberAxis();
-		xAxis.setLabel("Time (s)");
-		yAxis.setLabel("Voltage (V)");
-		LineChart<Number, Number> graph = new LineChart<Number, Number>(xAxis,yAxis);
-		graph.setTitle("Oscilloscope");
-		fftData = new XYChart.Series<Number, Number>();
-		fftData.setName("FFT values");
-		fftDatapoint = 0;
-		graph.getData().add(fftData);
-		graph.getXAxis().setAutoRanging(false);
-		graph.getYAxis().setAutoRanging(false);
-		graph.setMinWidth(400);
-		graph.setMaxWidth(1000);
-		graph.setAnimated(false);
-		((ValueAxis<Number>) graph.getYAxis()).setUpperBound(5.5);
-		return graph;
-	}
-
-	public static void addFftData(float[] fftzeropad, float max) {
-		double newPoint;
-		for(int i = 0; i< fftzeropad.length; i++) {
-			newPoint = (double) (fftzeropad[i]/max*3.2);
-			//get number of datapoints
-	        int numOfPoint = fftData.getData().size();
-			if(fftDatapoint >= 4*max_data && newPoint > triggerValue && prevFftValue <= triggerValue) {
-				fftDatapoint = 0;
-				
-			}
-			
-			((ValueAxis<Number>) fftData.getChart().getXAxis()).setLowerBound(0);
-	        ((ValueAxis<Number>) fftData.getChart().getXAxis()).setUpperBound(4*max_data);
-	        if(numOfPoint >= 4*max_data && fftDatapoint < 4*max_data)
-	        	fftData.getData().set(fftDatapoint, new XYChart.Data<Number, Number>(fftDatapoint,newPoint)); // add new datapoint
-	        else if(fftDatapoint < 4*max_data)
-	        	fftData.getData().add(new XYChart.Data<Number, Number>(fftDatapoint,newPoint)); // add new datapoint
-	        fftDatapoint += 1;
-	        prevFftValue = newPoint;
-		}
-		
-	}
+	
 }

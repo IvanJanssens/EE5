@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.logging.Level;
 
+import application.Main;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
@@ -51,7 +53,11 @@ public class Connection {
 		}
 		else {
 			//open COM-port
-			port = this.commPortIdentifier.open(this.getClass().getName(),2000);
+			try {
+				port = this.commPortIdentifier.open(this.getClass().getName(),2000);
+			} catch (Exception e) {
+				Main.LOGGER.log(Level.SEVERE,"couldn't start program",e);
+			}
 			
 			if(port instanceof SerialPort) {
 				this.serialPort = (SerialPort) port;
@@ -111,6 +117,7 @@ public class Connection {
 			catch (IOException e){
 				e.printStackTrace();
 			}
+			this.serialPort.close();
 	        port.close(); //close serial port
 	    }
 	}

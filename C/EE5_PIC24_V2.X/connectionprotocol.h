@@ -23,6 +23,7 @@ typedef union {
         unsigned int M_module: 2; //MM = 11
         unsigned int M_ON: 1;
         unsigned int M_gain: 3;
+        unsigned int extra: 2;
     };
 } data_t;
 
@@ -42,6 +43,7 @@ typedef struct {
     struct {
         unsigned int ON: 1;
         unsigned int gain: 3;
+        unsigned int extra: 4;
     } MM;
     struct {
         unsigned int wave: 3;

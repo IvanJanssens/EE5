@@ -2,6 +2,7 @@ package TestFiles;
 
 
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
@@ -80,12 +81,12 @@ public class testConnection {
 		public void run() {
 			while(!Thread.interrupted()) {
 				Scanner input = new Scanner(System.in);
-				byte[] message = input.nextLine().getBytes();
+				byte[] message = (input.nextLine().getBytes());
+				System.out.println(message[0]);
 				send(message);
 			}
 		}
 	}
-	
 	//read out the input buffer of the COM port
 	 public static class SerialReader implements Runnable 
 	    {
@@ -108,7 +109,7 @@ public class testConnection {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
 			                			System.out.println((char)buffer[i] +" => " + String.format("%8s", Integer.toBinaryString(buffer[i]).replace(' ', '0')) + " => " + buffer[i]);
-			                			
+
 			                		}
 				                   
 			                	}

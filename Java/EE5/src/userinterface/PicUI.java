@@ -1,7 +1,11 @@
 package userinterface;
 
-import java.util.Optional;
 
+
+import application.Main;
+
+import java.util.Optional;
+import java.util.logging.Level;
 
 import communication.Connection;
 import gnu.io.CommPortIdentifier;
@@ -53,9 +57,8 @@ public class PicUI {
 						connection = new Connection(combo.getValue());
 						connection.load();
 						portSelect.setResult(ButtonType.FINISH);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (Exception ex) {
+						Main.LOGGER.log(Level.SEVERE,"Couldn't start connection",ex);
 					}
 				}
 				
@@ -63,12 +66,21 @@ public class PicUI {
 			
 		});
 		
+		Button simpleStart = new Button("Start Without Pic");
+		simpleStart.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e) {
+				connection = Main.NO_CONNECTION;
+				portSelect.setResult(ButtonType.FINISH);
+			}
+		});
+		
 		//create a default cancel button
 		ButtonType cancel = new ButtonType("Cancel Program",ButtonData.CANCEL_CLOSE);
 		
 		//add the buttons and combobox in a horizontal box, with 10px spacing
 		HBox buttons = new HBox(10);
-		buttons.getChildren().addAll(refreshPort,combo, selectPort);
+		buttons.getChildren().addAll(refreshPort,combo, selectPort,simpleStart);
 
 
 
