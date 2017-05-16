@@ -52,18 +52,22 @@ void parse_Data(unsigned char new_data) {
         case 1: { //01
             info.A.AC_DC = data.AC_DC;
             info.A.ON = data.O_ON;
-            if (data.O_select) 
-                info.A.speed = data.O_data; 
-            else 
-                info.A.gain = data.O_data;
+            if(info.A.ON == 1) {
+                if (data.O_select) 
+                    info.A.speed = data.O_data; 
+                else 
+                    info.A.gain = data.O_data;
+            }
             init_A();
             break;
         }
         case 2: { //10
             info.B.AC_DC = data.AC_DC;
             info.B.ON = data.O_ON;
-            if (data.O_select) {    info.B.speed = data.O_data;    }
-            else{   info.B.gain = data.O_data;   }
+            if(info.B.ON == 1) {
+                if (data.O_select) {    info.B.speed = data.O_data;    }
+                else{   info.B.gain = data.O_data;   }
+            }
             init_B();
             break;
         }

@@ -19,9 +19,7 @@ import javafx.scene.layout.VBox;
 import resource.ResourceLoader;
 public class Generator {
 
-	static Connection connection;
-	public Generator(Connection connection) {
-		Generator.connection = connection;
+	public Generator() {
 	}
 	
 	public static Tab generator() {

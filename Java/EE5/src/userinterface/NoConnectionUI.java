@@ -13,6 +13,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Alert;
@@ -34,8 +35,10 @@ import resource.ResourceLoader;
 
 public class NoConnectionUI extends UI{
 
-	private static Label ptp;
-	private static Label rms;
+	private static Label ptpA;
+	private static Label rmsA;
+	private static Label ptpB;
+	private static Label rmsB;
 	private static NumbField dataFrom;
 	private static NumbField dataTill;
 	private static BorderPane noConBody;
@@ -110,7 +113,7 @@ public class NoConnectionUI extends UI{
 					String nextLine = in.readLine();
 					if(nextLine == null)
 						return;
-					GraphUI.addData(Double.parseDouble(nextLine),from,(till-from),currentData,GraphUI.NoConUI);
+					GraphUI.addDataA(Double.parseDouble(nextLine),from,(till-from),currentData,GraphUI.NoConUI);
 					currentLineNo++;
 					currentData++;
 				}
@@ -166,7 +169,6 @@ public class NoConnectionUI extends UI{
 					helpAlert.getDialogPane().setPrefHeight(400);
 					helpAlert.setResizable(true);
 					helpAlert.getDialogPane().setContent(helpContent());
-
 					helpAlert.showAndWait();
 				}
 			});
@@ -204,20 +206,44 @@ public class NoConnectionUI extends UI{
 		
 		private static VBox noConButtons() {
 			VBox noConButtons = new VBox(10);
-			noConButtons.getChildren().addAll(rms(),ptp(),prevData());
+			noConButtons.getChildren().addAll(dataButtonsA(),new Separator(Orientation.VERTICAL),dataButtonsB());
 			return noConButtons;
 		}
 		
-		private static Label rms() {
-			rms = new Label("Root Mean Square\n(RMS): ");
-			rms.setPrefWidth(120);
-			return rms;
+		private static VBox dataButtonsA() {
+			VBox dataButtons = new VBox(10);
+			dataButtons.getChildren().addAll(rmsA(),ptpA(),prevData());
+			return dataButtons;
 		}
 		
-		private static Label ptp() {
-			ptp = new Label("Peak to Peak: ");
-			ptp.setPrefWidth(120);
-			return ptp;
+		
+		private static VBox dataButtonsB() {
+			VBox dataButtons = new VBox(10);
+			dataButtons.getChildren().addAll(rmsB(),ptpB(),prevData());
+			return dataButtons;
+		}
+		private static Label rmsA() {
+			rmsA = new Label("Root Mean Square\n(RMS): ");
+			rmsA.setPrefWidth(120);
+			return rmsA;
+		}
+		
+		private static Label ptpA() {
+			ptpA = new Label("Peak to Peak: ");
+			ptpA.setPrefWidth(120);
+			return ptpA;
+		}
+		
+		private static Label rmsB() {
+			rmsB = new Label("Root Mean Square\n(RMS): ");
+			rmsB.setPrefWidth(120);
+			return rmsB;
+		}
+		
+		private static Label ptpB() {
+			ptpB = new Label("Peak to Peak: ");
+			ptpB.setPrefWidth(120);
+			return ptpB;
 		}
 		
 		private static VBox prevData() {
@@ -235,11 +261,19 @@ public class NoConnectionUI extends UI{
 		
 		
 		
-		public static void updateRMS(double rmsValue) {
-			rms.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
+		public static void updateRMSA(double rmsValue) {
+			rmsA.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
 		}
 		
-		public static void updatePtP(double max, double min) {
-			ptp.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
+		public static void updatePtPA(double max, double min) {
+			ptpA.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
+		}
+		
+		public static void updateRMSB(double rmsValue) {
+			rmsB.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
+		}
+		
+		public static void updatePtPB(double max, double min) {
+			ptpB.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
 		}
 }

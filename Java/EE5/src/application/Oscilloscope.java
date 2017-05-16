@@ -16,17 +16,16 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import userinterface.GraphUI;
+import userinterface.OscilloscopeUI;
 import userinterface.UI;
 
 public class Oscilloscope extends Service<Object>{
 
-	Connection connection;
 	File tempFile;
 	static double trigger = UI.TRIGGER;
 	static int max_data = UI.MAX_DATA;
 	static int attenuation = UI.ATTENUATION;
-	public Oscilloscope(Connection connection, File tempFile) {
-		this.connection = connection;
+	public Oscilloscope(File tempFile) {
 		this.tempFile = tempFile;
 	}
 	
@@ -51,9 +50,9 @@ public class Oscilloscope extends Service<Object>{
 			BufferedWriter temp;
 			@Override
 			protected Object call() {
-				InputStream input = connection.getInputStream();
+				InputStream input = Connection.getInputStream();
 				
-				connection.send(UI.OSCILLOSCOPE); //Send UI.OSCILLOSCOPE to start the oscilloscope datastream
+				OscilloscopeUI.sendOsciParam(); //Send UI.OSCILLOSCOPE to start the oscilloscope datastream
 				int len = -1;
 				result = 0;
 				byte[] buffer = new byte[64];
@@ -82,9 +81,11 @@ public class Oscilloscope extends Service<Object>{
 			                    			double newDataPoint = databuffer.poll();
 			                    			if(currentDataPoint >= max_data && newDataPoint > (double)trigger && prevValue <= (double)trigger) {
 			                    				currentDataPoint = 0;
+			                    				System.out.println("reset");
 			                    			}
 			                    			if(currentDataPoint <= max_data)
-			                    				GraphUI.addData(newDataPoint,0,max_data,currentDataPoint,GraphUI.OsciUI);
+			                    				GraphUI.addDataA(newDataPoint,0,max_data,currentDataPoint,GraphUI.OsciUI);
+			                    			System.out.println("adding Data: " + currentDataPoint);
 			                    			prevValue = newDataPoint;
 			                    			currentDataPoint++;
 			                    		}
@@ -100,7 +101,6 @@ public class Oscilloscope extends Service<Object>{
 		            	}
 					}
 					if(isCancelled()) {
-						connection.send(UI.STOP);
 						temp.flush();
 						temp.close();
 					}

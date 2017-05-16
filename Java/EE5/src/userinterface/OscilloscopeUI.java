@@ -17,6 +17,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.ValueAxis;
@@ -45,13 +46,16 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import resource.ResourceLoader;
 import application.Main;
 import application.Oscilloscope;
+import communication.Connection;
 
 public class OscilloscopeUI extends UI{
 
 
 	private static BorderPane osciBody;
-	private static Label ptp;
-	private static Label rms;
+	private static Label ptpA;
+	private static Label rmsA;
+	private static Label ptpB;
+	private static Label rmsB;
 	private static Oscilloscope oscilloscope;
 	private static NumbField dataFrom;
 	private static NumbField dataTill;
@@ -59,6 +63,15 @@ public class OscilloscopeUI extends UI{
 	private static VBox oscibuttons;
 	private static HBox mainButtons;
 	private static File loadFile;
+	private static RadioButton onOffA;
+	private static RadioButton onOffB;
+	private static ToggleGroup groupA;
+	private static ToggleGroup groupB;
+	private static ToggleGroup acdcA;
+	private static ToggleGroup acdcB;
+	
+	private static final String AC = "ac";
+	private static final String DC = "dc";
 	
 	// create new tab for the oscilloscope
 	public static Tab Oscilloscope(Oscilloscope oscillo) {
@@ -103,7 +116,7 @@ public class OscilloscopeUI extends UI{
 				loadFile = open.showOpenDialog(null);
 				if(loadFile != null){
 					oscibuttons.getChildren().clear();
-					oscibuttons.getChildren().addAll(rms(),ptp(),prevData);
+					oscibuttons.getChildren().addAll(dataDoubleButtons(),prevData);
 					mainButtons.getChildren().remove(0, 2);
 					mainButtons.getChildren().add(0,newMes());
 					mainButtons.getChildren().add(0,loadNew());
@@ -121,7 +134,7 @@ public class OscilloscopeUI extends UI{
 			@Override
 			public void handle(Event e) {
 				oscibuttons.getChildren().clear();
-				oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp(),fft());
+				oscibuttons.getChildren().addAll(osciDoubleButtons(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv());
 				mainButtons.getChildren().remove(0,2);
 				mainButtons.getChildren().add(0,Save());
 				mainButtons.getChildren().add(0,Load());
@@ -153,7 +166,6 @@ public class OscilloscopeUI extends UI{
 		int from = Integer.parseInt(dataFrom.getText());
 		int till = Integer.parseInt(dataTill.getText());
 		int currentData = from;
-		int max_data = till-from + 1;
         BufferedReader in = null;
 		try {
 			in = new BufferedReader(new FileReader(file));
@@ -168,7 +180,7 @@ public class OscilloscopeUI extends UI{
 				String nextLine = in.readLine();
 				if(nextLine == null)
 					return;
-				GraphUI.addData(Double.parseDouble(nextLine),from,(till - from), currentData,GraphUI.OsciUI);
+				GraphUI.addDataA(Double.parseDouble(nextLine),from,(till - from), currentData,GraphUI.OsciUI);
 				currentLineNo++;
 				currentData++;
 			}
@@ -302,66 +314,188 @@ public class OscilloscopeUI extends UI{
 	
 	private static VBox osciButtons() {
 		oscibuttons = new VBox(10);
-		oscibuttons.getChildren().addAll(channel(),attenuation(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv(),rms(),ptp(),fft());
+		oscibuttons.getChildren().addAll(osciDoubleButtons(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv());
+		return oscibuttons;
+	}
+	
+	private static HBox osciDoubleButtons() {
+		HBox doubleButtons = new HBox(10);
+		doubleButtons.getChildren().addAll(buttonsA(),new Separator(Orientation.VERTICAL),buttonsB());
+		return doubleButtons;
+	}
+	
+	private static HBox dataDoubleButtons() {
+		HBox doubleButtons = new HBox(10);
+		doubleButtons.getChildren().addAll(dataButtonsA(),new Separator(Orientation.VERTICAL),dataButtonsB());
+		return doubleButtons;
+	}
+	
+	private static VBox buttonsA() {
+		VBox oscibuttons = new VBox(10);
+		oscibuttons.getChildren().addAll(new Label("Channel 1"), OnOffA(),ACDCA(),attenuationA(),rmsA(),ptpA(),fftA());
 		prevData();
 		return oscibuttons;
 	}
 	
-	private static VBox channel() {
-		VBox channel = new VBox(10);
-		RadioButton channel1 = new RadioButton();
-		channel1.setText("Channel 1");
-		channel1.setSelected(true);
-		RadioButton channel2 = new RadioButton();
-		channel2.setText("Channel 2");
-		channel.getChildren().addAll(channel1,channel2);
-		return channel;
+	private static VBox dataButtonsA() {
+		VBox dataButtons = new VBox(10);
+		dataButtons.getChildren().addAll(new Label("Channel 1"),rmsA(),ptpA());
+		return dataButtons;
 	}
 	
-	private static HBox attenuation() {
+	private static VBox buttonsB() {
+		VBox oscibuttons = new VBox(10);
+		oscibuttons.getChildren().addAll(new Label("Channel 2"), OnOffB(),ACDCB(),attenuationB(),rmsB(),ptpB(),fftB());
+		prevData();
+		return oscibuttons;
+	}
+	
+	private static VBox dataButtonsB() {
+		VBox dataButtons = new VBox(10);
+		dataButtons.getChildren().addAll(new Label("Channel 2"),rmsB(),ptpB());
+		return dataButtons;
+	}
+	
+	private static RadioButton OnOffA() {
+		onOffA = new RadioButton();
+		onOffA.setText("input 1");
+		onOffA.setSelected(true);
+		onOffA.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e){
+				sendASpeedParam();
+			}
+		});
+		return onOffA;
+	}
+	
+	private static RadioButton OnOffB() {
+		onOffB = new RadioButton();
+		onOffB.setText("input 2");
+		onOffB.setOnMouseClicked(new EventHandler<Event> () {
+			@Override
+			public void handle(Event e) {
+				sendBSpeedParam();
+			}
+		});
+		return onOffB;
+	}
+	
+	private static HBox ACDCA() {
+		HBox acdcBox = new HBox(10);
+		ToggleButton acA = new ToggleButton();
+		acA.setPrefWidth(60);
+		acA.setText("AC");
+		acA.setUserData(AC);
+		ToggleButton dcA = new ToggleButton();
+		dcA.setPrefWidth(60);
+		dcA.setText("DC");
+		dcA.setUserData(DC);
+		acdcA = new ToggleGroup();
+		acA.setToggleGroup(acdcA);
+		dcA.setToggleGroup(acdcA);
+		acdcA.selectToggle(acA);
+		acA.setDisable(true);
+		acdcA.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																((ToggleButton) newToggle).setDisable(true);
+																((ToggleButton) oldToggle).setDisable(false);
+																sendASpeedParam();
+		});
+		acdcBox.getChildren().addAll(acA,dcA);
+		return acdcBox;
+	}
+	
+	private static HBox ACDCB() {
+		HBox acdcBox = new HBox(10);
+		ToggleButton acB = new ToggleButton();
+		acB.setPrefWidth(60);
+		acB.setText("AC");
+		acB.setUserData(AC);
+		ToggleButton dcB = new ToggleButton();
+		dcB.setPrefWidth(60);
+		dcB.setText("DC");
+		dcB.setUserData(DC);
+		acdcB = new ToggleGroup();
+		acB.setToggleGroup(acdcB);
+		dcB.setToggleGroup(acdcB);
+		acdcB.selectToggle(acB);
+		acB.setDisable(true);
+		acdcB.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																((ToggleButton) newToggle).setDisable(true);
+																((ToggleButton) oldToggle).setDisable(false);
+																sendBSpeedParam();
+		});
+		acdcBox.getChildren().addAll(acB,dcB);
+		return acdcBox;
+	}
+	
+	private static HBox attenuationA() {
 		HBox attenuation = new HBox();
 		ToggleButton  x2 = new ToggleButton ();
 		x2.setText("X2");
+		x2.setUserData(2);
 		x2.setPrefWidth(40);
 		ToggleButton  x5 = new ToggleButton ();
 		x5.setText("X5");
+		x5.setUserData(5);
 		x5.setPrefWidth(40);
 		ToggleButton  x10 = new ToggleButton ();
 		x10.setText("X10");
+		x10.setUserData(10);
 		x10.setPrefWidth(40);
-		ToggleGroup group = new ToggleGroup();
-		x2.setToggleGroup(group);
-		x5.setToggleGroup(group);
-		x10.setToggleGroup(group);
-		group.selectToggle(x2);
-		x2.setOnMouseClicked(new EventHandler<Event>() {
-			@Override
-			public void handle(Event e) {
-				oscilloscope.updateAttenuation(2);
-			}
-		});
-		x5.setOnMouseClicked(new EventHandler<Event>() {
-			@Override
-			public void handle(Event e) {
-				oscilloscope.updateAttenuation(5);
-			}
-		});
-		x10.setOnMouseClicked(new EventHandler<Event>() {
-			@Override
-			public void handle(Event e) {
-				oscilloscope.updateAttenuation(10);
-			}
-		});
+		groupA = new ToggleGroup();
+		x2.setToggleGroup(groupA);
+		x5.setToggleGroup(groupA);
+		x10.setToggleGroup(groupA);
+		groupA.selectToggle(x2);
+		x2.setDisable(true);
+		groupA.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																	sendAGainParam();
+																	((ToggleButton) newToggle).setDisable(true);
+																	((ToggleButton) oldToggle).setDisable(false);
+																	application.Oscilloscope.updateAttenuation((int)newToggle.getUserData());
+																	});
 		attenuation.getChildren().addAll(x2,x5,x10);
 		return attenuation;
 	}
+	
+	private static HBox attenuationB() {
+		HBox attenuation = new HBox();
+		ToggleButton  x2 = new ToggleButton ();
+		x2.setText("X2");
+		x2.setUserData(2);
+		x2.setPrefWidth(40);
+		ToggleButton  x5 = new ToggleButton ();
+		x5.setText("X5");
+		x5.setUserData(5);
+		x5.setPrefWidth(40);
+		ToggleButton  x10 = new ToggleButton ();
+		x10.setText("X10");
+		x10.setUserData(10);
+		x10.setPrefWidth(40);
+		groupB = new ToggleGroup();
+		x2.setToggleGroup(groupB);
+		x5.setToggleGroup(groupB);
+		x10.setToggleGroup(groupB);
+		groupB.selectToggle(x2);
+		x2.setDisable(true);
+		groupB.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																	sendBGainParam();
+																	((ToggleButton) newToggle).setDisable(true);
+																	((ToggleButton) oldToggle).setDisable(false);
+																	application.Oscilloscope.updateAttenuation((int)newToggle.getUserData());
+																	});
+		attenuation.getChildren().addAll(x2,x5,x10);
+		return attenuation;
+	}
+	
 	
 	private static Spinner<Double> trigger() {
 		Spinner<Double> trigger = new Spinner<Double>();
 		trigger.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-5,5));
 		trigger.setEditable(true);
 		trigger.getValueFactory().setValue(UI.TRIGGER);
-		trigger.setPrefWidth(120);
+		trigger.setPrefWidth(240);
 		trigger.valueProperty().addListener((obs, oldValue, newValue) -> {
 			Oscilloscope.updateTrigger(newValue);
 		});
@@ -372,29 +506,49 @@ public class OscilloscopeUI extends UI{
 		Spinner<Integer> timediv = new Spinner<Integer>();
 		timediv.setValueFactory(new IntegerSpinnerValueFactory(10,5000));
 		timediv.getValueFactory().setValue(UI.MAX_DATA);
-		timediv.setPrefWidth(120);
+		timediv.setPrefWidth(240);
 		timediv.setEditable(true);
 		timediv.valueProperty().addListener((obs, oldValue, newValue) -> {
+//			sendSpeedParam();
 	        Oscilloscope.updateTimeDiv(newValue);
 		});
 		return timediv;
 	}
 	
-	private static Label rms() {
-		rms = new Label("Root Mean Square\n(RMS): ");
-		rms.setPrefWidth(120);
-		return rms;
+	private static Label rmsA() {
+		rmsA = new Label("Root Mean Square\n(RMS): ");
+		rmsA.setPrefWidth(120);
+		return rmsA;
 	}
 	
-	private static Label ptp() {
-		ptp = new Label("Peak to Peak: ");
-		ptp.setPrefWidth(120);
-		return ptp;
+	private static Label rmsB() {
+		rmsB = new Label("Root Mean Square\n(RMS): ");
+		rmsB.setPrefWidth(120);
+		return rmsB;
 	}
-	private static ToggleButton fft() {
-		ToggleButton fft = new ToggleButton("fft");
-		fft.setPrefWidth(120);
-		return fft;
+	
+	private static Label ptpA() {
+		ptpA = new Label("Peak to Peak: ");
+		ptpA.setPrefWidth(120);
+		return ptpA;
+	}
+	
+	private static Label ptpB() {
+		ptpB = new Label("Peak to Peak: ");
+		ptpB.setPrefWidth(120);
+		return ptpB;
+	}
+	
+	private static ToggleButton fftA() {
+		ToggleButton fftA = new ToggleButton("fft");
+		fftA.setPrefWidth(120);
+		return fftA;
+	}
+	
+	private static ToggleButton fftB() {
+		ToggleButton fftB = new ToggleButton("fft");
+		fftB.setPrefWidth(120);
+		return fftB;
 	}
 	
 	private static void prevData() {
@@ -409,13 +563,94 @@ public class OscilloscopeUI extends UI{
 	
 	
 	
-	public static void updateRMS(double rmsValue) {
-		rms.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
+	public static void updateRMSA(double rmsValue) {
+		rmsA.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
 	}
 	
-	public static void updatePtP(double max, double min) {
-		ptp.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
+	public static void updateRMSB(double rmsValue) {
+		rmsB.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
 	}
 	
+	public static void updatePtPA(double max, double min) {
+		ptpA.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
+	}
 	
+	public static void updatePtPB(double max, double min) {
+		ptpB.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
+	}
+	
+	public static void sendOsciParam() {
+		sendOsciAParam();
+		sendOsciBParam();
+	}
+	
+	public static void sendOsciAParam() {
+		sendASpeedParam();
+		sendAGainParam();
+	}
+	
+	public static void sendOsciBParam() {
+		sendBSpeedParam();
+		sendBGainParam();
+	}
+	
+	private static void sendASpeedParam() {
+		byte message = 0b01001000; //start with selecting A
+		if(onOffA.isSelected()) {
+			message = setBit(message,5);
+			if(acdcA.getSelectedToggle().getUserData().equals(DC))
+				message = setBit(message,4);
+		}
+		Connection.send(message);
+	}
+	
+	private static void sendBSpeedParam() {
+		byte message = (byte) 0b10001000; //start with selecting B (byte typecast due to overflow because saved as signed int, would mean -128 and is impossible)
+		if(onOffB.isSelected()) {
+			message = setBit(message,5);
+			if(acdcB.getSelectedToggle().getUserData().equals(DC))
+				message = setBit(message,4);
+		}
+		Connection.send(message);		
+	}
+	
+	private static void sendAGainParam() {
+		byte message = 0b01000000;
+		if(onOffA.isSelected()) {
+			message = setBit(message, 5);
+			int gain = (int) groupA.getSelectedToggle().getUserData();
+			if(gain == 10)
+				message = setBit(message,1);
+			else if (gain == 5)
+				message = setBit(message,0);
+			if(acdcA.getSelectedToggle().getUserData().equals(DC))
+				message = setBit(message,4);
+		}
+		
+		Connection.send(message);
+	}
+	
+	private static void sendBGainParam() {
+		byte message = (byte) 0b10000000;
+		if(onOffB.isSelected()) {
+			message = setBit(message,5);
+			int gain = (int) groupB.getSelectedToggle().getUserData();
+			if(gain == 10)
+				message = setBit(message,1);
+			else if (gain == 5)
+				message = setBit(message,0);
+			if(acdcB.getSelectedToggle().getUserData().equals(DC))
+				message = setBit(message,4);
+		}
+		
+		Connection.send(message);
+	}
+	
+	private static byte setBit(byte message, int pos) {
+		return message |= 1 << pos;
+	}
+	
+	private static byte clearBit(byte message, int pos) {
+		return message &= ~(1<<pos);
+	}
 }

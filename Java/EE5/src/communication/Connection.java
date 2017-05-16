@@ -4,8 +4,8 @@ package communication;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.logging.Level;
 
 import application.Main;
@@ -14,21 +14,32 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import userinterface.UI;
 
 public class Connection {
 	
 	private CommPortIdentifier commPortIdentifier;
 	private CommPort port;
 	private SerialPort serialPort;
-	private OutputStream output;
-	private InputStream input;
+	private static OutputStream output;
+	private static InputStream input;
+	private static LinkedList<Byte> dataBuffer;
 
+	private static Connection connection = null; // Make singleton
 	//Connection object
-	public Connection(CommPortIdentifier commPortIdentifier) {
-		super();
+	private Connection() {
+	}
+	
+	public static Connection getInstance() {
+		if(connection == null){ 
+			connection = new Connection();
+		}
+		return connection;
+	}
+	
+	public void initConnection(CommPortIdentifier commPortIdentifier) {
 		this.commPortIdentifier = commPortIdentifier;
 	}
+	
 	
 	//get a list of all the comm-ports available on this PC
 	public static ObservableList<CommPortIdentifier> refresh() {
@@ -63,9 +74,9 @@ public class Connection {
 				this.serialPort = (SerialPort) port;
                 serialPort.setSerialPortParams(9600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
 
-		        this.input = serialPort.getInputStream();
-		        this.output = serialPort.getOutputStream();
-
+		        input = serialPort.getInputStream();
+		        Connection.output = serialPort.getOutputStream();
+		        dataBuffer = new LinkedList<Byte>();
                 return 0;
 			}
 			else {
@@ -74,38 +85,43 @@ public class Connection {
 		}
 	}
 	
-	public InputStream getInputStream() {
-		return this.input;
+	public static InputStream getInputStream() {
+		return input;
 	}
 	
 	 
 	 
 	 //send an int to the port
-	public void send(byte[] message) {
+	public static void send(byte message) {
 		try {
+				System.out.println("--------- Send --------");
+				System.out.println(Integer.toBinaryString(message));
 				output.write(message);
+				dataBuffer.add(message);
+				clearBuffer();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void clearBuffer() {
-		try {
-//			byte[] buffer = new byte[3];
-			byte[] buffer = new byte[1];
-			input.read(buffer);
-			while(!Arrays.equals(buffer, UI.STOP)) {
-//				if(input.available() > 2) {
-//					input.read(buffer, 0, 3);
-//				}
-				input.read(buffer);
-				System.out.println(buffer[0]);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static void clearBuffer() {
+//		try {
+////			byte[] buffer = new byte[3];
+//			byte[] buffer = new byte[1];
+//			input.read(buffer);
+//			Byte prevMessage = dataBuffer.poll();
+//			
+//			while(prevMessage != null) {
+//				if(buffer[0] == (prevMessage))
+//					prevMessage = dataBuffer.poll();
+//				input.read(buffer);
+//				System.out.println("CLEARBUFFER" + Integer.toBinaryString(buffer[0]) + " and " + Integer.toBinaryString(prevMessage));
+//			}
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	public void close() {

@@ -11,9 +11,8 @@ import userinterface.UI;
 
 public class Multimeter extends Service<Object> {
 
-	Connection connection;
-	public Multimeter (Connection connection) {
-		this.connection = connection;
+
+	public Multimeter () {
 	}
 
 
@@ -24,8 +23,8 @@ public class Multimeter extends Service<Object> {
 			@Override
 			protected Object call() throws Exception {
 
-				InputStream input = connection.getInputStream();
-				connection.send(UI.MULTIMETER); //Send UI.MULTIMETER to start the multimeter datastream
+				InputStream input = Connection.getInputStream();
+				Connection.send(UI.MULTIMETER); //Send UI.MULTIMETER to start the multimeter datastream
 				int len = -1;
 				result = 0;
 				byte[] buffer = new byte[3];
@@ -52,9 +51,6 @@ public class Multimeter extends Service<Object> {
 			                    });
 		                   
 		            	}
-					}
-					if(isCancelled()) {
-						connection.send(UI.STOP);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();

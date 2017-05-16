@@ -27,11 +27,7 @@ public class UI {
 	private static Oscilloscope oscilloscope;
 	private static Multimeter multimeter;
 	// messages to be send to the PIC
-	public static final byte[] OSCILLOSCOPE = {(byte) 0b11000000};
-	public static final byte[] MULTIMETER = {(byte) 0b10000000};
-	public static final byte[] FUNCTION = {(byte) 0b01000000 };
-//	public static final byte[] STOP = {(byte) 0b00000000, (byte) 0b11111111, (byte) 0b00000000};
-	public static final byte[] STOP = {(byte) 0b00000000};
+	public static final byte MULTIMETER = (byte) 0b11000000;
 	//max data shown on the oscilloscope graph
 	public static final int MAX_DATA = 500;
 	public static final double TRIGGER = 1.0;
@@ -58,8 +54,8 @@ public class UI {
 		
 		//set standard sizes
 		TabPane main = new TabPane();
-		Scene scene = new Scene(main,900,600);
-		main.setPrefSize(900.00,600.00);
+		Scene scene = new Scene(main,1300,600);
+		main.setPrefSize(1300.00,600.00);
 		main.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 		if(connection == Main.NO_CONNECTION) {
 			main.getTabs().add(NoConnectionUI.noConnection());
@@ -68,8 +64,8 @@ public class UI {
 		}
 		else {
 			//Create the new services for background processing
-			oscilloscope = new Oscilloscope(connection,tempFile);
-			multimeter = new Multimeter(connection);
+			oscilloscope = new Oscilloscope(tempFile);
+			multimeter = new Multimeter();
 			
 			//add different tab UI to the main UI
 			main.getTabs().add(OscilloscopeUI.Oscilloscope(oscilloscope));
@@ -82,7 +78,7 @@ public class UI {
 					new ChangeListener<Tab>() {
 						@Override
 						public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
-							//stop the old tabs background process
+//							stop the old tabs background process
 							if(t.getText().equals("Oscilloscope"))
 								cancelOsci();
 							else if(t.getText().equals("Multimeter"))
@@ -97,7 +93,7 @@ public class UI {
 							else if(t1.getText().equals("Multimeter"))
 								multimeter.restart();
 							else if(t1.getText().equals("Function generator"))
-								System.out.println("open generator");
+								GeneratorUI.sendGenerator();
 						}
 					}
 				);
@@ -117,7 +113,7 @@ public class UI {
 	
 	public static void cancelOsci() {
 		oscilloscope.cancel();
-		connection.clearBuffer();
+//		connection.clearBuffer();
 	}
 	public static void startOsci() {
 		oscilloscope.restart();
@@ -125,7 +121,7 @@ public class UI {
 	
 	public static void cancelMulti() {
 		multimeter.cancel();
-		connection.clearBuffer();
+//		connection.clearBuffer();
 	}
 	public static void startMulti() {
 		multimeter.restart();

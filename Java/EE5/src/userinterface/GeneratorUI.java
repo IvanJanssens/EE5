@@ -1,5 +1,6 @@
 package userinterface;
 
+import communication.Connection;
 import javafx.beans.value.ChangeListener;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -13,6 +14,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
@@ -24,6 +26,7 @@ import resource.ResourceLoader;
 
 public class GeneratorUI {
 
+	private static ToggleGroup waveType;
 	
 	public static Tab generator() {
 		Tab generator = new Tab();
@@ -98,13 +101,20 @@ public class GeneratorUI {
 		wave.setAlignment(Pos.TOP_CENTER);
 		RadioButton sine = new RadioButton();
 		sine.setGraphic(new ImageView(new Image(ResourceLoader.class.getResourceAsStream("SineWave.png"),100,0,true,false)));
+		sine.setUserData("sine");
 		RadioButton square = new RadioButton();
 		square.setGraphic(new ImageView(new Image(ResourceLoader.class.getResourceAsStream("SquareWave.png"),100,0,true,false)));
-		
-		ToggleGroup group = new ToggleGroup();
-		sine.setToggleGroup(group);
-		square.setToggleGroup(group);
-		group.selectToggle(sine);
+		square.setUserData("square");
+		waveType = new ToggleGroup();
+		sine.setToggleGroup(waveType);
+		square.setToggleGroup(waveType);
+		waveType.selectToggle(sine);
+		sine.setDisable(true);
+		waveType.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+				sendWave();
+				((ToggleButton) newToggle).setDisable(true);
+				((ToggleButton) oldToggle).setDisable(false);
+				});
 		wave.getChildren().addAll(sine, square);
 		return wave;
 	}
@@ -119,8 +129,14 @@ public class GeneratorUI {
 			freqSlider.setMajorTickUnit(50);
 			
 			NumbField freqField = new NumbField("330");
-			freqField.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freqSlider.setValue(Integer.parseInt(freqField.getText())));
-			freqSlider.valueProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> freqField.textProperty().setValue(String.valueOf((int) freqSlider.getValue())));
+			freqField.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> {
+																		freqSlider.setValue(Integer.parseInt(freqField.getText()));
+																		sendFreq();
+			});
+			freqSlider.valueProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> {
+																		freqField.textProperty().setValue(String.valueOf((int) freqSlider.getValue()));
+																		sendFreq();
+			});
 			freqField.setMaxWidth(120);
 		freq.setAlignment(Pos.TOP_CENTER);
 		freq.getChildren().addAll(freqSlider,freqField);
@@ -131,5 +147,56 @@ public class GeneratorUI {
 		Button stop = new Button("Stop Generator");
 		stop.setPrefWidth(120);
 		return stop;
+	}
+	
+	public static void sendGenerator() {
+		sendWave();
+		sendFreq();
+	}
+	
+	private static void sendFreq() {
+		byte message = 0b00000000;
+		
+		Connection.send(message);
+		
+		
+		message = 0b00001000;
+		
+		Connection.send(message);
+		
+		
+		message = 0b00010000;
+		
+		Connection.send(message);
+		
+		
+		message = 0b00011000;
+		
+		Connection.send(message);
+		
+		
+		message = 0b00100000;
+		
+		Connection.send(message);
+		
+		message = 0b00110000;
+		
+		Connection.send(message); 
+	}
+	
+	private static void sendWave() {
+		byte message = 0b00111000; //start with wave type
+		if(waveType.getSelectedToggle().getUserData().equals("sine")) {
+			message = setBit(message,0);
+		}
+		Connection.send(message);
+	}
+	
+	private static byte setBit(byte message, int pos) {
+		return message |= 1 << pos;
+	}
+	
+	private static byte clearBit(byte message, int pos) {
+		return message &= ~(1<<pos);
 	}
 }

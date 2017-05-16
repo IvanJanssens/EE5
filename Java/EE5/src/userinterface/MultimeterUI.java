@@ -79,7 +79,7 @@ public class MultimeterUI extends UI{
 	public static void updateMeter(double d) {
 		display.writeNumber(d);
 		if(d < 1)
-			meter.setText("miliVolt");
+			meter.setText("milliVolt");
 		else
 			meter.setText(" volt");
 	}

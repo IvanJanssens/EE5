@@ -13,7 +13,7 @@ import java.util.logging.*;
 
 public class Main extends Application {
 	
-	public static final Connection NO_CONNECTION = new Connection(null);
+	public static final Connection NO_CONNECTION = null;
 	public final static Logger LOGGER = Logger.getLogger(Main.class.getName());
 	@Override
 	public void start(Stage primaryStage) {

@@ -54,7 +54,8 @@ public class PicUI {
 				//close the port-selector and start the main UI
 				if(combo.getValue()!=null) {
 					try {
-						connection = new Connection(combo.getValue());
+						connection = Connection.getInstance();
+						connection.initConnection(combo.getValue());
 						connection.load();
 						portSelect.setResult(ButtonType.FINISH);
 					} catch (Exception ex) {
