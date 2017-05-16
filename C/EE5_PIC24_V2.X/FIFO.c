@@ -50,8 +50,7 @@ void send_FIFO_tx(void) {
         l++;
         count_tx--;
         if (l >= 500) l = 0;
-        U2TXREG = fifo_tx[l];
-        
+        U2TXREG = fifo_tx[l];  
     }
 }
 

@@ -15,6 +15,7 @@
 void init_Chip(void);
 void init_ALL(void);
 int AD_count = 0;
+int count = 0;
 
 
 
@@ -26,14 +27,16 @@ int main(void) {
     
     
     while(1){
-        SquareWave_10K();
-//        if (get_count_rx() != 0) read_FIFO_rx();
-//        if(get_count_tx() != 0) send_FIFO_tx();
-//        if(AD_count == 0){
-//            //MM(buffer_A[C_A]);
-//            ///// LATD = (buffer_A[C_A-1]);
-//            AD_count = ADC();  
-//        }
+        //SquareWave_10K();
+        if (get_count_rx() != 0) {
+            read_FIFO_rx();
+            count = 0;
+        }
+        if(get_count_tx() != 0) send_FIFO_tx();
+        if(AD_DONE && count <= 40) {
+            ADC();
+            count++;
+        }
     }
     return 0;
 }
