@@ -1,6 +1,5 @@
 // Includes
-#include <xc.h>
-#include <PPS.h>                        // Include the header for PPS function    
+#include <xc.h>    
 #include "FunctionGenerator.h"
 #include "connectionprotocol.h" 
 
@@ -8,36 +7,28 @@ void init_FG(void) {
     /*---------- 1. Pins Configuration ----------*/
     
     //configure FSYNC RB14 (RP14/AN14)
-    ANSBbits.ANSB14 = 0;        // Digital Pin;
-    TRISBbits.TRISB14 = 0;      // Output;
-    PORTBbits.RB14 = 1;         // FSYNC = 1 -> STOP transmission (set high after transmission); = 0 -> START transmission (set low before transmission)
+    ANSDbits.ANSD8 = 0;        // Digital Pin;
+    TRISDbits.TRISD8 = 0;      // Output;
+    PORTDbits.RD8 = 1;         // FSYNC = 1 -> STOP transmission (set high after transmission); = 0 -> START transmission (set low before transmission)
     
     // configure SDO RB15 (RP29/AN15)
-    ANSBbits.ANSB15 = 0;        // Digital Pin;
-    TRISBbits.TRISB15 = 0;      // Output;
-    PORTBbits.RB15 = 0;         // Initial value
+    ANSDbits.ANSD10 = 0;        // Digital Pin;
+    TRISDbits.TRISD10 = 0;      // Output;
+    PORTDbits.RD10 = 0;         // Initial value
     
     // configure SDI RF4 (RP10/AN11)
-    ANSFbits.ANSF4 = 0;         // Digital Pin;
-    TRISFbits.TRISF4 = 1;       // Input;
-    PORTFbits.RF4 = 0;          // Initial value
+    ANSBbits.ANSB1 = 0;         // Digital Pin;
+    TRISBbits.TRISB1 = 1;       // Input;
+    PORTBbits.RB1 = 0;          // Initial value
     
     // configure SCK RF5 (RP17/AN10)
-    ANSFbits.ANSF5 = 0;         // Digital Pin;
-    TRISFbits.TRISF5 = 0;       // Output;
-    PORTFbits.RF5 = 1;          // Initial value (SCK is active low -> initial high)
+    ANSDbits.ANSD9 = 0;         // Digital Pin;
+    TRISDbits.TRISD9 = 0;       // Output;
+    PORTDbits.RD9 = 1;          // Initial value (SCK is active low -> initial high)
     
     /*---------- 2. PPS configuration ----------*/
     
-    // Defined in the PPS.h
-    // Always follow the sequence: Unlock -> Set configuration -> Lock
-    
-    PPSUnLock;  // Unlock PPS
-    iPPSOutput(OUT_PIN_PPS_RP14, OUT_FN_PPS_SS1OUT);    // Set FSYNC RB14 (RP14/AN14) as FSYNC (/SS)
-    iPPSOutput(OUT_PIN_PPS_RP29, OUT_FN_PPS_SDO1);      // Set RB15 (RP29/AN15) as SDO
-    iPPSInput(IN_FN_PPS_SDI1, IN_PIN_PPS_RP10);         // Set RF4 (RP10/AN11) as SDI
-    iPPSOutput(OUT_PIN_PPS_RP17, OUT_FN_PPS_SCK1OUT);   // Set RF5 (RP17/AN10) as SCK
-    PPSLock;    // Lock PPS   
+    // Now in main.file -> init_Chip())
     
     /*---------- 3. SPI configuration ----------*/
     
@@ -129,7 +120,7 @@ void generator(void){
     /* For Data Transfer                        */ 
     /********************************************/
     // Control 16bits write in
-    PORTBbits.RB14 = 0;     // Making FSYNC of AD9833 LOW before writing in
+    PORTDbits.RD8 = 0;     // Making FSYNC of AD9833 LOW before writing in
     //PORTGbits.RG9 = 0;
     write_SPI(RESET_UP);     // Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
     write_SPI(RESET_LOW);    // The internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
@@ -151,14 +142,14 @@ void generator(void){
     write_SPI(UNRESET_UP);
     write_SPI(UNRESET_LOW); 
     //PORTGbits.RG9 = 1;
-    PORTBbits.RB14 = 1;  // Making FSYNC of AD9833 HIGH after writing in
+    PORTDbits.RD8 = 1;  // Making FSYNC of AD9833 HIGH after writing in
     
 }
 
 void SquareWave_10K(void)
 {
     //Control 16bits write in
-    PORTBbits.RB14 = 0;  	//Making FSYNC of AD9833 LOW before writing in
+    PORTDbits.RD8 = 0;  	//Making FSYNC of AD9833 LOW before writing in
     
     write_SPI(0b00100001);   //Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
     write_SPI(0b01101000);   // the internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
@@ -188,7 +179,7 @@ void SquareWave_10K(void)
     
     write_SPI(0b00000000);
     write_SPI(0b01101000);
-    PORTBbits.RB14 = 1;
+    PORTDbits.RD8 = 1;
    
 }
 

@@ -16,9 +16,11 @@ void init_A(void);
 void init_B(void);
 void init_MM(void);
 
-int ADC(void ); //initialize the bits that have to do with the ADC for the pic_24
+void ADC(void ); //initialize the bits that have to do with the ADC for the pic_24
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void);
+
+extern int AD_DONE;
 
 #endif	/* ADC_H */
 

@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 /TestFiles/
 /userinterface/
 /application/
 /communication/
+=======
+/librxtxSerial.jnilib
+/resource/
+/userinterface/
+/src/
+>>>>>>> origin/master

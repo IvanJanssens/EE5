@@ -83,7 +83,7 @@ public class testConnection {
 				Scanner input = new Scanner(System.in);
 
 				byte message = (byte) input.nextInt();
-				System.out.println("I send this " + message);
+				System.out.println("Send: " + (message & 0xFF));
 				if(message == 0) {
 					close();
 					Runtime.getRuntime().halt(0);
@@ -104,6 +104,7 @@ public class testConnection {
 	        public void run () {
 		            byte[] buffer = new byte[64];
 		            int len = -1;
+		            int var = 0;
 		            try {
 
 			        	while(!Thread.interrupted()){
@@ -114,8 +115,13 @@ public class testConnection {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
 
-			                			System.out.println(Byte.toString(buffer[i]) + " => " + buffer[i]);
-			                			
+			                			if((buffer[i] & 0x20) == 0x00) {
+			                				var =  (buffer[i] & 0x1F)*32;
+			                				//System.out.println("var:" + var);
+			                			}
+			                			else if((buffer[i] & 0xE0) == 0xE0) System.out.println("MM: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
+			                			else if((buffer[i] & 0xE0) == 0x60) System.out.println("A: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
+			                			else if((buffer[i] & 0xE0) == 0xA0) System.out.println("B: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
 			                		}
 				                   
 			                	}
