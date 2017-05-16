@@ -1,6 +1,7 @@
 #include <xc.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <PPS.h>
 #include "config_EE5.h"
 #include "ADC.h"
 #include "DAC.h"
@@ -58,6 +59,22 @@ void init_Chip(void) {
     RPOR5bits.RP10R = 18; // RP10 is configured as output of output compare 1
     OC1CON1 = 0;
     OC1CON1bits.OCTSEL = 7;
+    
+    // PPS cannot be unlock twice;
+    // Define all PPS here 
+    PPSUnLock;
+    
+    // Part 1. UART
+    iPPSInput(IN_FN_PPS_U2RX,IN_PIN_PPS_RP16);         // Assign UART2RX To Pin RP16 (RF3)
+    iPPSOutput(OUT_PIN_PPS_RP17,OUT_FN_PPS_U2TX);      // Assign UART2TX To Pin RP17 (RF5)  
+    
+    // Part 2. SPI
+    iPPSOutput(OUT_PIN_PPS_RP2, OUT_FN_PPS_SS1OUT);    // Set FSYNC RD8 (RP2) as FSYNC (/SS)
+    iPPSOutput(RPOR1bits.RP3R, OUT_FN_PPS_SDO1);      // Set RD10 (RP3) as SDO
+    iPPSInput(IN_FN_PPS_SDI1, IN_PIN_PPS_RP1);         // Set RB1 (RP1) as SDI
+    iPPSOutput(OUT_PIN_PPS_RP4, OUT_FN_PPS_SCK1OUT);   // Set RD9 (RP4) as SCK
+    
+    PPSLock;
 }
 
 void init_ALL() {

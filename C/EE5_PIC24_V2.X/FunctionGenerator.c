@@ -1,6 +1,5 @@
 // Includes
-#include <xc.h>
-#include <PPS.h>                        // Include the header for PPS function    
+#include <xc.h>    
 #include "FunctionGenerator.h"
 #include "connectionprotocol.h" 
 
@@ -29,15 +28,7 @@ void init_FG(void) {
     
     /*---------- 2. PPS configuration ----------*/
     
-    // Defined in the PPS.h
-    // Always follow the sequence: Unlock -> Set configuration -> Lock
-    
-    PPSUnLock;  // Unlock PPS
-    iPPSOutput(OUT_PIN_PPS_RP2, OUT_FN_PPS_SS1OUT);    // Set FSYNC RD8 (RP2) as FSYNC (/SS)
-    iPPSOutput(RPOR1bits.RP3R, OUT_FN_PPS_SDO1);      // Set RD10 (RP3) as SDO
-    iPPSInput(IN_FN_PPS_SDI1, IN_PIN_PPS_RP1);         // Set RB1 (RP1) as SDI
-    iPPSOutput(OUT_PIN_PPS_RP4, OUT_FN_PPS_SCK1OUT);   // Set RD9 (RP4) as SCK
-    PPSLock;    // Lock PPS   
+    // Now in main.file -> init_Chip())
     
     /*---------- 3. SPI configuration ----------*/
     
@@ -129,7 +120,7 @@ void generator(void){
     /* For Data Transfer                        */ 
     /********************************************/
     // Control 16bits write in
-    PORTBbits.RB14 = 0;     // Making FSYNC of AD9833 LOW before writing in
+    PORTDbits.RD8 = 0;     // Making FSYNC of AD9833 LOW before writing in
     //PORTGbits.RG9 = 0;
     write_SPI(RESET_UP);     // Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
     write_SPI(RESET_LOW);    // The internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
@@ -151,14 +142,14 @@ void generator(void){
     write_SPI(UNRESET_UP);
     write_SPI(UNRESET_LOW); 
     //PORTGbits.RG9 = 1;
-    PORTBbits.RB14 = 1;  // Making FSYNC of AD9833 HIGH after writing in
+    PORTDbits.RD8 = 1;  // Making FSYNC of AD9833 HIGH after writing in
     
 }
 
 void SquareWave_10K(void)
 {
     //Control 16bits write in
-    PORTBbits.RB14 = 0;  	//Making FSYNC of AD9833 LOW before writing in
+    PORTDbits.RD8 = 0;  	//Making FSYNC of AD9833 LOW before writing in
     
     write_SPI(0b00100001);   //Reset(D8); Control(D15,D14); both LSB and MSB FREQ writes consecutively(D13);
     write_SPI(0b01101000);   // the internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
@@ -188,7 +179,7 @@ void SquareWave_10K(void)
     
     write_SPI(0b00000000);
     write_SPI(0b01101000);
-    PORTBbits.RB14 = 1;
+    PORTDbits.RD8 = 1;
    
 }
 
