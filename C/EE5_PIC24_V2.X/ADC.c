@@ -5,6 +5,7 @@
 #include "multimeter_pic24.h"
 #include "connectionprotocol.h"
 #include "DAC.h"
+#include "FIFO.h"
 
 int A, B, M;
 unsigned int buffer_MM[10] = {0};
@@ -13,7 +14,7 @@ unsigned int buffer_B[1000] = {0};
 int C_A = 0;
 int C_B = 0;
 int C_M  = 0;
-int AD_done;
+int AD_DONE;
 
 void init_ADC(void) {
     ANSB = 0;
@@ -21,7 +22,7 @@ void init_ADC(void) {
     ADCON1bits.ADON = 0;
     ADCON1 = 0x1041; // 0001 0000 0100 0001 checked
     ADCON2 = 0x0700; // 0000 0111 0000 0000 checked //indexed buffer
-    ADCON3 = 0x0003; // 0000 0000 0001 0000 checked
+    ADCON3 = 0x0003; // 0000 0000 0000 0011 checked
     
     int i;
     for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
@@ -29,15 +30,13 @@ void init_ADC(void) {
     while(!ADSTATHbits.ADREADY);
     
     ADL0CONH = 0xA001; // 1010 0000 0000 0001
-    ADL0CONL = 0x2200; // 0010 0010 0000 0000 : 1 sample registers
+    ADL0CONL = 0x2200; // 0010 0010 0000 0000 : 1 sample registers //MM
     ADL1CONH = 0xA001; // 1010 0000 0000 0001
-    ADL1CONL = 0x2200; // 0010 0010 0000 0000 : 1 sample registers
-    ADL2CONH = 0xA001; // 1010 0000 0000 0001
-    ADL2CONL = 0x2200; // 0010 0010 0000 0000 : 1 sample registers
+    ADL1CONL = 0x2201; // 0010 0010 0000 0001 : 2 sample registers //A en B
     
-    ADTBL0 = 0x000E; // 0000 0000 0000 1110 ==>RB14: VOA
-    ADTBL1 = 0x0005; // 0000 0000 0000 0101 ==>RB5: VOB
-    ADTBL2 = 0x0019; // 0000 0000 0001 1001 ==>RD2: Multimeter
+    ADTBL0 = 0x0019; // 0000 0000 0001 1001 ==>RD2: Multimeter
+    ADTBL1 = 0x000E; // 0000 0000 0000 1110 ==>RB14: VOA
+    ADTBL2 = 0x0005; // 0000 0000 0000 0101 ==>RB5: VOB
     
     ACCONH = 0;
     
@@ -47,7 +46,6 @@ void init_ADC(void) {
     IPC3bits.AD1IP = 7; //Highest priority
     IEC0bits.AD1IE = 1; //enabling interrupts
 
-    
     ADL0STAT = 0; //clearing the ADLIF: A/D Sample List Interrupt Event Flag bit
     ADSTATL = 0; //clearing all interrupt flag bits
 }
@@ -65,7 +63,6 @@ void init_MM(void) {
     for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
     ADCON1bits.ADON = 1;
     while(!ADSTATHbits.ADREADY);
-    
 }
 
 void init_A(void) {
@@ -82,7 +79,6 @@ void init_A(void) {
     for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
     ADCON1bits.ADON = 1;
     while(!ADSTATHbits.ADREADY);
-    
 }
 
 void init_B(void) {
@@ -99,24 +95,16 @@ void init_B(void) {
     for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
     ADCON1bits.ADON = 1;
     while(!ADSTATHbits.ADREADY);
-    
 }
 
-int ADC(void) {
-    int done = 0;
-    if(A) {
-        ADL0CONLbits.SLEN = 1;
-        done++;
-    } 
-    if(B) {
-        ADL1CONLbits.SLEN = 1;
-        done++;
-    }
+void ADC(void) {
+    AD_DONE = 0;
     if(M) {
-        ADL2CONLbits.SLEN = 1;
-        done++;
+        ADL0CONLbits.SLEN = 1;
     }
-    return done;
+    if(A || B) {
+        ADL1CONLbits.SLEN = 1;
+    } 
 }
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
@@ -124,34 +112,33 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
     LATBbits.LATB0 = 1;
     
     if (IFS0bits.AD1IF == 1) {
-        //while(AD_done != 0) {
-            IFS0bits.AD1IF = 0;
-            if(ADL2STATbits.ADLIF) { //Multimeter
-                ADL2STATbits.ADLIF = 0;
-                buffer_MM[C_M] = ADRES2;
-                C_M++;
-                if(C_M >= 10) C_M = 0;
-                AD_done--;
+        IFS0bits.AD1IF = 0;
+        if(ADL0STATbits.ADLIF) { //Multimeter
+            ADL0STATbits.ADLIF = 0;
+            int var = ADRES0;
+            int var1 = (0x0F80 & var)/128;
+            int var2 = 0x007C & var;
+            write_FIFO_tx(192 | var1);
+            write_FIFO_tx(224 | var2);
+        }
+        if(ADL1STATbits.ADLIF) { // VOUT_A
+            ADL1STATbits.ADLIF = 0;
+            if(info.A.ON){
+                int var = ADRES1;
+                int var1 = (0x0F80 & var)/128;
+                int var2 = 0x007C & var;
+                write_FIFO_tx(64 | var1);
+                write_FIFO_tx(96 | var2);
             }
-            if(ADL0STATbits.ADLIF) { // VOUT_A
-                ADL0STATbits.ADLIF = 0;
-                C_A++;
-                if(C_A >= 1000) C_A = 0;
-                buffer_A[C_A] = ADRES0;
-                AD_done--;
+            if(info.B.ON){
+                int var = ADRES2;
+                int var1 = (0x0F80 & var)/128;
+                int var2 = 0x007C & var;
+                write_FIFO_tx(128 | var1);
+                write_FIFO_tx(160 | var2);
             }
-            if(ADL1STATbits.ADLIF) { // Vout_B
-                ADL1STATbits.ADLIF = 0;
-                buffer_B[C_B] = ADRES1;
-                C_B++;
-                if(C_B >= 1000) C_B = 0;
-                AD_done--;
-            }
-        //}
-        //count++;
-        //LATB = ADRES0*8; // & 0x0E00; //0000 1110 0000 0000
-        //LATB = count;
-    LATBbits.LATB0 = 0;
-    } 
+        }
+    }
+    AD_DONE = 1;
 }
 
