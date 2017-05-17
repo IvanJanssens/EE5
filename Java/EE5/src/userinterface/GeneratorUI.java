@@ -27,6 +27,7 @@ import resource.ResourceLoader;
 public class GeneratorUI {
 
 	private static ToggleGroup waveType;
+	private static ToggleGroup freqGroup;
 	
 	public static Tab generator() {
 		Tab generator = new Tab();
@@ -120,7 +121,7 @@ public class GeneratorUI {
 	}
 	
 	private static VBox freq() {
-		VBox freq = new VBox(20);
+		
 			Slider freqSlider = new Slider();
 			freqSlider.setMin(0);
 			freqSlider.setMax(1000);
@@ -129,17 +130,57 @@ public class GeneratorUI {
 			freqSlider.setMajorTickUnit(50);
 			
 			NumbField freqField = new NumbField("330");
-			freqField.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> {
-																		freqSlider.setValue(Integer.parseInt(freqField.getText()));
+	
+			ToggleButton  Hz = new ToggleButton ();
+			Hz.setText("Hz");
+			Hz.setUserData(1);
+			Hz.setPrefWidth(120);
+			ToggleButton  kHz = new ToggleButton ();
+			kHz.setText("kHz");
+			kHz.setUserData(1000);
+			kHz.setPrefWidth(120);
+			ToggleButton  MHz = new ToggleButton ();
+			MHz.setText("MHz");
+			MHz.setUserData(1000000);
+			MHz.setPrefWidth(120);
+			freqGroup  = new ToggleGroup();
+			Hz.setToggleGroup(freqGroup);
+			kHz.setToggleGroup(freqGroup);
+			MHz.setToggleGroup(freqGroup);
+			freqGroup.selectToggle(Hz);
+			Hz.setDisable(true);
+			
+			freqField.textProperty().addListener((ChangeListener) (arg0, oldValue, newValue) -> {
+																		int freqValue = Integer.parseInt((String) newValue);
+																		if((int)freqValue > 1000000)
+																			freqGroup.selectToggle(MHz);
+																		else if ((int) freqValue > 1000)
+																			freqGroup.selectToggle(kHz);
+																		else
+																			freqGroup.selectToggle(Hz);
+																		freqSlider.setValue(freqValue / ((int) freqGroup.getSelectedToggle().getUserData()));
 																		sendFreq();
 			});
-			freqSlider.valueProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> {
-																		freqField.textProperty().setValue(String.valueOf((int) freqSlider.getValue()));
+			freqSlider.valueProperty().addListener((ChangeListener) (arg0, oldValue, newValue) -> {
+																		freqField.textProperty().setValue(String.valueOf(((int) freqSlider.getValue())*((int) freqGroup.getSelectedToggle().getUserData())));
 																		sendFreq();
 			});
 			freqField.setMaxWidth(120);
+			
+			
+			freqGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																		sendFreq();
+																		((ToggleButton) newToggle).setDisable(true);
+																		((ToggleButton) oldToggle).setDisable(false);
+																		freqField.textProperty().setValue(String.valueOf(((int) freqSlider.getValue())*((int) freqGroup.getSelectedToggle().getUserData())));
+																		});
+			HBox freqMag = new HBox(10);
+			freqMag.setAlignment(Pos.TOP_CENTER);
+			freqMag.getChildren().addAll(Hz,kHz,MHz);
+
+		VBox freq = new VBox(20);	
 		freq.setAlignment(Pos.TOP_CENTER);
-		freq.getChildren().addAll(freqSlider,freqField);
+		freq.getChildren().addAll(freqSlider,freqMag, freqField);
 		return freq;
 	}
 	

@@ -27,17 +27,20 @@ public class UI {
 	private static Oscilloscope oscilloscope;
 	private static Multimeter multimeter;
 	// messages to be send to the PIC
-	public static final byte MULTIMETER = (byte) 0b11000000;
+	public static final byte MULTIMETERON = (byte) 0b11010000;
+	public static final byte MULTIMETEROFF = (byte) 0b11000000;
 	//max data shown on the oscilloscope graph
 	public static final int MAX_DATA = 500;
 	public static final double TRIGGER = 1.0;
-	public static final int ATTENUATION = 2;
+	public static final int ATTENUATION = 1;
 	public static File tempFile;
+	private static TabPane mainTab;
+	private static Stage mainStage;
 	
 	// start the main UI
 	public static void start(Stage stage, Connection conn) {
 		connection = conn;
-		Stage mainStage = stage;
+		mainStage = stage;
 		try {
 			tempFile = File.createTempFile("Temp_EE5_Data", ".txt");
 			System.out.println(tempFile.getAbsolutePath());
@@ -53,32 +56,45 @@ public class UI {
 		mainStage.setTitle("LBMS");
 		
 		//set standard sizes
-		TabPane main = new TabPane();
-		Scene scene = new Scene(main,1300,600);
-		main.setPrefSize(1300.00,600.00);
-		main.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+		mainTab = new TabPane();
+		Scene scene = new Scene(mainTab,1300,600);
+		mainStage.setScene(scene);
+		mainTab.setPrefSize(1300.00,600.00);
+		mainTab.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+		
+		
 		if(connection == Main.NO_CONNECTION) {
-			main.getTabs().add(NoConnectionUI.noConnection());
-			mainStage.setScene(scene);
-			mainStage.show();
+			goToFile(null);
 		}
 		else {
+			goToPic();
+		}
+	}
+	
+	public static void goToPic() {
+		mainStage.hide();
+		if(connection == Main.NO_CONNECTION) {
+			connection = PicUI.start(null,j->goToFile((File) j));
+		}
+		if(connection != Main.NO_CONNECTION) {
+
+			mainTab.getTabs().clear();
 			//Create the new services for background processing
 			oscilloscope = new Oscilloscope(tempFile);
 			multimeter = new Multimeter();
 			
 			//add different tab UI to the main UI
-			main.getTabs().add(OscilloscopeUI.Oscilloscope(oscilloscope));
-			main.getTabs().add(MultimeterUI.multimeter());
-			main.getTabs().add(GeneratorUI.generator());
+			mainTab.getTabs().add(OscilloscopeUI.Oscilloscope());
+			mainTab.getTabs().add(MultimeterUI.multimeter());
+			mainTab.getTabs().add(GeneratorUI.generator());
 	
 	
 			//Check which tab is selected
-			main.getSelectionModel().selectedItemProperty().addListener(
+			mainTab.getSelectionModel().selectedItemProperty().addListener(
 					new ChangeListener<Tab>() {
 						@Override
 						public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
-//							stop the old tabs background process
+	//						stop the old tabs background process
 							if(t.getText().equals("Oscilloscope"))
 								cancelOsci();
 							else if(t.getText().equals("Multimeter"))
@@ -103,17 +119,25 @@ public class UI {
 					multimeter.cancel();
 					connection.close();
 			});
-			
-			mainStage.setScene(scene);
-			mainStage.show();
 			//first tab is oscilloscope so start up that process
 			oscilloscope.restart();
+
 		}
+		mainStage.show();
+	}
+	
+	public static void goToFile(File file) {
+		mainStage.hide();
+		mainTab.getTabs().clear();
+		mainTab.getTabs().add(NoConnectionUI.noConnection());
+		if(file != null) {
+			NoConnectionUI.loadFile(file);
+		}
+		mainStage.show();
 	}
 	
 	public static void cancelOsci() {
 		oscilloscope.cancel();
-//		connection.clearBuffer();
 	}
 	public static void startOsci() {
 		oscilloscope.restart();
@@ -121,7 +145,6 @@ public class UI {
 	
 	public static void cancelMulti() {
 		multimeter.cancel();
-//		connection.clearBuffer();
 	}
 	public static void startMulti() {
 		multimeter.restart();

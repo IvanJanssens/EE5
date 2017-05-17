@@ -1,18 +1,16 @@
 package userinterface;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 
-import javafx.beans.value.ChangeListener;
+
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -20,8 +18,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.ValueAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -56,13 +52,8 @@ public class OscilloscopeUI extends UI{
 	private static Label rmsA;
 	private static Label ptpB;
 	private static Label rmsB;
-	private static Oscilloscope oscilloscope;
-	private static NumbField dataFrom;
-	private static NumbField dataTill;
-	private static VBox prevData;
 	private static VBox oscibuttons;
 	private static HBox mainButtons;
-	private static File loadFile;
 	private static RadioButton onOffA;
 	private static RadioButton onOffB;
 	private static ToggleGroup groupA;
@@ -74,8 +65,7 @@ public class OscilloscopeUI extends UI{
 	private static final String DC = "dc";
 	
 	// create new tab for the oscilloscope
-	public static Tab Oscilloscope(Oscilloscope oscillo) {
-		oscilloscope = oscillo;
+	public static Tab Oscilloscope() {
 		Tab oscilloscopeTab = new Tab();
 		oscilloscopeTab.setText("Oscilloscope");
 		ScrollPane osciPanel = new ScrollPane();
@@ -113,87 +103,13 @@ public class OscilloscopeUI extends UI{
 				FileChooser open = new FileChooser();
 				open.setTitle("Load mesurements");
 				open.getExtensionFilters().add(new ExtensionFilter("text","*.txt"));
-				loadFile = open.showOpenDialog(null);
+				File loadFile = open.showOpenDialog(null);
 				if(loadFile != null){
-					oscibuttons.getChildren().clear();
-					oscibuttons.getChildren().addAll(dataDoubleButtons(),prevData);
-					mainButtons.getChildren().remove(0, 2);
-					mainButtons.getChildren().add(0,newMes());
-					mainButtons.getChildren().add(0,loadNew());
-					readFile(loadFile);
+					UI.goToFile(loadFile);
 				}
-					
 			}
 		});
 		return load;
-	}
-	private static Button newMes() {
-		Button newMes = new Button("Start oscilloscope");
-		newMes.setPrefWidth(120);
-		newMes.setOnMouseClicked(new EventHandler<Event> () {
-			@Override
-			public void handle(Event e) {
-				oscibuttons.getChildren().clear();
-				oscibuttons.getChildren().addAll(osciDoubleButtons(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv());
-				mainButtons.getChildren().remove(0,2);
-				mainButtons.getChildren().add(0,Save());
-				mainButtons.getChildren().add(0,Load());
-			}
-		});
-		return newMes;
-	}
-	
-	private static Button loadNew() {
-		Button loadNew = new Button("Load new");
-		loadNew.setPrefWidth(120);
-		loadNew.setOnMouseClicked(new EventHandler<Event> () {
-			@Override
-			public void handle(Event e) {
-				FileChooser open = new FileChooser();
-				open.setTitle("Load mesurements");
-				open.getExtensionFilters().add(new ExtensionFilter("text","*.txt"));
-				loadFile = open.showOpenDialog(null);
-				if(loadFile != null){
-					readFile(loadFile);
-				}
-			}
-		});
-		return loadNew;
-	}
-	
-	private static void readFile(File file) {
-		GraphUI.clearGraph();
-		int from = Integer.parseInt(dataFrom.getText());
-		int till = Integer.parseInt(dataTill.getText());
-		int currentData = from;
-        BufferedReader in = null;
-		try {
-			in = new BufferedReader(new FileReader(file));
-			int currentLineNo = 0;
-			while(currentLineNo < from){
-				if(in.readLine() == null) {
-					throw new IOException("File too small");
-				}
-				currentLineNo++;
-			}
-			while(currentLineNo <= till) {
-				String nextLine = in.readLine();
-				if(nextLine == null)
-					return;
-				GraphUI.addDataA(Double.parseDouble(nextLine),from,(till - from), currentData,GraphUI.OsciUI);
-				currentLineNo++;
-				currentData++;
-			}
-		} catch (IOException ex) {
-			Main.LOGGER.log(Level.SEVERE,"Couldn't read dataFile",ex);
-		} finally {
-			try {
-				if(in!=null)
-					in.close();
-			} catch(IOException ex) {
-				Main.LOGGER.log(Level.WARNING, "Datafile not closed", ex);
-			}
-		}
 	}
 	
 	private static Button Save() {
@@ -314,7 +230,7 @@ public class OscilloscopeUI extends UI{
 	
 	private static VBox osciButtons() {
 		oscibuttons = new VBox(10);
-		oscibuttons.getChildren().addAll(osciDoubleButtons(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv());
+		oscibuttons.getChildren().addAll(osciDoubleButtons(),new Separator(Orientation.HORIZONTAL),new Label("Trigger source: "),triggerSource(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv());
 		return oscibuttons;
 	}
 	
@@ -324,36 +240,18 @@ public class OscilloscopeUI extends UI{
 		return doubleButtons;
 	}
 	
-	private static HBox dataDoubleButtons() {
-		HBox doubleButtons = new HBox(10);
-		doubleButtons.getChildren().addAll(dataButtonsA(),new Separator(Orientation.VERTICAL),dataButtonsB());
-		return doubleButtons;
-	}
 	
 	private static VBox buttonsA() {
 		VBox oscibuttons = new VBox(10);
 		oscibuttons.getChildren().addAll(new Label("Channel 1"), OnOffA(),ACDCA(),attenuationA(),rmsA(),ptpA(),fftA());
-		prevData();
 		return oscibuttons;
 	}
 	
-	private static VBox dataButtonsA() {
-		VBox dataButtons = new VBox(10);
-		dataButtons.getChildren().addAll(new Label("Channel 1"),rmsA(),ptpA());
-		return dataButtons;
-	}
 	
 	private static VBox buttonsB() {
 		VBox oscibuttons = new VBox(10);
 		oscibuttons.getChildren().addAll(new Label("Channel 2"), OnOffB(),ACDCB(),attenuationB(),rmsB(),ptpB(),fftB());
-		prevData();
 		return oscibuttons;
-	}
-	
-	private static VBox dataButtonsB() {
-		VBox dataButtons = new VBox(10);
-		dataButtons.getChildren().addAll(new Label("Channel 2"),rmsB(),ptpB());
-		return dataButtons;
 	}
 	
 	private static RadioButton OnOffA() {
@@ -431,64 +329,95 @@ public class OscilloscopeUI extends UI{
 	
 	private static HBox attenuationA() {
 		HBox attenuation = new HBox();
+		ToggleButton normal = new ToggleButton();
+		normal.setText(":1");
+		normal.setUserData(1);
+		normal.setPrefWidth(40);
 		ToggleButton  x2 = new ToggleButton ();
-		x2.setText("X2");
+		x2.setText(":2");
 		x2.setUserData(2);
 		x2.setPrefWidth(40);
 		ToggleButton  x5 = new ToggleButton ();
-		x5.setText("X5");
+		x5.setText(":5");
 		x5.setUserData(5);
 		x5.setPrefWidth(40);
 		ToggleButton  x10 = new ToggleButton ();
-		x10.setText("X10");
+		x10.setText(":10");
 		x10.setUserData(10);
 		x10.setPrefWidth(40);
 		groupA = new ToggleGroup();
+		normal.setToggleGroup(groupA);
 		x2.setToggleGroup(groupA);
 		x5.setToggleGroup(groupA);
 		x10.setToggleGroup(groupA);
-		groupA.selectToggle(x2);
-		x2.setDisable(true);
+		groupA.selectToggle(normal);
+		normal.setDisable(true);
 		groupA.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
 																	sendAGainParam();
 																	((ToggleButton) newToggle).setDisable(true);
 																	((ToggleButton) oldToggle).setDisable(false);
-																	application.Oscilloscope.updateAttenuation((int)newToggle.getUserData());
 																	});
-		attenuation.getChildren().addAll(x2,x5,x10);
+		attenuation.getChildren().addAll(normal,x2,x5,x10);
 		return attenuation;
 	}
 	
 	private static HBox attenuationB() {
 		HBox attenuation = new HBox();
+		ToggleButton normal = new ToggleButton();
+		normal.setText(":1");
+		normal.setUserData(1);
+		normal.setPrefWidth(40);
 		ToggleButton  x2 = new ToggleButton ();
-		x2.setText("X2");
+		x2.setText(":2");
 		x2.setUserData(2);
 		x2.setPrefWidth(40);
 		ToggleButton  x5 = new ToggleButton ();
-		x5.setText("X5");
+		x5.setText(":5");
 		x5.setUserData(5);
 		x5.setPrefWidth(40);
 		ToggleButton  x10 = new ToggleButton ();
-		x10.setText("X10");
+		x10.setText(":10");
 		x10.setUserData(10);
 		x10.setPrefWidth(40);
 		groupB = new ToggleGroup();
+		normal.setToggleGroup(groupB);
 		x2.setToggleGroup(groupB);
 		x5.setToggleGroup(groupB);
 		x10.setToggleGroup(groupB);
-		groupB.selectToggle(x2);
-		x2.setDisable(true);
+		groupB.selectToggle(normal);
+		normal.setDisable(true);
 		groupB.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
 																	sendBGainParam();
 																	((ToggleButton) newToggle).setDisable(true);
 																	((ToggleButton) oldToggle).setDisable(false);
-																	application.Oscilloscope.updateAttenuation((int)newToggle.getUserData());
 																	});
-		attenuation.getChildren().addAll(x2,x5,x10);
+		attenuation.getChildren().addAll(normal,x2,x5,x10);
 		return attenuation;
 	}
 	
+	private static HBox triggerSource() {
+		HBox triggerSource = new HBox(10);
+		ToggleButton A = new ToggleButton();
+		A.setText("A");
+		A.setUserData("A");
+		A.setPrefWidth(60);
+		ToggleButton B = new ToggleButton();
+		B.setText("B");
+		B.setUserData("B");
+		B.setPrefWidth(60);
+		
+		ToggleGroup sourceGroup = new ToggleGroup();
+		A.setToggleGroup(sourceGroup);
+		B.setToggleGroup(sourceGroup);
+		sourceGroup.selectToggle(A);
+		A.setDisable(true);
+		sourceGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																		application.Oscilloscope.updateTriggerSource((String) newToggle.getUserData());
+																		((ToggleButton) newToggle).setDisable(true);
+																		((ToggleButton) oldToggle).setDisable(false);
+		});
+		return triggerSource;
+	}
 	
 	private static Spinner<Double> trigger() {
 		Spinner<Double> trigger = new Spinner<Double>();
@@ -551,18 +480,6 @@ public class OscilloscopeUI extends UI{
 		return fftB;
 	}
 	
-	private static void prevData() {
-		prevData = new VBox(10);
-		dataFrom = new NumbField("0");
-		dataFrom.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> readFile(loadFile));
-		dataTill = new NumbField("350");
-		dataTill.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> readFile(loadFile));
-		prevData.getChildren().addAll(new Label("Data from: "),
-				dataFrom,new Label("Till: "),dataTill);
-	}
-	
-	
-	
 	public static void updateRMSA(double rmsValue) {
 		rmsA.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
 	}
@@ -620,8 +537,10 @@ public class OscilloscopeUI extends UI{
 			message = setBit(message, 5);
 			int gain = (int) groupA.getSelectedToggle().getUserData();
 			if(gain == 10)
-				message = setBit(message,1);
+				message = setBit(message,2);
 			else if (gain == 5)
+				message = setBit(message,1);
+			else if(gain == 2)
 				message = setBit(message,0);
 			if(acdcA.getSelectedToggle().getUserData().equals(DC))
 				message = setBit(message,4);
@@ -636,8 +555,10 @@ public class OscilloscopeUI extends UI{
 			message = setBit(message,5);
 			int gain = (int) groupB.getSelectedToggle().getUserData();
 			if(gain == 10)
-				message = setBit(message,1);
+				message = setBit(message,2);
 			else if (gain == 5)
+				message = setBit(message,1);
+			else if(gain == 2)
 				message = setBit(message,0);
 			if(acdcB.getSelectedToggle().getUserData().equals(DC))
 				message = setBit(message,4);

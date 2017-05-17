@@ -5,9 +5,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 
+import application.Main;
 import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
@@ -56,6 +58,10 @@ public class NoConnectionUI extends UI{
 		return noConnectionTab;
 	}
 	
+	public static void loadFile(File file) {
+		readFile(file);
+	}
+	
 	private static BorderPane noConBorderPane() {
 		BorderPane osciBorderPane = new BorderPane();
 		HBox header = mainButtons();
@@ -68,7 +74,7 @@ public class NoConnectionUI extends UI{
 	private static HBox mainButtons() {
 		HBox mainButtons = new HBox(10);
 		mainButtons.setAlignment(Pos.CENTER_LEFT);
-		mainButtons.getChildren().addAll(Load(),printScreen(),help());
+		mainButtons.getChildren().addAll(Load(),printScreen(),help(),new Separator(Orientation.VERTICAL), Pic());
 		return mainButtons;
 	}
 	
@@ -113,18 +119,24 @@ public class NoConnectionUI extends UI{
 					String nextLine = in.readLine();
 					if(nextLine == null)
 						return;
-					GraphUI.addDataA(Double.parseDouble(nextLine),from,(till-from),currentData,GraphUI.NoConUI);
+					if(nextLine.contains("-")) {
+						String[] parts = nextLine.split("-");
+						GraphUI.addDataA(Double.parseDouble(parts[0]), from, (till-from), currentData, GraphUI.NoConUI);
+						GraphUI.addDataB(Double.parseDouble(parts[1]), from, (till-from), currentData, GraphUI.NoConUI);
+					}
+					else
+						GraphUI.addDataA(Double.parseDouble(nextLine),from,(till-from),currentData,GraphUI.NoConUI);
 					currentLineNo++;
 					currentData++;
 				}
 			} catch (IOException ex) {
-				System.out.println("Problem reading file" + ex.getMessage());
+				Main.LOGGER.log(Level.SEVERE,"Couldn't read dataFile",ex);
 			} finally {
 				try {
 					if(in!=null)
 						in.close();
-				} catch(IOException ignore) {
-					
+				} catch(IOException ex) {
+					Main.LOGGER.log(Level.WARNING, "Datafile not closed", ex);
 				}
 			}
 		}
@@ -173,6 +185,18 @@ public class NoConnectionUI extends UI{
 				}
 			});
 			return help;
+		}
+		
+		private static Button Pic() {
+			Button pic = new Button("start Pic");
+			pic.setPrefWidth(120);
+			pic.setOnMouseClicked(new EventHandler<Event>() {
+				@Override
+				public void handle(Event e) {
+					UI.goToPic();
+				}
+			});
+			return pic;
 		}
 		
 		private static ScrollPane helpContent() {

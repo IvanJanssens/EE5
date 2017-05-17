@@ -24,7 +24,9 @@ public class Oscilloscope extends Service<Object>{
 	File tempFile;
 	static double trigger = UI.TRIGGER;
 	static int max_data = UI.MAX_DATA;
-	static int attenuation = UI.ATTENUATION;
+	static int attenuationA = UI.ATTENUATION;
+	static int attenuationB = UI.ATTENUATION;
+	static String triggerSource = "A";
 	public Oscilloscope(File tempFile) {
 		this.tempFile = tempFile;
 	}
@@ -37,8 +39,16 @@ public class Oscilloscope extends Service<Object>{
 		max_data = newValue;
 	}
 	
-	public static void updateAttenuation(int newValue) {
-		attenuation = newValue;
+	public static void updateAttenuationA(int newValue) {
+		attenuationA = newValue;
+	}
+	
+	public static void updateAttenuationB(int newValue) {
+		attenuationB = newValue;
+	}
+	
+	public static void updateTriggerSource(String newValue) {
+		triggerSource = newValue;
 	}
 	
 	@Override
@@ -46,7 +56,8 @@ public class Oscilloscope extends Service<Object>{
 		return new Task<Object>() {
 			double result, prevValue;
 			int currentDataPoint;
-			Queue<Double> databuffer;
+			Queue<Double> databufferA;
+			Queue<Double> databufferB;
 			BufferedWriter temp;
 			@Override
 			protected Object call() {
@@ -55,48 +66,87 @@ public class Oscilloscope extends Service<Object>{
 				OscilloscopeUI.sendOsciParam(); //Send UI.OSCILLOSCOPE to start the oscilloscope datastream
 				int len = -1;
 				result = 0;
-				byte[] buffer = new byte[64];
-				int[] intbuffer = new int[64];
-				databuffer = new LinkedList<Double>();
+				byte[] buffer = new byte[2];
+				int[] intbuffer = new int[2];
+				databufferA = new LinkedList<Double>();
+				databufferB = new LinkedList<Double>();
 				currentDataPoint = 0;
 				prevValue = 0;
 				try {
 					temp = new BufferedWriter(new FileWriter(tempFile,true));
-					temp.write("New mesurement \n");
-					while(! isCancelled()) {
-						if(input.available() > 2 ) {
-							len = input.read(buffer, 0, 3);
-		            		for(int i = 0; i<len; i++){
-		            			intbuffer[i] = buffer[i] & 0xFF;
-		            		}
-		            		if(len>1) {
-		            			result = (double) (((intbuffer[1] << 2) |  (intbuffer[2] >> 6))*(5.11/1024)*attenuation);
-		            			temp.write((String.format(Locale.US,"%.3f", result) + "\n"));
-		            			
-		            			databuffer.add(result);
-	            				Platform.runLater(new Runnable() {
-			                    	@Override
-			                    	public void run() {
-			                    		try {
-			                    			double newDataPoint = databuffer.poll();
-			                    			if(currentDataPoint >= max_data && newDataPoint > (double)trigger && prevValue <= (double)trigger) {
-			                    				currentDataPoint = 0;
-			                    				System.out.println("reset");
-			                    			}
-			                    			if(currentDataPoint <= max_data)
-			                    				GraphUI.addDataA(newDataPoint,0,max_data,currentDataPoint,GraphUI.OsciUI);
-			                    			System.out.println("adding Data: " + currentDataPoint);
-			                    			prevValue = newDataPoint;
-			                    			currentDataPoint++;
-			                    		}
-			                    		catch (Exception ex) {
-			                				Main.LOGGER.log(Level.SEVERE,"Couldn't add new datapoint to graph",ex);
-			                    		}
-			                    	}
-			                    });
+					temp.write("New mesurement");
+					while(!isCancelled()) {
+						if(input.available() > 1 ) {
+							len = input.read(buffer, 0, 2);
+							if(((buffer[0] & 0x20) == 0x00) && (buffer[1] & 0x20) == 0x01) {
+			            		for(int i = 0; i<len; i++){
+			            			intbuffer[i] = buffer[i] & 0x1F;
+			            		}
+
+			            		
+			            		if((buffer[1] & 0xE0) == 0x60) { //Oscilloscope A
+			            			result = (double) (((intbuffer[0] << 2) |  (intbuffer[1] >> 6))*(3.3/1024)/attenuationA);
+			            			temp.write("\n" + (String.format(Locale.US,"%.3f", result)));
+			            			databufferA.add(result);
+			            			
+		            				Platform.runLater(new Runnable() {
+				                    	@Override
+				                    	public void run() {
+				                    		try {
+				                    			double newDataPoint = databufferA.poll();
+				                    			if(triggerSource.equals("A")) {
+					                    			if(currentDataPoint >= max_data && newDataPoint > (double)trigger && prevValue <= (double)trigger)
+					                    				currentDataPoint = 0;
+					                    			prevValue = newDataPoint;
+					                    		}
+				                    			if(currentDataPoint <= max_data)
+				                    				GraphUI.addDataA(newDataPoint,0,max_data,currentDataPoint,GraphUI.OsciUI);
+				                    			currentDataPoint++;
+				                    		}
+				                    		catch (Exception ex) {
+				                				Main.LOGGER.log(Level.WARNING,"Couldn't add new datapoint to graph",ex);
+				                    		}
+				                    	}
+				                    });
+			            		}
+			            		else if((buffer[1] & 0xE0) == 0xA0) { //Oscilloscope B
+			            			result = (double) (((intbuffer[0] << 2) |  (intbuffer[1] >> 6))*(3.3/1024)/attenuationB);
+			            			temp.write( " - " + (String.format(Locale.US, "%.3f",result)));
+			            			databufferB.add(result);
+			            			
+			            			Platform.runLater(new Runnable() {
+			            				@Override
+			            				public void run() {
+			            					try {
+			            						double newDataPoint = databufferB.poll();
+			            						if(triggerSource.equals("B")) {
+				            						if(currentDataPoint >= max_data && newDataPoint > (double)trigger && prevValue <= (double)trigger)
+					                    				currentDataPoint = 0;
+				            						prevValue = newDataPoint;
+				                    			}
+				                    			if(currentDataPoint <= max_data)
+				                    				GraphUI.addDataB(newDataPoint,0,max_data,currentDataPoint,GraphUI.OsciUI);
+//				                    			currentDataPoint++;
+				                    		}
+				                    		catch (Exception ex) {
+				                				Main.LOGGER.log(Level.WARNING,"Couldn't add new datapoint to graph",ex);
+				                    		}
+			            				}
+			            			});
+			            		}
 		            			
 		            			 
 		            		}
+							else if (buffer[0] == 0x00 && buffer[1] == 0xFF) {
+								Connection.checkParam();
+							}
+							else {
+								while(input.available() > 1) {
+									input.read(buffer, 0, 1);
+									if((buffer[0] & 0x20) == 0x01)
+										break;
+								}
+							}
 		                   
 		            	}
 					}

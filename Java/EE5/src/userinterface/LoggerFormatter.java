@@ -36,7 +36,7 @@ public class LoggerFormatter extends Formatter{
 	
 	public String getHead(Handler h) {
 		return "Start of file [" + df.format(new Date())+"]" + System.lineSeparator()
-				+ "***********" +System.lineSeparator();
+				+ "***********************************************************" +System.lineSeparator();
 	}
 	
 	public String getTail(Handler h) {

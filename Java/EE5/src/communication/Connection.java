@@ -9,11 +9,13 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 
 import application.Main;
+import application.decodeProtocol;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import userinterface.UI;
 
 public class Connection {
 	
@@ -98,10 +100,25 @@ public class Connection {
 				System.out.println(Integer.toBinaryString(message));
 				output.write(message);
 				dataBuffer.add(message);
-				clearBuffer();
 		}
-		catch (IOException e) {
-			e.printStackTrace();
+		catch (IOException ex) {
+			Main.LOGGER.log(Level.SEVERE,"Couldn't send data",ex);
+		}
+	}
+	
+	public static void checkParam() {
+		try {
+			byte[] buffer = new byte[1];
+			input.read(buffer);
+			byte prevMessage = dataBuffer.poll();
+			if(buffer[0] != prevMessage)
+				send(prevMessage);
+			else {
+				decodeProtocol.decode(prevMessage);
+			}
+		}
+		catch (IOException ex) {
+			Main.LOGGER.log(Level.SEVERE,"Couldn't receive data",ex);
 		}
 	}
 	

@@ -10,9 +10,12 @@ public class GraphUI {
 
 	private static XYChart.Series<Number, Number> dataA;
 	private static XYChart.Series<Number, Number> dataB;
-	private static double max;
-	private static double min;
-	private static double sum;
+	private static double maxA;
+	private static double minA;
+	private static double sumA;
+	private static double maxB;
+	private static double minB;
+	private static double sumB;
 	private static int oldMaxData = 0;
 	private static int tickCount = 0;
 	
@@ -68,23 +71,70 @@ public class GraphUI {
 
 			
 			if(tickCount == maxData){
-				min = (double) dataA.getData().get(0).getYValue();
-				max = (double) dataA.getData().get(0).getYValue();
-				sum = 0;
+				minA = (double) dataA.getData().get(0).getYValue();
+				maxA = (double) dataA.getData().get(0).getYValue();
+				sumA = 0;
 				dataA.getData().forEach(value-> {
-					sum += ((double) value.getYValue()*(double) value.getYValue());
-					if((double) value.getYValue() > max)
-						max = (double)value.getYValue();
-					if((double) value.getYValue() < min)
-						min = (double)value.getYValue();
+					sumA += ((double) value.getYValue()*(double) value.getYValue());
+					if((double) value.getYValue() > maxA)
+						maxA = (double)value.getYValue();
+					if((double) value.getYValue() < minA)
+						minA = (double)value.getYValue();
 				});
 				if(tab == NoConUI) {
-					NoConnectionUI.updateRMSA(Math.sqrt(sum/maxData));
-					NoConnectionUI.updatePtPA(max,min);
+					NoConnectionUI.updateRMSA(Math.sqrt(sumA/maxData));
+					NoConnectionUI.updatePtPA(maxA,minA);
 				}
 				else if(tab == OsciUI) {
-					OscilloscopeUI.updateRMSA(Math.sqrt(sum/maxData));
-					OscilloscopeUI.updatePtPA(max,min);
+					OscilloscopeUI.updateRMSA(Math.sqrt(sumA/maxData));
+					OscilloscopeUI.updatePtPA(maxA,minA);
+				}
+			}
+			oldMaxData = maxData;
+			tickCount++;
+		}
+		
+		public static void addDataB(double newPoint,int startPoint, int maxData, int currentPoint, int tab) {
+			if(startPoint == currentPoint)
+				tickCount = 0;
+			//get number of datapoints
+	        int numOfPoint = dataB.getData().size();
+	        
+
+			if(maxData < oldMaxData) {
+				dataB.getData().remove(maxData, dataA.getData().size());
+			}
+
+			((ValueAxis<Number>) dataB.getChart().getXAxis()).setLowerBound(startPoint);
+	        ((ValueAxis<Number>) dataB.getChart().getXAxis()).setUpperBound(startPoint + maxData);
+	        
+			if(numOfPoint >= maxData && tickCount < maxData) {
+				dataB.getData().set(tickCount, new XYChart.Data<Number, Number>(currentPoint,newPoint)); // add new datapoint
+			}
+			else if(numOfPoint <= maxData && tickCount <= maxData){
+				dataB.getData().add(new XYChart.Data<Number, Number>(currentPoint,newPoint)); // add new datapoint
+			}
+			
+
+			
+			if(tickCount == maxData){
+				minB = (double) dataB.getData().get(0).getYValue();
+				maxB = (double) dataB.getData().get(0).getYValue();
+				sumB = 0;
+				dataB.getData().forEach(value-> {
+					sumB += ((double) value.getYValue()*(double) value.getYValue());
+					if((double) value.getYValue() > maxB)
+						maxB = (double)value.getYValue();
+					if((double) value.getYValue() < minB)
+						minB = (double)value.getYValue();
+				});
+				if(tab == NoConUI) {
+					NoConnectionUI.updateRMSB(Math.sqrt(sumB/maxData));
+					NoConnectionUI.updatePtPB(maxB,minB);
+				}
+				else if(tab == OsciUI) {
+					OscilloscopeUI.updateRMSB(Math.sqrt(sumB/maxData));
+					OscilloscopeUI.updatePtPB(maxB,minB);
 				}
 			}
 			oldMaxData = maxData;
