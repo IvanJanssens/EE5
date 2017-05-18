@@ -1,0 +1,87 @@
+﻿Merge remote-tracking branch 'origin/master'
+
+# Conflicts:
+#	C/EE5_PIC24_V2.X/nbproject/Makefile-default.mk
+#	C/EE5_PIC24_V2.X/nbproject/Makefile-genesis.properties
+#	C/EE5_PIC24_V2.X/nbproject/Makefile-local-default.mk
+#	Java/EE5/.classpath
+#	Java/EE5/bin/.DS_Store
+#	Java/EE5/bin/.classpath
+#	Java/EE5/bin/.gitignore
+#	Java/EE5/bin/TestFiles/testConnection$SerialReader.class
+#	Java/EE5/bin/TestFiles/testConnection$Writer.class
+#	Java/EE5/bin/TestFiles/testConnection.class
+#	Java/EE5/src/TestFiles/testConnection.java
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please remove the file
+#	.git/MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch and 'origin/master' have diverged,
+# and have 3 and 6 different commits each, respectively.
+#   (use "git pull" to merge the remote branch into yours)
+#
+# All conflicts fixed but you are still merging.
+#
+# Changes to be committed:
+#	modified:   .DS_Store
+#	modified:   C/.DS_Store
+#	modified:   C/EE5_PIC24.X/.DS_Store
+#	modified:   C/EE5_PIC24_V2.X/ADC.c
+#	modified:   C/EE5_PIC24_V2.X/ADC.h
+#	modified:   C/EE5_PIC24_V2.X/DAC.c
+#	modified:   C/EE5_PIC24_V2.X/DAC.h
+#	modified:   C/EE5_PIC24_V2.X/FIFO.c
+#	modified:   C/EE5_PIC24_V2.X/FunctionGenerator.c
+#	modified:   C/EE5_PIC24_V2.X/UART.c
+#	modified:   C/EE5_PIC24_V2.X/connectionprotocol.c
+#	modified:   C/EE5_PIC24_V2.X/main.c
+#	modified:   C/EE5_PIC24_V2.X/nbproject/Makefile-default.mk
+#	modified:   C/EE5_PIC24_V2.X/nbproject/Makefile-genesis.properties
+#	modified:   C/EE5_PIC24_V2.X/nbproject/Makefile-local-default.mk
+#	modified:   C/EE5_PIC24_V2.X/nbproject/configurations.xml
+#	new file:   Java.zip
+#	modified:   Java/.DS_Store
+#	modified:   Java/.metadata/.log
+#	modified:   Java/.metadata/.plugins/org.eclipse.core.resources/.projects/EE5/.indexes/e4/ce/history.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/1128224655.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/1477788888.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/148409970.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/1484906476.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/162906021.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/1689259093.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/1902463861.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/194259052.index
+#	modified:   Java/.metadata/.plugins/org.eclipse.jdt.core/225664846.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/2272273464.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/2470519452.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/2709225165.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/3141958188.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/3620471903.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/3666609613.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/3698447926.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/4265864773.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/559129880.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/628019425.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/648612256.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/848469205.index
+#	deleted:    Java/.metadata/.plugins/org.eclipse.jdt.core/922380862.index
+#	modified:   Java/.metadata/.plugins/org.eclipse.jdt.core/savedIndexNames.txt
+#	modified:   Java/EE5/.DS_Store
+#	modified:   Java/EE5/.classpath
+#	modified:   Java/EE5/bin/.DS_Store
+#	new file:   Java/EE5/bin/.classpath
+#	modified:   Java/EE5/bin/.gitignore
+#	new file:   Java/EE5/resource/librxtxSerial.jnilib
+#	modified:   Java/EE5/src/.DS_Store
+#	modified:   Java/EE5/src/TestFiles/testConnection.java
+#
+# Changes not staged for commit:
+#	modified:   Java/.metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi
+#
+

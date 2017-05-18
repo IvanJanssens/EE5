@@ -1,0 +1,43 @@
+package application;
+
+import userinterface.UI;
+
+public class decodeProtocol {
+
+	public static void decode(byte message) {
+		byte module = (byte) (message & 0xC0); //check first 2 bits
+		if(module == 0xC0)
+			decodeMM(message);
+		else if(module == 0x40)
+			decodeOsciA(message);
+		else if(module == 0x80)
+			decodeOsciB(message);
+	}
+	
+	private static void decodeMM(byte message) {
+		
+	}
+	
+	private static void decodeOsciA(byte message) {
+		Oscilloscope.updateAttenuationA(checkGain(message));
+	}
+	
+	private static void decodeOsciB(byte message) {
+		Oscilloscope.updateAttenuationB(checkGain(message));
+	}
+	
+	private static int checkGain(byte message) {
+		int gain = UI.ATTENUATION;
+		if(checkbit(message,0))
+			gain = 2;
+		else if(checkbit(message,1))
+			gain = 5;
+		else if(checkbit(message,2))
+			gain = 10;
+		return gain;
+	}
+	
+	private static boolean checkbit(byte message, int pos) {
+		return ((message << pos) & 1) != 0;
+	}
+}

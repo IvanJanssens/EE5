@@ -1,0 +1,567 @@
+package userinterface;
+
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.util.logging.Level;
+
+import javax.imageio.ImageIO;
+
+import javafx.beans.value.ChangeListener;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.ValueAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
+import javafx.scene.control.Tab;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import resource.ResourceLoader;
+import application.Main;
+import application.Oscilloscope;
+import communication.Connection;
+
+public class OscilloscopeUI extends UI{
+
+
+	private static BorderPane osciBody;
+	private static Label ptpA;
+	private static Label rmsA;
+	private static Label ptpB;
+	private static Label rmsB;
+	private static Oscilloscope oscilloscope;
+	private static NumbField dataFrom;
+	private static NumbField dataTill;
+	private static VBox prevData;
+	private static VBox oscibuttons;
+	private static HBox mainButtons;
+	private static RadioButton onOffA;
+	private static RadioButton onOffB;
+	private static ToggleGroup groupA;
+	private static ToggleGroup groupB;
+	private static ToggleGroup acdcA;
+	private static ToggleGroup acdcB;
+	
+	private static final String AC = "ac";
+	private static final String DC = "dc";
+	
+	// create new tab for the oscilloscope
+	public static Tab Oscilloscope(Oscilloscope oscillo) {
+		oscilloscope = oscillo;
+		Tab oscilloscopeTab = new Tab();
+		oscilloscopeTab.setText("Oscilloscope");
+		ScrollPane osciPanel = new ScrollPane();
+			osciPanel.setFitToHeight(true);
+			osciPanel.setFitToWidth(true);
+			osciPanel.setContent(osciBorderPane());
+			oscilloscopeTab.setContent(osciPanel);
+		return oscilloscopeTab;
+	}
+	
+	private static BorderPane osciBorderPane() {
+		BorderPane osciBorderPane = new BorderPane();
+		HBox header = mainButtons();
+		osciBorderPane.setTop(header);
+		BorderPane.setMargin(header, new Insets(10,0,10,10));
+		osciBody = osciBody();
+		osciBorderPane.setCenter(osciBody);
+		return osciBorderPane;
+	}
+	
+	private static HBox mainButtons() {
+		mainButtons = new HBox(10);
+		mainButtons.setAlignment(Pos.CENTER_LEFT);
+		mainButtons.getChildren().addAll(Load(),Save(),printScreen(),help());
+		return mainButtons;
+	}
+	
+	//open basic filechooser
+	private static Button Load(){
+		Button load = new Button("Load");
+		load.setPrefWidth(120);
+		load.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e){
+				FileChooser open = new FileChooser();
+				open.setTitle("Load mesurements");
+				open.getExtensionFilters().add(new ExtensionFilter("text","*.txt"));
+				File loadFile = open.showOpenDialog(null);
+				if(loadFile != null){
+					UI.goToFile(loadFile);
+				}
+			}
+		});
+		return load;
+	}
+	
+	private static Button Save() {
+		Button save = new Button("Save");
+		save.setPrefWidth(120);
+		save.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e){
+				UI.cancelOsci();
+				FileChooser saving = new FileChooser();
+				saving.setTitle("Save mesurements");
+				saving.getExtensionFilters().add(new ExtensionFilter("Text file","*.txt"));
+				File selectedFile = saving.showSaveDialog(null);
+				if(selectedFile != null){
+					try {
+						FileChannel src = new FileInputStream(tempFile).getChannel();
+						FileChannel dest = new FileOutputStream(selectedFile).getChannel();
+						dest.transferFrom(src, 0, src.size());
+					} catch (Exception ex) {
+						Main.LOGGER.log(Level.SEVERE,"Coudn't copy temp file to new",ex);
+					}
+					UI.startOsci();
+					
+				}
+			}
+		});
+		return save;
+	}
+	
+	private static Button printScreen() {
+		Button printScreen = new Button("Printscreen");
+		printScreen.setPrefWidth(120);
+		printScreen.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e){
+				UI.cancelOsci(); // pause the inputstream of data during the snapshot
+				FileChooser saving = new FileChooser();
+				saving.setTitle("Printscreen");
+				saving.getExtensionFilters().add(new ExtensionFilter("Png","*.png"));
+				File selectedFile = saving.showSaveDialog(null);
+				if(selectedFile != null){
+					try {
+						//get a snapshot of the oscibody, this includes the different buttons of the oscilloscope and the graph
+			            WritableImage snapshot = osciBody.snapshot(null, null);
+			            BufferedImage tempImg = SwingFXUtils.fromFXImage(snapshot, null);
+
+			            ImageIO.write(tempImg, "png", selectedFile);
+			            UI.startOsci(); // restart the inputstream
+
+			        } catch (IOException ex) {
+						Main.LOGGER.log(Level.SEVERE,"Coudn't make a screenshot",ex);
+			        }
+				}
+			}
+		});
+		return printScreen;
+	}
+	
+	private static Button help() {
+		Button help = new Button("Help");
+		help.setPrefWidth(120);
+		help.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e) {
+				UI.cancelOsci();
+				Alert helpAlert = new Alert(AlertType.INFORMATION);
+				helpAlert.setTitle("Help menu");
+				helpAlert.setHeaderText("Help with the oscilloscope");
+				helpAlert.getDialogPane().setPrefHeight(400);
+				helpAlert.setResizable(true);
+				helpAlert.getDialogPane().setContent(helpContent());
+
+				helpAlert.showAndWait();
+				UI.startOsci();
+			}
+		});
+		return help;
+	}
+	
+	private static ScrollPane helpContent() {
+		ScrollPane helpContent = new ScrollPane();
+		helpContent.setFitToWidth(true);
+		VBox content = new VBox(10);
+		content.getChildren().addAll(
+				new Label("This is the graph of the oscilloscope: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("graph.png"),300,0,true,true)),
+				new Separator(),
+				new Label("Open data file to display on the graph: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("open.png"),300,0,true,true)),
+				new Separator(),
+				new Label("Save datapoints of the graph in a file: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("save.png"),300,0,true,true)),
+				new Separator(),
+				new Label("Printscreen the graph and option selection to a PNG image: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("print.png"),300,0,true,true)),
+				new Separator(),
+				new Label("Select input source: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("source.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Select amplification: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("amplification.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Select trigger level: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("trigger.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Select time of the graph (X-axis): "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("time.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Display Root Mean Square (RMS) value of the graph: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("RMS.png"),200,0,true,true)),
+				new Separator(),
+				new Label("Display Peak to Peak value of the graph: "),new ImageView(new Image(ResourceLoader.class.getResourceAsStream("PtP.png"),200,0,true,true)));
+		helpContent.setContent(content);
+		
+		return helpContent;
+	}
+	
+	private static BorderPane osciBody(){
+		BorderPane osciBody = new BorderPane();
+		VBox osciButtons = osciButtons();
+		osciBody.setRight(osciButtons);
+		BorderPane.setMargin(osciButtons, new Insets(10,10,10,10));
+		LineChart<Number,Number> graph = GraphUI.osciGraph();
+		osciBody.setCenter(graph);
+		return osciBody;
+	}
+	
+	private static VBox osciButtons() {
+		oscibuttons = new VBox(10);
+		oscibuttons.getChildren().addAll(osciDoubleButtons(),new Label("Trigger (v): "),trigger(),new Label("time div (msec): "),timediv());
+		return oscibuttons;
+	}
+	
+	private static HBox osciDoubleButtons() {
+		HBox doubleButtons = new HBox(10);
+		doubleButtons.getChildren().addAll(buttonsA(),new Separator(Orientation.VERTICAL),buttonsB());
+		return doubleButtons;
+	}
+	
+	private static HBox dataDoubleButtons() {
+		HBox doubleButtons = new HBox(10);
+		doubleButtons.getChildren().addAll(dataButtonsA(),new Separator(Orientation.VERTICAL),dataButtonsB());
+		return doubleButtons;
+	}
+	
+	private static VBox buttonsA() {
+		VBox oscibuttons = new VBox(10);
+		oscibuttons.getChildren().addAll(new Label("Channel 1"), OnOffA(),ACDCA(),attenuationA(),rmsA(),ptpA(),fftA());
+		return oscibuttons;
+	}
+	
+	private static VBox dataButtonsA() {
+		VBox dataButtons = new VBox(10);
+		dataButtons.getChildren().addAll(new Label("Channel 1"),rmsA(),ptpA());
+		return dataButtons;
+	}
+	
+	private static VBox buttonsB() {
+		VBox oscibuttons = new VBox(10);
+		oscibuttons.getChildren().addAll(new Label("Channel 2"), OnOffB(),ACDCB(),attenuationB(),rmsB(),ptpB(),fftB());
+		return oscibuttons;
+	}
+	
+	private static VBox dataButtonsB() {
+		VBox dataButtons = new VBox(10);
+		dataButtons.getChildren().addAll(new Label("Channel 2"),rmsB(),ptpB());
+		return dataButtons;
+	}
+	
+	private static RadioButton OnOffA() {
+		onOffA = new RadioButton();
+		onOffA.setText("input 1");
+		onOffA.setSelected(true);
+		onOffA.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event e){
+				sendASpeedParam();
+			}
+		});
+		return onOffA;
+	}
+	
+	private static RadioButton OnOffB() {
+		onOffB = new RadioButton();
+		onOffB.setText("input 2");
+		onOffB.setOnMouseClicked(new EventHandler<Event> () {
+			@Override
+			public void handle(Event e) {
+				sendBSpeedParam();
+			}
+		});
+		return onOffB;
+	}
+	
+	private static HBox ACDCA() {
+		HBox acdcBox = new HBox(10);
+		ToggleButton acA = new ToggleButton();
+		acA.setPrefWidth(60);
+		acA.setText("AC");
+		acA.setUserData(AC);
+		ToggleButton dcA = new ToggleButton();
+		dcA.setPrefWidth(60);
+		dcA.setText("DC");
+		dcA.setUserData(DC);
+		acdcA = new ToggleGroup();
+		acA.setToggleGroup(acdcA);
+		dcA.setToggleGroup(acdcA);
+		acdcA.selectToggle(acA);
+		acA.setDisable(true);
+		acdcA.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																((ToggleButton) newToggle).setDisable(true);
+																((ToggleButton) oldToggle).setDisable(false);
+																sendASpeedParam();
+		});
+		acdcBox.getChildren().addAll(acA,dcA);
+		return acdcBox;
+	}
+	
+	private static HBox ACDCB() {
+		HBox acdcBox = new HBox(10);
+		ToggleButton acB = new ToggleButton();
+		acB.setPrefWidth(60);
+		acB.setText("AC");
+		acB.setUserData(AC);
+		ToggleButton dcB = new ToggleButton();
+		dcB.setPrefWidth(60);
+		dcB.setText("DC");
+		dcB.setUserData(DC);
+		acdcB = new ToggleGroup();
+		acB.setToggleGroup(acdcB);
+		dcB.setToggleGroup(acdcB);
+		acdcB.selectToggle(acB);
+		acB.setDisable(true);
+		acdcB.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																((ToggleButton) newToggle).setDisable(true);
+																((ToggleButton) oldToggle).setDisable(false);
+																sendBSpeedParam();
+		});
+		acdcBox.getChildren().addAll(acB,dcB);
+		return acdcBox;
+	}
+	
+	private static HBox attenuationA() {
+		HBox attenuation = new HBox();
+		ToggleButton  x2 = new ToggleButton ();
+		x2.setText("X2");
+		x2.setUserData(2);
+		x2.setPrefWidth(40);
+		ToggleButton  x5 = new ToggleButton ();
+		x5.setText("X5");
+		x5.setUserData(5);
+		x5.setPrefWidth(40);
+		ToggleButton  x10 = new ToggleButton ();
+		x10.setText("X10");
+		x10.setUserData(10);
+		x10.setPrefWidth(40);
+		groupA = new ToggleGroup();
+		x2.setToggleGroup(groupA);
+		x5.setToggleGroup(groupA);
+		x10.setToggleGroup(groupA);
+		groupA.selectToggle(x2);
+		x2.setDisable(true);
+		groupA.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																	sendAGainParam();
+																	((ToggleButton) newToggle).setDisable(true);
+																	((ToggleButton) oldToggle).setDisable(false);
+																	application.Oscilloscope.updateAttenuation((int)newToggle.getUserData());
+																	});
+		attenuation.getChildren().addAll(x2,x5,x10);
+		return attenuation;
+	}
+	
+	private static HBox attenuationB() {
+		HBox attenuation = new HBox();
+		ToggleButton  x2 = new ToggleButton ();
+		x2.setText("X2");
+		x2.setUserData(2);
+		x2.setPrefWidth(40);
+		ToggleButton  x5 = new ToggleButton ();
+		x5.setText("X5");
+		x5.setUserData(5);
+		x5.setPrefWidth(40);
+		ToggleButton  x10 = new ToggleButton ();
+		x10.setText("X10");
+		x10.setUserData(10);
+		x10.setPrefWidth(40);
+		groupB = new ToggleGroup();
+		x2.setToggleGroup(groupB);
+		x5.setToggleGroup(groupB);
+		x10.setToggleGroup(groupB);
+		groupB.selectToggle(x2);
+		x2.setDisable(true);
+		groupB.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+																	sendBGainParam();
+																	((ToggleButton) newToggle).setDisable(true);
+																	((ToggleButton) oldToggle).setDisable(false);
+																	application.Oscilloscope.updateAttenuation((int)newToggle.getUserData());
+																	});
+		attenuation.getChildren().addAll(x2,x5,x10);
+		return attenuation;
+	}
+	
+	
+	private static Spinner<Double> trigger() {
+		Spinner<Double> trigger = new Spinner<Double>();
+		trigger.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-5,5));
+		trigger.setEditable(true);
+		trigger.getValueFactory().setValue(UI.TRIGGER);
+		trigger.setPrefWidth(240);
+		trigger.valueProperty().addListener((obs, oldValue, newValue) -> {
+			Oscilloscope.updateTrigger(newValue);
+		});
+		return trigger;
+	}
+	
+	private static Spinner<Integer> timediv() {
+		Spinner<Integer> timediv = new Spinner<Integer>();
+		timediv.setValueFactory(new IntegerSpinnerValueFactory(10,5000));
+		timediv.getValueFactory().setValue(UI.MAX_DATA);
+		timediv.setPrefWidth(240);
+		timediv.setEditable(true);
+		timediv.valueProperty().addListener((obs, oldValue, newValue) -> {
+//			sendSpeedParam();
+	        Oscilloscope.updateTimeDiv(newValue);
+		});
+		return timediv;
+	}
+	
+	private static Label rmsA() {
+		rmsA = new Label("Root Mean Square\n(RMS): ");
+		rmsA.setPrefWidth(120);
+		return rmsA;
+	}
+	
+	private static Label rmsB() {
+		rmsB = new Label("Root Mean Square\n(RMS): ");
+		rmsB.setPrefWidth(120);
+		return rmsB;
+	}
+	
+	private static Label ptpA() {
+		ptpA = new Label("Peak to Peak: ");
+		ptpA.setPrefWidth(120);
+		return ptpA;
+	}
+	
+	private static Label ptpB() {
+		ptpB = new Label("Peak to Peak: ");
+		ptpB.setPrefWidth(120);
+		return ptpB;
+	}
+	
+	private static ToggleButton fftA() {
+		ToggleButton fftA = new ToggleButton("fft");
+		fftA.setPrefWidth(120);
+		return fftA;
+	}
+	
+	private static ToggleButton fftB() {
+		ToggleButton fftB = new ToggleButton("fft");
+		fftB.setPrefWidth(120);
+		return fftB;
+	}
+	
+	public static void updateRMSA(double rmsValue) {
+		rmsA.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
+	}
+	
+	public static void updateRMSB(double rmsValue) {
+		rmsB.setText("Root Mean Square\n(RMS):\n" + (String.format("%.4f", rmsValue)));
+	}
+	
+	public static void updatePtPA(double max, double min) {
+		ptpA.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
+	}
+	
+	public static void updatePtPB(double max, double min) {
+		ptpB.setText("Peak to Peak: \n" + (String.format("%.4f", (max-min))));
+	}
+	
+	public static void sendOsciParam() {
+		sendOsciAParam();
+		sendOsciBParam();
+	}
+	
+	public static void sendOsciAParam() {
+		sendASpeedParam();
+		sendAGainParam();
+	}
+	
+	public static void sendOsciBParam() {
+		sendBSpeedParam();
+		sendBGainParam();
+	}
+	
+	private static void sendASpeedParam() {
+		byte message = 0b01001000; //start with selecting A
+		if(onOffA.isSelected()) {
+			message = setBit(message,5);
+			if(acdcA.getSelectedToggle().getUserData().equals(DC))
+				message = setBit(message,4);
+		}
+		Connection.send(message);
+	}
+	
+	private static void sendBSpeedParam() {
+		byte message = (byte) 0b10001000; //start with selecting B (byte typecast due to overflow because saved as signed int, would mean -128 and is impossible)
+		if(onOffB.isSelected()) {
+			message = setBit(message,5);
+			if(acdcB.getSelectedToggle().getUserData().equals(DC))
+				message = setBit(message,4);
+		}
+		Connection.send(message);		
+	}
+	
+	private static void sendAGainParam() {
+		byte message = 0b01000000;
+		if(onOffA.isSelected()) {
+			message = setBit(message, 5);
+			int gain = (int) groupA.getSelectedToggle().getUserData();
+			if(gain == 10)
+				message = setBit(message,1);
+			else if (gain == 5)
+				message = setBit(message,0);
+			if(acdcA.getSelectedToggle().getUserData().equals(DC))
+				message = setBit(message,4);
+		}
+		
+		Connection.send(message);
+	}
+	
+	private static void sendBGainParam() {
+		byte message = (byte) 0b10000000;
+		if(onOffB.isSelected()) {
+			message = setBit(message,5);
+			int gain = (int) groupB.getSelectedToggle().getUserData();
+			if(gain == 10)
+				message = setBit(message,1);
+			else if (gain == 5)
+				message = setBit(message,0);
+			if(acdcB.getSelectedToggle().getUserData().equals(DC))
+				message = setBit(message,4);
+		}
+		
+		Connection.send(message);
+	}
+	
+	private static byte setBit(byte message, int pos) {
+		return message |= 1 << pos;
+	}
+	
+	private static byte clearBit(byte message, int pos) {
+		return message &= ~(1<<pos);
+	}
+}

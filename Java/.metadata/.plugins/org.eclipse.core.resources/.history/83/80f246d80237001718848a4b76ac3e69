@@ -1,0 +1,141 @@
+package userinterface;
+
+import javafx.scene.chart.Axis.TickMark;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.ValueAxis;
+import javafx.scene.chart.XYChart;
+
+public class GraphUI {
+
+	private static XYChart.Series<Number, Number> data;
+	private static double max;
+	private static double min;
+	private static double sum;
+	private static int oldMaxData = 0;
+	private static int tickCount = 0;
+	
+	public static final int NoConUI = 0;
+	public static final int OsciUI = 1;
+	
+	//Linechart
+		public static LineChart<Number, Number> osciGraph() {
+			NumberAxis xAxis = new NumberAxis();
+			NumberAxis yAxis = new NumberAxis();
+			xAxis.setLabel("Time (s)");
+			yAxis.setLabel("Voltage (V)");
+			LineChart<Number, Number> graph = new LineChart<Number, Number>(xAxis,yAxis);
+			graph.setTitle("Oscilloscope");
+			data = new XYChart.Series<Number, Number>();
+			data.setName("values");
+			graph.getData().add(data);
+			graph.getXAxis().setAutoRanging(false);
+			graph.getYAxis().setAutoRanging(false);
+			graph.setMinWidth(400);
+			graph.setMaxWidth(1000);
+			graph.setAnimated(false);
+			((ValueAxis<Number>) graph.getYAxis()).setUpperBound(5.5);
+			((ValueAxis<Number>) graph.getXAxis()).setLowerBound(0);
+	        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(UI.MAX_DATA);
+			return graph;
+		}
+		
+		public static void addData(double newPoint,int startPoint, int maxData, int currentPoint, int tab) {
+			if(startPoint == currentPoint)
+				tickCount = 0;
+			//get number of datapoints
+	        int numOfPoint = data.getData().size();
+	        
+
+			if(maxData < oldMaxData) {
+				data.getData().remove(maxData, data.getData().size());
+			}
+
+			((ValueAxis<Number>) data.getChart().getXAxis()).setLowerBound(startPoint);
+	        ((ValueAxis<Number>) data.getChart().getXAxis()).setUpperBound(startPoint + maxData);
+	        data.getData().size();
+			if(numOfPoint >= maxData && tickCount < maxData) {
+				data.getData().set(tickCount, new XYChart.Data<Number, Number>(currentPoint,newPoint)); // add new datapoint
+			}
+			else if(numOfPoint < maxData && tickCount < maxData){
+				data.getData().add(new XYChart.Data<Number, Number>(currentPoint,newPoint)); // add new datapoint
+			}
+			System.out.println(data.getChart().getXAxis().getTickMarks().size());
+			System.out.println(tickCount);
+//			data.getChart().getXAxis().getTickMarks().
+//			if(data.getChart().getXAxis().getTickMarks().size() > tickCount){
+//				if(currentPoint % (maxData/data.getChart().getXAxis().getTickMarks().size()) == 0)
+//					data.getChart().getXAxis().getTickMarks().get(tickCount).setLabel(""+currentPoint);
+//			}
+			tickCount++;
+			
+			if(currentPoint == maxData){
+				min = (double) data.getData().get(0).getYValue();
+				max = (double) data.getData().get(0).getYValue();
+				sum = 0;
+				data.getData().forEach(value-> {
+					sum += ((double) value.getYValue()*(double) value.getYValue());
+					if((double) value.getYValue() > max)
+						max = (double)value.getYValue();
+					if((double) value.getYValue() < min)
+						min = (double)value.getYValue();
+				});
+				if(tab == NoConUI) {
+					NoConnectionUI.updateRMS(Math.sqrt(sum/maxData));
+					NoConnectionUI.updatePtP(max,min);
+				}
+				else if(tab == OsciUI) {
+					OscilloscopeUI.updateRMS(Math.sqrt(sum/maxData));
+					OscilloscopeUI.updatePtP(max,min);
+				}
+			}
+			oldMaxData = maxData;
+		}
+		
+		public static void clearGraph() {
+			data.getData().clear();
+		}
+		
+//		private static LineChart<Number, Number> fftGraph() {
+//			NumberAxis xAxis = new NumberAxis();
+//			NumberAxis yAxis = new NumberAxis();
+//			xAxis.setLabel("Time (s)");
+//			yAxis.setLabel("Voltage (V)");
+//			LineChart<Number, Number> graph = new LineChart<Number, Number>(xAxis,yAxis);
+//			graph.setTitle("Oscilloscope");
+//			fftData = new XYChart.Series<Number, Number>();
+//			fftData.setName("FFT values");
+//			fftDatapoint = 0;
+//			graph.getData().add(fftData);
+//			graph.getXAxis().setAutoRanging(false);
+//			graph.getYAxis().setAutoRanging(false);
+//			graph.setMinWidth(400);
+//			graph.setMaxWidth(1000);
+//			graph.setAnimated(false);
+//			((ValueAxis<Number>) graph.getYAxis()).setUpperBound(5.5);
+//			return graph;
+//		}
+//
+//		public static void addFftData(float[] fftzeropad, float max) {
+//			double newPoint;
+//			for(int i = 0; i< fftzeropad.length; i++) {
+//				newPoint = (double) (fftzeropad[i]/max*3.2);
+//				//get number of datapoints
+//		        int numOfPoint = fftData.getData().size();
+//				if(fftDatapoint >= 4*max_data && newPoint > triggerValue && prevFftValue <= triggerValue) {
+//					fftDatapoint = 0;
+//					
+//				}
+//				
+//				((ValueAxis<Number>) fftData.getChart().getXAxis()).setLowerBound(0);
+//		        ((ValueAxis<Number>) fftData.getChart().getXAxis()).setUpperBound(4*max_data);
+//		        if(numOfPoint >= 4*max_data && fftDatapoint < 4*max_data)
+//		        	fftData.getData().set(fftDatapoint, new XYChart.Data<Number, Number>(fftDatapoint,newPoint)); // add new datapoint
+//		        else if(fftDatapoint < 4*max_data)
+//		        	fftData.getData().add(new XYChart.Data<Number, Number>(fftDatapoint,newPoint)); // add new datapoint
+//		        fftDatapoint += 1;
+//		        prevFftValue = newPoint;
+//			}
+//			
+//		}
+}

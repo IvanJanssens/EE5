@@ -1,0 +1,23 @@
+package application;
+
+public class decodeProtocol {
+
+	public static void decode(byte message) {
+		byte module = (message & 0xC0) //check first 2 bits
+		if(module == 0x11)
+			decodeMM(message);
+		else if((message))
+	}
+	
+	private static void decodeMM(byte message) {
+		
+	}
+	
+	private static void decodeOsciA(byte message) {
+		
+	}
+	
+	private static void decodeOsciB(byte message) {
+		
+	}
+}
