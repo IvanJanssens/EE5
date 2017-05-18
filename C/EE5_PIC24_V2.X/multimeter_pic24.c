@@ -1,56 +1,42 @@
 #include <xc.h>
 #include "multimeter_pic24.h"
-#include <assert.h>
-
-////////////////////////////////////////////////////////////////////////////////
-// INITCHIP
-int this_case;
+#include "connectionprotocol.h"
 float LSB;
 
 void MM(int value) {
-    //PORTB = value;  // port B are bit 2-10 from right left address
     LSB = ((Vrefp - Vrefm)/(resolution));
-    this_case = set_Case(value*LSB,this_case); // amplify will return current case
-    assert(this_case != -1);
-    delay(50);
-}
-////////////////////////////////////////////////////////////////////////////////
-// amplify
-int set_Case(float voltage, int case_t) {   
+    int voltage = value*LSB;
+    int case_t = info.MM.gain;
     if(case_t == 0){ // /10
         if(voltage < (0.4f)){
-            return cases(1);
+            gain(1);
         }
-        return cases(0);
+        else gain(0);
     }
     else if (case_t == 1){ // 24.9k or /2 gain S2 1 S1 0 S0 1
-            if( voltage > 3.0f) return cases(0);
-            else if ( voltage < (0.7f)) return cases(2);
-            return cases(1);
+            if( voltage > 3.0f) gain(0);
+            else if ( voltage < (0.7f)) gain(2);
+            else gain(1);
     }         
     else if (case_t == 2){ // 5.23k or 2x gain S2 1 S1 1 S0 1
-            if( voltage > 3.0f) return cases(1); 
-            else if ( voltage < (0.5f)) return cases(3);
-            return cases(2);
+            if( voltage > 3.0f) gain(1); 
+            else if ( voltage < (0.5f)) gain(3);
+            else gain(2);
     }
     else if (case_t == 3) { // 1.02k or 7x 
-        if(voltage > (2.1f)) return cases(2);
-        else if (voltage < (0.4f)) return cases(4);
-        return cases(3);
+        if(voltage > (2.1f)) gain(2);
+        else if (voltage < (0.4f)) gain(4);
+        else gain(3);
     } 
     else if (case_t == 4) { // 10x
-        if(voltage > (0.8f)) return cases(3);
-        return cases(4);
-    }else {
-        while(1){
-            PORTB = 255;
-        }   
-        return -1;
+        if(voltage > (0.8f)) gain(3);
+        else gain(4);
     }
+    //delay(50);
 }
 ////////////////////////////////////////////////////////////////////////////////
 // cases
-int cases(int cas) {
+void gain(int cas) {
     if(cas == 0) {
         LATDbits.LATD1 = 0;
         LATDbits.LATD0 = 1;
@@ -76,7 +62,7 @@ int cases(int cas) {
         LATDbits.LATD0 = 0;
         LATDbits.LATD11 = 0;
     }
-    return cas;
+    info.MM.gain = cas;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

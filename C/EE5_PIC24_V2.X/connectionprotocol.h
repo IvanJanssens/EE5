@@ -4,50 +4,57 @@
 typedef union {
     unsigned char allBits;
     struct {
-        unsigned char data : 6;
+        unsigned char data : 4;
+        unsigned char select: 2;
         unsigned char module : 2;
-    };
+    }MOD;
     
     struct {
-        unsigned char FG_data : 3;
-        unsigned char FG_select : 3;
-        unsigned char FG_module : 2; // FG = 00
-    };
+        unsigned char data : 3;
+        unsigned char select : 3;
+        unsigned char module : 2; // FG = 00
+    } FG ;
 
     struct {
-        unsigned char O_data : 3;
-        unsigned char O_select : 1; // gain (0) or speed (1)
+        unsigned char gain : 4;
         unsigned char AC_DC : 1; // AC=0, DC = 1
-        unsigned char O_ON : 1;
-        unsigned char O_module : 2; //A = 01, B = 10
-    };
-
+        unsigned char ON : 1;
+        unsigned char module : 2; //A = 01, B = 10
+    } O ;
     struct {
-        unsigned char M_nothing : 5;
-        unsigned char M_ON : 1;
-        unsigned char M_module : 2; //MM = 11
-    };
+        unsigned char nothing: 3;
+        unsigned char ON : 1;
+        unsigned char select : 2; //A => 01, B = 10, MM = 11
+        unsigned char module : 2; //11
+    } MM;
+    struct {
+        unsigned char data : 4;
+        unsigned char select : 2; //A => 01, B = 10, MM = 11
+        unsigned char module : 2; //11
+    } DAC;
 } data_t;
 
 typedef union {
     long long int allbits; //64bits
-    struct { // 3*8 + 35 = 57 bit
-        struct { // 8bit
-            unsigned char speed : 3;
+    struct { 
+        struct { //9bit
+            unsigned char offset: 4;
             unsigned char gain : 3;
             unsigned char AC_DC : 1;
             unsigned char ON : 1;
         } A;
 
-        struct { //8bit
-            unsigned char speed : 3;
+        struct { //9bit
+            unsigned char offset: 4;
             unsigned char gain : 3;
             unsigned char AC_DC : 1;
             unsigned char ON : 1;
         } B;
-
-        struct { //8bit
-            unsigned char nothing : 7;
+        
+        struct { //17bit
+            unsigned int value: 12;
+            unsigned int flag: 1;
+            unsigned char gain : 3;
             unsigned char ON : 1;
         } MM;
 

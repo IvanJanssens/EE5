@@ -4,15 +4,17 @@
 #include "FIFO.h"
 #include "connectionprotocol.h"
 
+#define max_fifo 7000
+
 unsigned char fifo_rx[100] = {0};
-unsigned char fifo_tx[500] = {0};
+unsigned char fifo_tx[max_fifo] = {0};
 unsigned int i, j, k, l;
 unsigned int count_rx;
 unsigned int count_tx;
 
 void init_FIFO(void) {
     k = 0;
-    l = 499;
+    l = max_fifo -1;
 
     i = 0;
     j = 99;
@@ -22,10 +24,12 @@ void init_FIFO(void) {
 }
 
 void write_FIFO_rx(unsigned char data) {
-    fifo_rx[i] = data;
-    i++;
-    count_rx++;
-    if (i >= 100) i = 0;
+    if(count_rx < 100){
+        fifo_rx[i] = data;
+        i++;
+        count_rx++;
+        if (i >= 100) i = 0;
+    }
 }
 
 void read_FIFO_rx(void) {
@@ -38,10 +42,12 @@ void read_FIFO_rx(void) {
 }
 
 void write_FIFO_tx(unsigned char data) {
-    fifo_tx[k] = data;
-    k++;
-    count_tx++;
-    if (k >= 500) k = 0;
+    if(count_tx < max_fifo){
+        fifo_tx[k] = data;
+        k++;
+        count_tx++;
+        if (k >= max_fifo) k = 0;
+    }
 }
 
 void send_FIFO_tx(void) {
@@ -49,7 +55,7 @@ void send_FIFO_tx(void) {
         if(U2STAbits.UTXBF) return;
         l++;
         count_tx--;
-        if (l >= 500) l = 0;
+        if (l >= max_fifo) l = 0;
         U2TXREG = fifo_tx[l];  
     }
 }

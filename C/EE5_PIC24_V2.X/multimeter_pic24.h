@@ -6,12 +6,9 @@
 #define Vrefm 0 // 0 volts
 #define resolution (4096.0f) // 12 bit
 
-int set_Case( float voltage, int c);
 void MM(int value);
 void delay(int x);
-int cases(int c);
-
-extern int this_case;
+void gain(int c);
 
 #endif	/* MULTIMETER_PIC24_H */
 

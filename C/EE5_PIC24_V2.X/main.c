@@ -25,18 +25,26 @@ int main(void) {
     init_ALL();
     
     info.allbits = 0;
-    
-    
     while(1){
         //SquareWave_10K();
         if (get_count_rx() != 0) {
             read_FIFO_rx();
+            ADL0CONLbits.SLEN = 1;
             count = 0;
         }
         if(get_count_tx() != 0) send_FIFO_tx();
-        if(AD_DONE && count <= 40) {
-            ADC();
-            count++;
+        if(AD_DONE && count < 40) {
+            if(info.A.ON || info.B.ON){
+                AD_DONE = 0;
+                ADL0CONLbits.SLEN = 1;
+                count++;
+            }
+            else if(info.MM.ON && info.MM.flag){
+                MM(info.MM.flag);
+                AD_DONE = 0;
+                ADL0CONLbits.SLEN = 1;
+                count++;
+            }
         }
     }
     return 0;
@@ -82,9 +90,7 @@ void init_Chip(void) {
 
 void init_ALL() {
     init_ADC();
-    init_MM();
-    init_A();
-    init_B();
+    ADC();
     init_FIFO();
     set_UART();
     init_DAC();
