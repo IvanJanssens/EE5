@@ -8,7 +8,8 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     IFS4bits.U2ERIF = 0;
     unsigned char var = U2RXREG;
     write_FIFO_rx(var);
-    write_FIFO_tx(var);
+    //write_FIFO_tx(var);
+    U2TXREG = var;
 	IFS1bits.U2RXIF = 0; // Clear the Recieve Interrupt Flag
 }
   

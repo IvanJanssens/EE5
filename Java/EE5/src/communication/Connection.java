@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 
 import application.Main;
-import application.decodeProtocol;
+//import application.decodeProtocol;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
@@ -114,7 +114,7 @@ public class Connection {
 			if(buffer[0] != prevMessage)
 				send(prevMessage);
 			else {
-				decodeProtocol.decode(prevMessage);
+				//decodeProtocol.decode(prevMessage);
 			}
 		}
 		catch (IOException ex) {

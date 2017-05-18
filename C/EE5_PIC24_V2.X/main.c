@@ -23,12 +23,12 @@ int count = 0;
 int main(void) {
     init_Chip();
     init_ALL();
-    
+    SquareWave_10K();
     info.allbits = 0;
     while(1){
-        //SquareWave_10K();
         if (get_count_rx() != 0) {
             read_FIFO_rx();
+            init_FIFO();
             ADL0CONLbits.SLEN = 1;
             count = 0;
         }
@@ -40,7 +40,8 @@ int main(void) {
                 count++;
             }
             else if(info.MM.ON && info.MM.flag){
-                MM(info.MM.flag);
+                info.MM.flag = 0;
+                MM(info.MM.value);
                 AD_DONE = 0;
                 ADL0CONLbits.SLEN = 1;
                 count++;

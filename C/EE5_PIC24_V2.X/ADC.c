@@ -81,9 +81,9 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
             if(info.MM.ON){
                 int var = ADRES0;
                 int var1 = (0x0F80 & var)/128;
-                int var2 = 0x007C & var;
-                write_FIFO_tx(192 | var1);
-                write_FIFO_tx(224 | var2);
+                int var2 = (0x7C & var);
+                write_FIFO_tx(192 + var1);
+                write_FIFO_tx(224 + var2);
                 info.MM.value = var;
                 info.MM.flag = 1;
             }
@@ -91,8 +91,8 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
                 int var = ADRES0;
                 int var1 = (0x0F80 & var)/128;
                 int var2 = 0x007C & var;
-                write_FIFO_tx(64 | (var1 & 0x1F));
-                write_FIFO_tx(96 | (var2 & 0x1F));
+                write_FIFO_tx(64 + (var1 & 0x1F));
+                write_FIFO_tx(96 + (var2 & 0x1F));
             }
             if(info.B.ON){
                 int var;

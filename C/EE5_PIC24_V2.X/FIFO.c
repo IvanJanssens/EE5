@@ -4,7 +4,7 @@
 #include "FIFO.h"
 #include "connectionprotocol.h"
 
-#define max_fifo 7000
+#define max_fifo 7000 //can be rised to 8000
 
 unsigned char fifo_rx[100] = {0};
 unsigned char fifo_tx[max_fifo] = {0};
@@ -14,10 +14,9 @@ unsigned int count_tx;
 
 void init_FIFO(void) {
     k = 0;
-    l = max_fifo -1;
-
+    l = max_fifo;
     i = 0;
-    j = 99;
+    j = 100;
 
     count_tx = 0;
     count_rx = 0;
