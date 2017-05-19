@@ -12,11 +12,7 @@
 #define TRISVO_MM TRISD2
 
 void init_ADC(void);
-void init_A(void);
-void init_B(void);
-void init_MM(void);
-
-void ADC(void ); //initialize the bits that have to do with the ADC for the pic_24
+void ADC(void);
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void);
 

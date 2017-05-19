@@ -15,14 +15,9 @@
 
 void init_DAC(void);
 
-void AC_DC_mode(void);
-
-void DAC_write(int dac_a, int dac_b, int dac_aBits, int dac_bBits);
+void OSC(void);
 
 float get_osc_input(float famp, float acq, int a_not_b);
-
-void dac_gain_select_B(void);
-void dac_gain_select_A(void);
 
 
 #endif	/* DAC_H */
