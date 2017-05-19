@@ -39,6 +39,7 @@ public class GraphUI {
 			graph.setMaxWidth(1000);
 			graph.setAnimated(false);
 			((ValueAxis<Number>) graph.getYAxis()).setUpperBound(3.3);
+			((ValueAxis<Number>) graph.getYAxis()).setLowerBound(-3.3);
 			((ValueAxis<Number>) graph.getXAxis()).setLowerBound(0);
 	        ((ValueAxis<Number>) graph.getXAxis()).setUpperBound(UI.MAX_DATA);
 			return graph;
@@ -143,6 +144,14 @@ public class GraphUI {
 		
 		public static void clearGraph() {
 			dataA.getData().clear();
+			dataB.getData().clear();
+		}
+		
+		public static void clearGraphA() {
+			dataA.getData().clear();
+		}
+		
+		public static void clearGraphB() {
 			dataB.getData().clear();
 		}
 		

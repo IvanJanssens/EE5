@@ -77,6 +77,8 @@
 		<item value="2" key="pageIndex"/>
 	</section>
 	<section name="completion_proposal_size">
+		<item value="252" key="size.y"/>
+		<item value="700" key="size.x"/>
 	</section>
 	<section name="JavaElementSearchActions">
 	</section>
