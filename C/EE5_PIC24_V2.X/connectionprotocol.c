@@ -14,31 +14,32 @@ void parse_Data(unsigned char new_data) {
         case 0: {
             switch (data.FG.select) {
                 case 0:{
-                    info.FG.bits0 = data.FG.data;
+                    info.FG.freq = 0;
+                    info.FG.freq += data.FG.data;
                     break;
                 }
                 case 1:{
-                    info.FG.bits1 = data.FG.data;
+                    info.FG.freq |= data.FG.data<<3;
                     break;
                 }
                 case 2: {
-                    info.FG.bits2 = data.FG.data;
+                    info.FG.freq |= data.FG.data<<6;
                     break;
                 }
                 case 3:{
-                    info.FG.bits3 = data.FG.data;
+                    info.FG.freq |= data.FG.data<<9;
                     break;
                 }
                 case 4:{
-                    info.FG.bits4 = data.FG.data;
+                    info.FG.freq |= data.FG.data<<12;
                     break;
                 }
                 case 5:{
-                    info.FG.bits5 = data.FG.data;
+                    info.FG.freq += data.FG.data*32768; //2^15
                     break;
                 }
                 case 6:{
-                    info.FG.bits6 = data.FG.data;
+                    info.FG.freq += data.FG.data*262144; //2^18
                     break;
                 }
                 default:{

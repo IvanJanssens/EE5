@@ -52,26 +52,12 @@ typedef union {
         } B;
         
         struct { //17bit
-            unsigned int value: 12;
-            unsigned int flag: 1;
             unsigned char gain : 3;
             unsigned char ON : 1;
         } MM;
 
-        struct { // 35bit
-            union {
-                long int allBits; //32bit
-                struct { //32 bit
-                    unsigned char bits0 : 3;
-                    unsigned char bits1 : 3;
-                    unsigned char bits2 : 3;
-                    unsigned char bits3 : 3;
-                    unsigned char bits4 : 3;
-                    unsigned char bits5 : 3;
-                    unsigned char bits6 : 2;
-                    unsigned int nothing : 12;
-                };
-            };
+        struct { // 23bit
+            unsigned long int freq:21;
             unsigned char wave : 3;
         } FG;
     };

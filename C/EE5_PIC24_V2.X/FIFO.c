@@ -6,7 +6,7 @@
 #include "connectionprotocol.h"
 
 unsigned char fifo_rx[100] = {0};
-unsigned char fifo_tx[max_fifo] = {0};
+unsigned int fifo_tx[max_fifo] = {0};
 unsigned int i, j, k, l;
 unsigned int count_rx;
 unsigned int count_tx;
@@ -39,9 +39,9 @@ void read_FIFO_rx(void) {
     }
 }
 
-void write_FIFO_tx(unsigned char data) {
+void write_FIFO_tx(unsigned int data, char input){
     if(count_tx < max_fifo){
-        fifo_tx[k] = data;
+        fifo_tx[k] = (data & 0xFFF) + input*4096; // 2^12 = 4096
         k++;
         count_tx++;
         if (k >= max_fifo) k = 0;
@@ -50,12 +50,39 @@ void write_FIFO_tx(unsigned char data) {
 
 void send_FIFO_tx(void) {
     while (count_tx) {
-        if(U2STAbits.UTXBF);
-        else{
-            l++;
-            count_tx--;
-            if (l >= max_fifo) l = 0;
+        l++;
+        count_tx--;
+        if (l >= max_fifo) l = 0;
+        if((fifo_tx[l] & 0xF000) == 0x0) {
+            while(U2STAbits.UTXBF);
             U2TXREG = fifo_tx[l];
+        }
+        else if((fifo_tx[l] & 0xF000) == 0x1000) {
+            int var = (fifo_tx[l] & 0xFFF);
+            int var1 = (0xF80 & var)/128;
+            int var2 = (0x7C & var)/4;
+            while(U2STAbits.UTXBF);
+            U2TXREG = 64 | (var1 & 0x1F); //0101 1111
+            while(U2STAbits.UTXBF);
+            U2TXREG = 96 | (var2 & 0x1F); //0111 1111
+        }
+        else if((fifo_tx[l] & 0xF000) == 0x2000){
+            int var = (fifo_tx[l] & 0xFFF);
+            int var1 = (0x0F80 & var)/128;
+            int var2 = (0x007C & var)/4;
+            while(U2STAbits.UTXBF);
+            U2TXREG = 128 | (var1 & 0x1F); //1001 1111
+            while(U2STAbits.UTXBF);
+            U2TXREG = 160 | (var2 & 0x1F); //1011 1111
+        }
+        else if((fifo_tx[l] & 0xF000) == 0x3000){
+            int var = (fifo_tx[l] & 0xFFF);
+            int var1 = (0x0F80 & var)/128;
+            int var2 = (0x7C & var);
+            while(U2STAbits.UTXBF);
+            U2TXREG = 192 + var1;
+            while(U2STAbits.UTXBF);
+            U2TXREG = 224 + var2;
         }
     }
 }

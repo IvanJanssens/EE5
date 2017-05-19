@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="rxtx-2.2.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="EE5/bin/resource"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-<<<<<<< HEAD
-=======
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="lib" path="javafx-0.2.jar"/>
+	<classpathentry kind="lib" path="rxtx-2.2.jar"/>
+	<classpathentry kind="lib" path="rxtx-native-macosx.jar"/>
+	<classpathentry kind="lib" path="RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="poi-bin-3.16-20170419/poi-3.16/poi-3.16.jar"/>
 	<classpathentry kind="lib" path="poi-bin-3.16-20170419/poi-3.16/poi-examples-3.16.jar"/>
 	<classpathentry kind="lib" path="poi-bin-3.16-20170419/poi-3.16/poi-excelant-3.16.jar"/>
@@ -23,6 +18,7 @@
 	<classpathentry kind="lib" path="poi-bin-3.16-20170419/poi-3.16/lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="poi-bin-3.16-20170419/poi-3.16/ooxml-lib/curvesapi-1.04.jar"/>
 	<classpathentry kind="lib" path="poi-bin-3.16-20170419/poi-3.16/ooxml-lib/xmlbeans-2.6.0.jar"/>
->>>>>>> f96c3b8a18e7721e062a4e0b6a72b1b4a5999c84
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

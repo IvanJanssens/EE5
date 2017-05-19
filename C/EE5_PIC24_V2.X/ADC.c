@@ -22,7 +22,7 @@ void init_ADC(void) {
     ADCON1bits.ADON = 1;
     while(!ADSTATHbits.ADREADY);
     
-    ADL0CONH = 0xA003; // 1010 0000 0000 0011 (1)
+    ADL0CONH = 0xA001; // 1010 0000 0000 0001 (1)
     ADL0CONL = 0x2200; // 0010 0010 0000 0000 : 1 sample registers //MM
 
     ACCONH = 0;
@@ -54,6 +54,8 @@ void ADC(void){
         ADL0CONL = 0x2201; // 0010 0010 0000 0001 : 2 sample registers: A and B
         ADTBL0 = 0x000E; // 0000 0000 0000 1110 ==>RB14: VOA
         ADTBL1 = 0x0005; // 0000 0000 0000 0101 ==>RB5: VOB
+        ADCON3bits.SLEN0 = 1;
+        ADL0CONLbits.SLEN = 1;
     }
     else if (info.A.ON || info.B.ON || info.MM.ON) {
         ADCON3bits.SLEN0 = 1;
@@ -61,6 +63,7 @@ void ADC(void){
         if(info.A.ON) ADTBL0 = 0x000E; // 0000 0000 0000 1110 ==>RB14: VOA
         else if(info.B.ON) ADTBL0 = 0x0005; // 0000 0000 0000 0101 ==>RB5: VOB
         else if(info.MM.ON) ADTBL0 = 0x0019; // 0000 0000 0001 1001 ==>RD2: Multimeter
+        ADL0CONLbits.SLEN = 1;
     }
     else {
         ADCON3bits.SLEN0 = 0;
@@ -70,6 +73,7 @@ void ADC(void){
     for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
     ADCON1bits.ADON = 1;
     while(!ADSTATHbits.ADREADY);
+    
 }
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
@@ -77,34 +81,21 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
         IFS0bits.AD1IF = 0;
         if(ADL0STATbits.ADLIF) {
             ADL0STATbits.ADLIF = 0;
+            unsigned int var = ADRES0;
             if(info.MM.ON){
-                int var = ADRES0;
-                int var1 = (0x0F80 & var)/128;
-                int var2 = (0x7C & var);
-                write_FIFO_tx(192 + var1);
-                write_FIFO_tx(224 + var2);
-                info.MM.value = var;
-                info.MM.flag = 1;
+                write_FIFO_tx(var, 3);
+                MM(var);
+                delay(10);
             }
             if(info.A.ON){
-                int var = ADRES0;
-                //write_FIFO_tx((var/16)&0xFF); DEBUG
-                int var1 = (0xF80 & var)/128;
-                int var2 = (0x7C & var)/4;
-                write_FIFO_tx(64 | (var1 & 0x1F)); //0101 1111
-                write_FIFO_tx(96 | (var2 & 0x1F)); //0111 1111
+                write_FIFO_tx(var, 1);
             }
             if(info.B.ON){
-                int var;
-                if(info.A.ON) var = ADRES1;
-                else var = ADRES0;
-                int var1 = (0x0F80 & var)/128;
-                int var2 = (0x007C & var)/4;
-                write_FIFO_tx(128 | (var1 & 0x1F)); //1001 1111
-                write_FIFO_tx(160 | (var2 & 0x1F)); //1011 1111
+                if(info.A.ON) write_FIFO_tx(ADRES1, 2);
+                else write_FIFO_tx(var, 2);
             }
         }
     }
-    AD_DONE = 1;
+    if(get_count_tx() < max_fifo) ADL0CONLbits.SLEN = 1;
 }
 
