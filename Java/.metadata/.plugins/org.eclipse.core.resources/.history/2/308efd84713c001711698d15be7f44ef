@@ -15,6 +15,7 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import userinterface.UI;
 
 public class Connection {
 	
