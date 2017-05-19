@@ -30,7 +30,7 @@ public class UI {
 	public static final byte MULTIMETERON = (byte) 0b11010000;
 	public static final byte MULTIMETEROFF = (byte) 0b11000000;
 	//max data shown on the oscilloscope graph
-	public static final int MAX_DATA = 500;
+	public static final int MAX_DATA = 100;
 	public static final double TRIGGER = 1.0;
 	public static final int ATTENUATION = 1;
 	public static File tempFile;
@@ -54,6 +54,7 @@ public class UI {
 		// add an icon and title to the program window
 		mainStage.getIcons().add(new Image(ResourceLoader.class.getResourceAsStream("SineWave.png"),15,0,true,true));
 		mainStage.setTitle("LBMS");
+
 		
 		//set standard sizes
 		mainTab = new TabPane();
@@ -120,6 +121,7 @@ public class UI {
 					connection.close();
 			});
 			//first tab is oscilloscope so start up that process
+			System.out.println("start");
 			oscilloscope.restart();
 
 		}

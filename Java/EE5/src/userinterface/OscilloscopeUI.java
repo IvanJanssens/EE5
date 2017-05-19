@@ -102,7 +102,7 @@ public class OscilloscopeUI extends UI{
 			public void handle(Event e){
 				FileChooser open = new FileChooser();
 				open.setTitle("Load mesurements");
-				open.getExtensionFilters().add(new ExtensionFilter("text","*.txt"));
+				open.getExtensionFilters().add(new ExtensionFilter("Excel file","*.xlsx"));
 				File loadFile = open.showOpenDialog(null);
 				if(loadFile != null){
 					UI.goToFile(loadFile);
@@ -121,13 +121,11 @@ public class OscilloscopeUI extends UI{
 				UI.cancelOsci();
 				FileChooser saving = new FileChooser();
 				saving.setTitle("Save mesurements");
-				saving.getExtensionFilters().add(new ExtensionFilter("Text file","*.txt"));
+				saving.getExtensionFilters().add(new ExtensionFilter("Excel file","*.xlsx"));
 				File selectedFile = saving.showSaveDialog(null);
 				if(selectedFile != null){
 					try {
-						FileChannel src = new FileInputStream(tempFile).getChannel();
-						FileChannel dest = new FileOutputStream(selectedFile).getChannel();
-						dest.transferFrom(src, 0, src.size());
+						Oscilloscope.save(selectedFile);
 					} catch (Exception ex) {
 						Main.LOGGER.log(Level.SEVERE,"Coudn't copy temp file to new",ex);
 					}
@@ -261,7 +259,7 @@ public class OscilloscopeUI extends UI{
 		onOffA.setOnMouseClicked(new EventHandler<Event>() {
 			@Override
 			public void handle(Event e){
-				sendASpeedParam();
+//				sendASpeedParam();
 			}
 		});
 		return onOffA;
@@ -273,7 +271,7 @@ public class OscilloscopeUI extends UI{
 		onOffB.setOnMouseClicked(new EventHandler<Event> () {
 			@Override
 			public void handle(Event e) {
-				sendBSpeedParam();
+//				sendBSpeedParam();
 			}
 		});
 		return onOffB;
@@ -297,7 +295,7 @@ public class OscilloscopeUI extends UI{
 		acdcA.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
 																((ToggleButton) newToggle).setDisable(true);
 																((ToggleButton) oldToggle).setDisable(false);
-																sendASpeedParam();
+//																sendASpeedParam();
 		});
 		acdcBox.getChildren().addAll(acA,dcA);
 		return acdcBox;
@@ -321,7 +319,7 @@ public class OscilloscopeUI extends UI{
 		acdcB.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
 																((ToggleButton) newToggle).setDisable(true);
 																((ToggleButton) oldToggle).setDisable(false);
-																sendBSpeedParam();
+//																sendBSpeedParam();
 		});
 		acdcBox.getChildren().addAll(acB,dcB);
 		return acdcBox;
@@ -502,33 +500,11 @@ public class OscilloscopeUI extends UI{
 	}
 	
 	public static void sendOsciAParam() {
-		sendASpeedParam();
 		sendAGainParam();
 	}
 	
 	public static void sendOsciBParam() {
-		sendBSpeedParam();
 		sendBGainParam();
-	}
-	
-	private static void sendASpeedParam() {
-		byte message = 0b01001000; //start with selecting A
-		if(onOffA.isSelected()) {
-			message = setBit(message,5);
-			if(acdcA.getSelectedToggle().getUserData().equals(DC))
-				message = setBit(message,4);
-		}
-		Connection.send(message);
-	}
-	
-	private static void sendBSpeedParam() {
-		byte message = (byte) 0b10001000; //start with selecting B (byte typecast due to overflow because saved as signed int, would mean -128 and is impossible)
-		if(onOffB.isSelected()) {
-			message = setBit(message,5);
-			if(acdcB.getSelectedToggle().getUserData().equals(DC))
-				message = setBit(message,4);
-		}
-		Connection.send(message);		
 	}
 	
 	private static void sendAGainParam() {

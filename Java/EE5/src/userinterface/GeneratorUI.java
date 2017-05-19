@@ -92,7 +92,7 @@ public class GeneratorUI {
 		VBox generator = new VBox(10);
 		generator.setAlignment(Pos.TOP_CENTER);
 		
-		generator.getChildren().addAll(wave(),freq(),stop());
+		generator.getChildren().addAll(wave(),freq());
 		geneBody.setCenter(generator);
 		return geneBody;
 	}
@@ -139,31 +139,27 @@ public class GeneratorUI {
 			kHz.setText("kHz");
 			kHz.setUserData(1000);
 			kHz.setPrefWidth(120);
-			ToggleButton  MHz = new ToggleButton ();
-			MHz.setText("MHz");
-			MHz.setUserData(1000000);
-			MHz.setPrefWidth(120);
 			freqGroup  = new ToggleGroup();
 			Hz.setToggleGroup(freqGroup);
 			kHz.setToggleGroup(freqGroup);
-			MHz.setToggleGroup(freqGroup);
 			freqGroup.selectToggle(Hz);
 			Hz.setDisable(true);
 			
 			freqField.textProperty().addListener((ChangeListener) (arg0, oldValue, newValue) -> {
 																		int freqValue = Integer.parseInt((String) newValue);
-																		if((int)freqValue > 1000000)
-																			freqGroup.selectToggle(MHz);
-																		else if ((int) freqValue > 1000)
+																		if ((int) freqValue > 1000)
 																			freqGroup.selectToggle(kHz);
 																		else
 																			freqGroup.selectToggle(Hz);
 																		freqSlider.setValue(freqValue / ((int) freqGroup.getSelectedToggle().getUserData()));
 																		sendFreq();
 			});
-			freqSlider.valueProperty().addListener((ChangeListener) (arg0, oldValue, newValue) -> {
-																		freqField.textProperty().setValue(String.valueOf(((int) freqSlider.getValue())*((int) freqGroup.getSelectedToggle().getUserData())));
-																		sendFreq();
+			freqSlider.setOnMouseReleased(new EventHandler<Event>() {
+				@Override
+				public void handle(Event e) {
+					freqField.textProperty().setValue(String.valueOf(((int) freqSlider.getValue())*((int) freqGroup.getSelectedToggle().getUserData())));
+					sendFreq();
+				}
 			});
 			freqField.setMaxWidth(120);
 			
@@ -176,23 +172,18 @@ public class GeneratorUI {
 																		});
 			HBox freqMag = new HBox(10);
 			freqMag.setAlignment(Pos.TOP_CENTER);
-			freqMag.getChildren().addAll(Hz,kHz,MHz);
+			freqMag.getChildren().addAll(Hz,kHz);
 
 		VBox freq = new VBox(20);	
 		freq.setAlignment(Pos.TOP_CENTER);
 		freq.getChildren().addAll(freqSlider,freqMag, freqField);
 		return freq;
 	}
-	
-	private static Button stop() {
-		Button stop = new Button("Stop Generator");
-		stop.setPrefWidth(120);
-		return stop;
-	}
+
 	
 	public static void sendGenerator() {
-		sendWave();
 		sendFreq();
+		sendWave();
 	}
 	
 	private static void sendFreq() {

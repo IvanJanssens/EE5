@@ -20,8 +20,8 @@ import userinterface.UI;
 public class Connection {
 	
 	private CommPortIdentifier commPortIdentifier;
-	private CommPort port;
-	private SerialPort serialPort;
+	private static CommPort port;
+	private static SerialPort serialPort;
 	private static OutputStream output;
 	private static InputStream input;
 	private static LinkedList<Byte> dataBuffer;
@@ -122,26 +122,7 @@ public class Connection {
 		}
 	}
 	
-	public static void clearBuffer() {
-//		try {
-////			byte[] buffer = new byte[3];
-//			byte[] buffer = new byte[1];
-//			input.read(buffer);
-//			Byte prevMessage = dataBuffer.poll();
-//			
-//			while(prevMessage != null) {
-//				if(buffer[0] == (prevMessage))
-//					prevMessage = dataBuffer.poll();
-//				input.read(buffer);
-//				System.out.println("CLEARBUFFER" + Integer.toBinaryString(buffer[0]) + " and " + Integer.toBinaryString(prevMessage));
-//			}
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-	}
-	
-	public void close() {
+	public static void close() {
 		if(serialPort!=null){
 			try {
 				input.close();
@@ -150,7 +131,7 @@ public class Connection {
 			catch (IOException e){
 				e.printStackTrace();
 			}
-			this.serialPort.close();
+			serialPort.close();
 	        port.close(); //close serial port
 	    }
 	}

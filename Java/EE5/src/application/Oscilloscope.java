@@ -2,14 +2,19 @@ package application;
 
 
 
-import java.io.BufferedWriter;
+
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Queue;
 import java.util.logging.Level;
+
+
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import communication.Connection;
 import javafx.application.Platform;
@@ -27,6 +32,8 @@ public class Oscilloscope extends Service<Object>{
 	static int attenuationA = UI.ATTENUATION;
 	static int attenuationB = UI.ATTENUATION;
 	static String triggerSource = "A";
+	private static XSSFWorkbook workbook;
+	
 	public Oscilloscope(File tempFile) {
 		this.tempFile = tempFile;
 	}
@@ -51,6 +58,28 @@ public class Oscilloscope extends Service<Object>{
 		triggerSource = newValue;
 	}
 	
+	public static void save(File file) {
+		FileOutputStream fileOut;
+		try {
+//			fileOut = new FileOutputStream(new File(System.getProperty("user.home") + "/Desktop/EE5.xlsx"),true);
+			fileOut = new FileOutputStream(file);
+			workbook.write(fileOut);
+			fileOut.close();
+		} catch (Exception ex) {
+			Main.LOGGER.log(Level.SEVERE,"Couldn't save to excel file",ex);
+		}
+	}
+	
+	public static void autoSave() {
+		FileOutputStream fileOut;
+		try {
+			fileOut = new FileOutputStream(new File(System.getProperty("user.home") + "/Desktop/EE5.xlsx"),true);
+			workbook.write(fileOut);
+			fileOut.close();
+		} catch (Exception ex) {
+			Main.LOGGER.log(Level.SEVERE,"Couldn't save to excel file",ex);
+		}
+	}
 	@Override
 	protected Task<Object> createTask() {
 		return new Task<Object>() {
@@ -58,7 +87,7 @@ public class Oscilloscope extends Service<Object>{
 			int currentDataPoint;
 			Queue<Double> databufferA;
 			Queue<Double> databufferB;
-			BufferedWriter temp;
+//			BufferedWriter temp;
 			@Override
 			protected Object call() {
 				InputStream input = Connection.getInputStream();
@@ -72,21 +101,37 @@ public class Oscilloscope extends Service<Object>{
 				databufferB = new LinkedList<Double>();
 				currentDataPoint = 0;
 				prevValue = 0;
+				int dataReceived = 0;
 				try {
-					temp = new BufferedWriter(new FileWriter(tempFile,true));
-					temp.write("New mesurement");
+					workbook = new XSSFWorkbook();
+					Sheet sheet = workbook.createSheet("EE5 Measurements");
+					
+					Row row = sheet.createRow((short)0);
+					
+					row.createCell(0).setCellValue("Data Oscilloscope A");
+					row.createCell(1).setCellValue("Data Oscilloscope B");
+
+					Row dataRow = sheet.createRow(sheet.getLastRowNum() + 1);
+					
+//					temp = new BufferedWriter(new FileWriter(tempFile,true));
+//					temp.write("New mesurement");
 					while(!isCancelled()) {
 						if(input.available() > 1 ) {
+							
 							len = input.read(buffer, 0, 2);
-							if(((buffer[0] & 0x20) == 0x00) && (buffer[1] & 0x20) == 0x01) {
+							dataReceived += len;
+//							System.out.println("buffer0 :" + (buffer[0]& 0x20) + " buffer 1 " + (buffer[1] & 0x20));
+//							if(((buffer[0] & 0x20) == 0x00) && (buffer[1] & 0x20) == 0x01) {
 			            		for(int i = 0; i<len; i++){
 			            			intbuffer[i] = buffer[i] & 0x1F;
 			            		}
 
 			            		
 			            		if((buffer[1] & 0xE0) == 0x60) { //Oscilloscope A
-			            			result = (double) (((intbuffer[0] << 2) |  (intbuffer[1] >> 6))*(3.3/1024)/attenuationA);
-			            			temp.write("\n" + (String.format(Locale.US,"%.3f", result)));
+			            			result = (double) (((((intbuffer[0] *32)+  intbuffer[1])*3.3)/1024)*attenuationA);
+			            			if(dataRow.getCell(0) != null)
+			            				dataRow = sheet.createRow(sheet.getLastRowNum() + 1);
+			            			dataRow.createCell(0).setCellValue(result);
 			            			databufferA.add(result);
 			            			
 		            				Platform.runLater(new Runnable() {
@@ -110,8 +155,11 @@ public class Oscilloscope extends Service<Object>{
 				                    });
 			            		}
 			            		else if((buffer[1] & 0xE0) == 0xA0) { //Oscilloscope B
-			            			result = (double) (((intbuffer[0] << 2) |  (intbuffer[1] >> 6))*(3.3/1024)/attenuationB);
-			            			temp.write( " - " + (String.format(Locale.US, "%.3f",result)));
+			            			result = (double) (((((intbuffer[0]*32) + intbuffer[1]) *3.3)/1024)*attenuationB);
+			            			if(dataRow.getCell(0) != null)
+			            				dataRow = sheet.createRow(sheet.getLastRowNum() + 1);
+			            			dataRow.createCell(1).setCellValue(result);
+//			            			temp.write( " - " + (String.format(Locale.US, "%.3f",result)));
 			            			databufferB.add(result);
 			            			
 			            			Platform.runLater(new Runnable() {
@@ -136,26 +184,27 @@ public class Oscilloscope extends Service<Object>{
 			            		}
 		            			
 		            			 
-		            		}
-							else if (buffer[0] == 0x00 && buffer[1] == 0xFF) {
-								Connection.checkParam();
-							}
-							else {
-								while(input.available() > 1) {
-									input.read(buffer, 0, 1);
-									if((buffer[0] & 0x20) == 0x01)
-										break;
-								}
-							}
+//		            		}
+//							else if (buffer[0] == 0x00 && buffer[1] == 0xFF) {
+//								Connection.checkParam();
+//							}
+//							else {
+//								while(input.available() > 1) {
+//									input.read(buffer, 0, 1);
+//									if((buffer[0] & 0x20) == 0x01)
+//										break;
+//								}
+//							}
 		                   
 		            	}
 					}
 					if(isCancelled()) {
-						temp.flush();
-						temp.close();
+
+//						temp.flush();
+//						temp.close();
 					}
 				} catch (Exception ex) {
-					Main.LOGGER.log(Level.SEVERE,"Couldn't write to temp file",ex);
+					Main.LOGGER.log(Level.SEVERE,"Couldn't write to Excel file",ex);
 				}
 				return null;
 			}

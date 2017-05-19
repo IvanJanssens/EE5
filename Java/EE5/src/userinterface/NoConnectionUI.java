@@ -3,11 +3,16 @@ package userinterface;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import application.Main;
 import javafx.beans.value.ChangeListener;
@@ -44,8 +49,9 @@ public class NoConnectionUI extends UI{
 	private static NumbField dataFrom;
 	private static NumbField dataTill;
 	private static BorderPane noConBody;
-	private static File loadFile;
+//	private static File loadFile;
 	private static LineChart<Number,Number> graph;
+	private static XSSFWorkbook workbook;
 	
 	public static Tab noConnection() {
 		Tab noConnectionTab = new Tab();
@@ -58,9 +64,9 @@ public class NoConnectionUI extends UI{
 		return noConnectionTab;
 	}
 	
-	public static void loadFile(File file) {
-		readFile(file);
-	}
+//	public static void loadFile(File file) {
+//		readFile(file);
+//	}
 	
 	private static BorderPane noConBorderPane() {
 		BorderPane osciBorderPane = new BorderPane();
@@ -87,10 +93,10 @@ public class NoConnectionUI extends UI{
 				public void handle(Event e){
 					FileChooser open = new FileChooser();
 					open.setTitle("Load mesurements");
-					open.getExtensionFilters().add(new ExtensionFilter("text","*.txt"));
-					loadFile = open.showOpenDialog(null);
+					open.getExtensionFilters().add(new ExtensionFilter("Excel file","*.xlsx"));
+					File loadFile = open.showOpenDialog(null);
 					if(loadFile != null){
-						readFile(loadFile);
+						loadFile(loadFile);
 					}
 						
 				}
@@ -98,46 +104,51 @@ public class NoConnectionUI extends UI{
 			return load;
 		}
 		
-		private static void readFile(File file) {
+		public static void loadFile(File file) {
+			if(workbook != null) {
+				try {
+					workbook.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			FileInputStream inputStream = null;
+			try {
+				inputStream = new FileInputStream(file);
+				workbook = new XSSFWorkbook(inputStream);
+			} catch (Exception ex) {
+				Main.LOGGER.log(Level.WARNING, "Could not read datafile", ex);
+			} finally {
+				try {
+					if(inputStream != null)
+						inputStream.close();
+				} catch (Exception ex) {
+					Main.LOGGER.log(Level.WARNING, "Could not close inputStream", ex);
+				}
+			}
+			readFile();
+		}
+		
+		private static void readFile() {
 			GraphUI.clearGraph();
 			int from = Integer.parseInt(dataFrom.getText());
 			int till = Integer.parseInt(dataTill.getText());
-			dataFrom.setEditable(true);
-			dataTill.setEditable(true);
 			int currentData = from;
-	        BufferedReader in = null;
-			try {
-				in = new BufferedReader(new FileReader(file));
-				int currentLineNo = 0;
-				while(currentLineNo < from){
-					if(in.readLine() == null) {
-						throw new IOException("File too small");
-					}
-					currentLineNo++;
+				
+			XSSFSheet sheet = workbook.getSheetAt(0);
+			
+			Row row = sheet.getRow(from + 1);
+			int maxRow = sheet.getPhysicalNumberOfRows();
+			while(row.getRowNum() < maxRow-1 && row.getRowNum() <= till + 1) {
+				if(row.getCell(0) != null) {
+					GraphUI.addDataA(row.getCell(0).getNumericCellValue(), from, (till-from), currentData, GraphUI.NoConUI);
 				}
-				while(currentLineNo <= till) {
-					String nextLine = in.readLine();
-					if(nextLine == null)
-						return;
-					if(nextLine.contains("-")) {
-						String[] parts = nextLine.split("-");
-						GraphUI.addDataA(Double.parseDouble(parts[0]), from, (till-from), currentData, GraphUI.NoConUI);
-						GraphUI.addDataB(Double.parseDouble(parts[1]), from, (till-from), currentData, GraphUI.NoConUI);
-					}
-					else
-						GraphUI.addDataA(Double.parseDouble(nextLine),from,(till-from),currentData,GraphUI.NoConUI);
-					currentLineNo++;
-					currentData++;
+				if(row.getCell(1) != null) {
+					GraphUI.addDataB(row.getCell(1).getNumericCellValue(), from, (till-from), currentData, GraphUI.NoConUI);
 				}
-			} catch (IOException ex) {
-				Main.LOGGER.log(Level.SEVERE,"Couldn't read dataFile",ex);
-			} finally {
-				try {
-					if(in!=null)
-						in.close();
-				} catch(IOException ex) {
-					Main.LOGGER.log(Level.WARNING, "Datafile not closed", ex);
-				}
+				row = sheet.getRow(row.getRowNum() + 1);
+				currentData++;
 			}
 		}
 		
@@ -220,30 +231,31 @@ public class NoConnectionUI extends UI{
 		
 		private static BorderPane noConBody(){
 			noConBody = new BorderPane();
-			VBox noConButtons = noConButtons();
-			noConBody.setRight(noConButtons);
-			BorderPane.setMargin(noConButtons, new Insets(10,10,10,10));
+			VBox buttons = new VBox(10);
+			buttons.getChildren().addAll(noConButtons(), new Separator(Orientation.HORIZONTAL), prevData());
+			noConBody.setRight(buttons);
+			BorderPane.setMargin(buttons, new Insets(10,10,10,10));
 			graph = GraphUI.osciGraph();
 			noConBody.setCenter(graph);
 			return noConBody;
 		}
 		
-		private static VBox noConButtons() {
-			VBox noConButtons = new VBox(10);
-			noConButtons.getChildren().addAll(dataButtonsA(),new Separator(Orientation.VERTICAL),dataButtonsB());
+		private static HBox noConButtons() {
+			HBox noConButtons = new HBox(10);
+			noConButtons.getChildren().addAll(dataButtonsA(),new Separator(Orientation.VERTICAL), dataButtonsB());
 			return noConButtons;
 		}
 		
 		private static VBox dataButtonsA() {
 			VBox dataButtons = new VBox(10);
-			dataButtons.getChildren().addAll(rmsA(),ptpA(),prevData());
+			dataButtons.getChildren().addAll(new Label("Oscilloscope A:"), rmsA(),ptpA());
 			return dataButtons;
 		}
 		
 		
 		private static VBox dataButtonsB() {
 			VBox dataButtons = new VBox(10);
-			dataButtons.getChildren().addAll(rmsB(),ptpB(),prevData());
+			dataButtons.getChildren().addAll(new Label("Oscilloscope B:"),rmsB(),ptpB());
 			return dataButtons;
 		}
 		private static Label rmsA() {
@@ -273,11 +285,9 @@ public class NoConnectionUI extends UI{
 		private static VBox prevData() {
 			VBox prevData = new VBox(10);
 			dataFrom = new NumbField("0");
-			dataFrom.setEditable(false);
-			dataFrom.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> readFile(loadFile));
+			dataFrom.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> readFile());
 			dataTill = new NumbField("350");
-			dataTill.setEditable(false);
-			dataTill.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> readFile(loadFile));
+			dataTill.textProperty().addListener((ChangeListener) (arg0, arg1, arg2) -> readFile());
 			prevData.getChildren().addAll(new Label("Data from: "),
 					dataFrom,new Label("Till: "),dataTill);
 			return prevData;

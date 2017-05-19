@@ -114,14 +114,15 @@ public class testConnection {
 			                	if(len> 0) {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
-
-			                			if((buffer[i] & 0x20) == 0x00) {
-			                				var =  (buffer[i] & 0x1F)*32;
+			                			System.out.println(buffer[i]);
+//			                			if((buffer[i] & 0x20) == 0x00) {
+//			                				var =  (buffer[i] & 0x1F)*32;
 			                				//System.out.println("var:" + var);
-			                			}
-			                			else if((buffer[i] & 0xE0) == 0xE0) System.out.println("MM: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
-			                			else if((buffer[i] & 0xE0) == 0x60) System.out.println("A: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
-			                			else if((buffer[i] & 0xE0) == 0xA0) System.out.println("B: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
+//			                			}
+//			                			else if((buffer[i] & 0xE0) == 0xE0) System.out.println("MM: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
+//			                			else if((buffer[i] & 0xE0) == 0x60) System.out.println("A: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
+//			                			else if((buffer[i] & 0xE0) == 0xA0) System.out.println("B: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
+			                				
 			                		}
 				                   
 			                	}
