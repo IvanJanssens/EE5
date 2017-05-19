@@ -15,8 +15,8 @@
 
 void init_Chip(void);
 void init_ALL(void);
-int AD_count = 0;
 int count = 0;
+int flag = 0;
 
 
 
@@ -28,12 +28,15 @@ int main(void) {
     while(1){
         if (get_count_rx() != 0) {
             read_FIFO_rx();
-            init_FIFO();
             ADL0CONLbits.SLEN = 1;
             count = 0;
+            flag = 0;
         }
-        if(get_count_tx() != 0) send_FIFO_tx();
-        if(AD_DONE && count < 40) {
+        if(get_count_tx() != 0 && get_count_tx() >= max_fifo/7*2) {
+            send_FIFO_tx();
+            flag = 1;
+        }
+        if((AD_DONE == 1) && (flag == 0)) {
             if(info.A.ON || info.B.ON){
                 AD_DONE = 0;
                 ADL0CONLbits.SLEN = 1;

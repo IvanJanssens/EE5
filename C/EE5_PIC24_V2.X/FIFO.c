@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <xc.h>
 #include "FIFO.h"
+#include <assert.h>
 #include "connectionprotocol.h"
-
-#define max_fifo 7000 //can be rised to 8000
 
 unsigned char fifo_rx[100] = {0};
 unsigned char fifo_tx[max_fifo] = {0};
@@ -51,12 +50,18 @@ void write_FIFO_tx(unsigned char data) {
 
 void send_FIFO_tx(void) {
     while (count_tx) {
-        if(U2STAbits.UTXBF) return;
-        l++;
-        count_tx--;
-        if (l >= max_fifo) l = 0;
-        U2TXREG = fifo_tx[l];  
+        if(U2STAbits.UTXBF);
+        else{
+            l++;
+            count_tx--;
+            if (l >= max_fifo) l = 0;
+            U2TXREG = fifo_tx[l];
+        }
     }
+}
+
+void clear_tx(void){
+    count_tx = 0;
 }
 
 int get_count_rx(void) {

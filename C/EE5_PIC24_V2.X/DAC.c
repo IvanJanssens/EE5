@@ -31,7 +31,7 @@ void OSC(void) {
     DAC1DAT = info.A.offset*16;
     DAC2DAT = info.B.offset*16;
     
-    if (info.A.gain == 1) { // /10 (1k Ohm)/ Y5 
+    if (info.A.gain == 4) { // /10 (1k Ohm)/ Y5 
         S0_A = 1;
         S1_A = 0;
 
@@ -40,16 +40,16 @@ void OSC(void) {
         S0_A = 1;
         S1_A = 1;
     }
-    else if (info.A.gain == 3) { // /2 (5k Ohm) / Y6 
+    else if (info.A.gain == 1) { // /2 (5k Ohm) / Y6 
         S0_A = 0;
         S1_A = 1;
     }
-    else if (info.A.gain == 4) { // /1 (10k Ohm) / Y4 
+    else if (info.A.gain == 0) { // /1 (10k Ohm) / Y4 
         S0_A = 0;
         S1_A = 0;
     }
 
-    if (info.B.gain == 1) { // /10 (1k Ohm)/ Y5
+    if (info.B.gain == 4) { // /10 (1k Ohm)/ Y5
         S0_B = 1;
         S1_B = 0;
 
@@ -58,11 +58,11 @@ void OSC(void) {
         S0_B = 1;
         S1_B = 1;
     }
-    else if (info.B.gain == 3) { // /2 (5k Ohm) / Y6
+    else if (info.B.gain == 1) { // /2 (5k Ohm) / Y6
         S0_B = 0;
         S1_B = 1;
     }
-    else if (info.B.gain == 4) { // /1 (10k Ohm) / Y4
+    else if (info.B.gain == 0) { // /1 (10k Ohm) / Y4
         S0_B = 0;
         S1_B = 0;
     }

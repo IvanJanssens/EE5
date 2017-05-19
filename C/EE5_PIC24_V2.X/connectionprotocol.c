@@ -3,6 +3,7 @@
 #include "FunctionGenerator.h"
 #include "ADC.h"
 #include "DAC.h"
+#include "FIFO.h"
 
 info_t info;
 
@@ -74,6 +75,7 @@ void parse_Data(unsigned char new_data) {
                 if (info.MM.ON) {
                 info.A.ON = 0;
                 info.B.ON = 0;
+                clear_tx();
                 }
                 OSC();
                 ADC();
