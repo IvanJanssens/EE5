@@ -69,7 +69,7 @@ unsigned char write_SPI(unsigned char data_out)
 }
 
 void generator(void){ 
-    long int freq = info.FG.allBits; // n -> output of wanted frequency
+    unsigned long int freq = info.FG.freq; // n -> output of wanted frequency
     
     unsigned char LSB_UP, LSB_LOW, MSB_UP, MSB_LOW;     // For frequency register 
     unsigned char RESET_UP,RESET_LOW, UNRESET_UP, UNRESET_LOW;  // for control bits
