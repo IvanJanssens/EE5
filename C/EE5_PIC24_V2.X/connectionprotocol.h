@@ -32,6 +32,14 @@ typedef union {
         unsigned char select : 2; //A => 01, B = 10, MM = 11
         unsigned char module : 2; //11
     } DAC;
+    
+    struct {
+        unsigned char nothing : 3;
+        unsigned char ON: 1;
+        unsigned char select : 2; //Calibrate 00
+        unsigned char module : 2; //11
+    } CAL;
+    
 } data_t;
 
 typedef union {
@@ -60,6 +68,7 @@ typedef union {
             unsigned long int freq:21;
             unsigned char wave : 3;
         } FG;
+        unsigned char CALI_ON: 1;
     };
 } info_t;
 

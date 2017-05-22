@@ -69,6 +69,7 @@ void parse_Data(unsigned char new_data) {
             break;
         }
         default: { //11
+            if(data.MOD.select == 0) info.CALI_ON = data.CAL.ON;
             if(data.MOD.select == 1)info.A.offset = data.DAC.data;
             else if(data.MOD.select == 2) info.B.offset = data.DAC.data;
             else if (data.MOD.select == 3) {
@@ -85,5 +86,5 @@ void parse_Data(unsigned char new_data) {
             break;
         }
     }
-    if(info.A.ON || info.B.ON || info.MM.ON) ADL0CONLbits.SLEN = 1;
+    if(info.CALI_ON || info.A.ON || info.B.ON || info.MM.ON) ADL0CONLbits.SLEN = 1;
 }

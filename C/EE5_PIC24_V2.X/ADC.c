@@ -77,18 +77,29 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
         if(ADL0STATbits.ADLIF) {
             ADL0STATbits.ADLIF = 0;
             unsigned int var = ADRES0;
-            if(info.MM.ON){
-                write_FIFO_tx(var, 3);
-                MM(var);
-                //delay(10);
+            if(info.CALI_ON){
+                if(DAC_A() == 0 && DAC_B() == 0) {
+                    info.CALI_ON = 0;
+                    info.A.ON = 0;
+                    info.B.ON = 0;
+                    ADC();
+                }
             }
-            if(info.A.ON){
-                write_FIFO_tx(var, 1);
+            else {
+                if (info.MM.ON) {
+                    write_FIFO_tx(var, 3);
+                    MM(var);
+                    //delay(10);
+                }
+                if (info.A.ON) {
+                    write_FIFO_tx(var, 1);
+                }
+                if (info.B.ON) {
+                    if (info.A.ON) write_FIFO_tx(ADRES1, 2);
+                    else write_FIFO_tx(var, 2);
+                }
             }
-            if(info.B.ON){
-                if(info.A.ON) write_FIFO_tx(ADRES1, 2);
-                else write_FIFO_tx(var, 2);
-            }
+
         }
     }
     if(get_count_tx() < max_fifo/7 && (info.A.ON || info.B.ON)) ADL0CONLbits.SLEN = 1;
