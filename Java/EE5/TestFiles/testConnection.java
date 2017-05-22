@@ -97,7 +97,7 @@ public class testConnection {
 //							System.out.println("Send= " + (MULTIMETERON & 0xFF));
 						    send(MULTIMETERON);
 						  }
-						},(long)100, (long)100);
+						},(long)1000, (long)1000);
 				}
 				if(message == 1)
 					if(timer != null)
@@ -134,15 +134,14 @@ public class testConnection {
 			                	if(len> 0) {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
-//										if((buffer[i] & 0x20) == 0x00) {
-//			                				var =  (buffer[i] & 0x1F)*32;
-//			                			}
+			                			//System.out.println("all data " + Integer.toBinaryString((buffer[i]) & 0xFF) + " and " + (buffer[i] & 0xFF));
 			                			if((buffer[i] & 0xE0) == 0x60) System.out.println("A: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
 			                			else if((buffer[i] & 0xE0) == 0xA0) System.out.println("B: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
 			                			else if((buffer[i] & 0xE0) == 0xE0) System.out.println("MM: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
-			                			else if((buffer[i] & 0xF8) == 0x00) System.out.println("Gain: " + (var + (buffer[i] & 0x07))*3.3/(1024));
+			                			else if((buffer[i] & 0xC0) != 0x00) var =  (buffer[i] & 0x1F)*32; //2^5
+			                			else if((buffer[i] & 0xF8) == 0x00) System.out.println("Gain: " + (buffer[i] &0xFF));
 			                			else 
-				                			System.out.println("data " + Integer.toBinaryString(buffer[i]) + " and " + buffer[i]);
+				                			System.out.println("data " + Integer.toBinaryString((buffer[i]) & 0xFF) + " and " + buffer[i]);
 			                			//System.out.println(" => var:" + buffer[i]);
 			                		}
 				                   

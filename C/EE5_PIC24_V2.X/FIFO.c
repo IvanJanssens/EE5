@@ -80,9 +80,9 @@ void send_FIFO_tx(void) {
             int var1 = (0x0F80 & var)/128;
             int var2 = (0x7C & var);
             while(U2STAbits.UTXBF);
-            U2TXREG = 192 + var1;
+            U2TXREG = (0xC0 | (var1 & 0x1F));
             while(U2STAbits.UTXBF);
-            U2TXREG = 224 + var2;
+            U2TXREG = (0xE0 | (var2 & 0x1F));
         }
     }
 }

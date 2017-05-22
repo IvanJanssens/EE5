@@ -6,14 +6,21 @@
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     IFS4bits.U2ERIF = 0;
+    IFS1bits.U2RXIF = 0; // Clear the Recieve Interrupt Flag
     unsigned char var = U2RXREG;
-    
-    write_FIFO_rx(var);
-    write_FIFO_tx(0, 0);
-    write_FIFO_tx(255, 0);
-    write_FIFO_tx(var, 0);
-    //U2TXREG = var;
-	IFS1bits.U2RXIF = 0; // Clear the Recieve Interrupt Flag
+    if((var & 0xF8) != 0xF8){
+        write_FIFO_rx(var);
+        write_FIFO_tx(255, 0);
+        write_FIFO_tx(0, 0);
+        write_FIFO_tx(var, 0);
+    }
+    else{
+        if(!info.MM.ON) write_FIFO_rx(var);
+        else {
+            write_FIFO_tx((0x07 & info.MM.gain), 0);
+            ADL0CONLbits.SLEN = 1;
+        }    
+    }
 }
   
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
