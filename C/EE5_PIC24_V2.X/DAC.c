@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "DAC.h"
 #include "connectionprotocol.h"
+#include "multimeter_pic24.h"
 
 int dac_abits_mem, dac_bbits_mem;
 float dac_a, dac_b;
@@ -25,16 +26,25 @@ void init_DAC(void) {
 }
 
 void modify_ADAC(char u_d) {
-
-    if (u_d){dac_abits_mem += 9*64 ; DAC1DAT = dac_abits_mem; } // 0000 0000 0000 1001
-    
-    else{  dac_abits_mem -= 9*64; DAC1DAT = dac_abits_mem;}
+    if(u_d){
+        dac_abits_mem += 9*64; 
+        DAC1DAT = dac_abits_mem; // 0000 0000 0000 1001
+    } 
+    else{  
+        dac_abits_mem -= 9*64; 
+        DAC1DAT = dac_abits_mem;
+    }
 }
 
 void modify_BDAC(char u_d) {
-
-    if (u_d){dac_bbits_mem += 9*64; DAC2DAT = dac_bbits_mem; }
-    else{  dac_bbits_mem -= 9*64; DAC2DAT = dac_bbits_mem;}
+    if (u_d){
+        dac_bbits_mem += 9*64; 
+        DAC2DAT = dac_bbits_mem; 
+    }
+    else{  
+        dac_bbits_mem -= 9*64; 
+        DAC2DAT = dac_bbits_mem;
+    }
 }
 
 void OSC(void) {
@@ -98,20 +108,22 @@ float get_osc_input(float famp, float acq, int a_not_b) {
 char DAC_A(void){
     
     int dummy = ADRES0 & 0x0FFF;
-    float out = (float) (       ( dummy   /     (4096.0f)  )*(3.3f)       )  ;
+    float out = (float) dummy*LSB;
         
-    if ( out <= (1.70f) && out >= (1.60f) ) return 1;
+    if ( out <= (1.70f) && out >= (1.60f) ) return 0;
     else if (out > (1.70f) ) {modify_ADAC(1); return -1;}
-    else {modify_ADAC(0); return -1;} }
+    else {modify_ADAC(0); return -1;} 
+}
     
 
 char DAC_B(void){
     
     int dummy = ADRES1 & 0x0FFF;
-    float out = (float) (       ( dummy   /     (4096.0f)  )*(3.3f)       );
+    float out = (float)dummy*LSB;
     
-    if ( out <= (1.70f) && out >= (1.60f) ) return 1;
+    if ( out <= (1.70f) && out >= (1.60f) ) return 0;
     else if (out > (1.70f) ) {modify_BDAC(1); return -1;}
-    else {modify_BDAC(0); return -1;} }
+    else {modify_BDAC(0); return -1;} 
+}
     
 

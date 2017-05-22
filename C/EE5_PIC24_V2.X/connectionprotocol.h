@@ -22,21 +22,26 @@ typedef union {
         unsigned char module : 2; //A = 01, B = 10
     } O ;
     struct {
+        unsigned char data: 4;
+        unsigned char select : 1; //0
+        unsigned char module : 2; //11
+    } TRIG;
+    struct {
         unsigned char nothing: 3;
         unsigned char ON : 1;
-        unsigned char select : 2; //A => 01, B = 10, MM = 11
+        unsigned char select : 3; //111
         unsigned char module : 2; //11
     } MM;
     struct {
-        unsigned char data : 4; 
-        unsigned char select : 2; //A => 01, B = 10, MM = 11
+        unsigned char nothing: 3;
+        unsigned char ON : 1;
+        unsigned char select : 3; //100
         unsigned char module : 2; //11
-    } DAC;
-    
+    } SAMPLE;
     struct {
-        unsigned char nothing : 3;
+        unsigned char nothing : 2;
         unsigned char ON: 1;
-        unsigned char select : 2; //Calibrate 00
+        unsigned char select : 3; //101
         unsigned char module : 2; //11
     } CAL;
     

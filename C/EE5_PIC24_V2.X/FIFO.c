@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "connectionprotocol.h"
 
-unsigned char fifo_rx[100] = {0};
+unsigned char fifo_rx[50] = {0};
 unsigned int fifo_tx[max_fifo] = {0};
 unsigned int i, j, k, l;
 unsigned int count_rx;

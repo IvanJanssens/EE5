@@ -1,10 +1,8 @@
 #include <xc.h>
 #include "multimeter_pic24.h"
 #include "connectionprotocol.h"
-float LSB;
 
 void MM(int value) {
-    LSB = ((Vrefp - Vrefm)/(resolution));
     int voltage = value*LSB;
     int case_t = info.MM.gain;
     if(case_t == 0){ // /10

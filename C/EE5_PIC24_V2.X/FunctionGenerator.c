@@ -155,25 +155,20 @@ void SquareWave_10K(void)
     write_SPI(0b01101000);   // the internal clock is enabled(D7) ;the DAC has been put to sleep(D6);
                             // the output is to be a square wave (D5); the square wave frequency is not to be divided by two(D3).
    
-  
-    
     //FREQ register LSB write in
    
     write_SPI(0b01011000);   //LSB
     write_SPI(0b10010011);
    
-    
     //FREQ register MSB write in
     
     write_SPI(0b01000000);   //MSB
     write_SPI(0b00010000);
     
-    
     //PHASE register write in
     
     write_SPI(0b11000000);   //writing to the PHASE0 register (D15,D14,D13) 
     write_SPI(0b00000000);   //and is writing a twelve bit value of zero (D11-D0)
-    
     
     //activate the output (disable reset)
     

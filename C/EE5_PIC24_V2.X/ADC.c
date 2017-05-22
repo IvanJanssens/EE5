@@ -89,19 +89,15 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
                 if (info.MM.ON) {
                     write_FIFO_tx(var, 3);
                     MM(var);
-                    //delay(10);
                 }
-                if (info.A.ON) {
-                    write_FIFO_tx(var, 1);
-                }
+                if (info.A.ON) write_FIFO_tx(var, 1);
                 if (info.B.ON) {
                     if (info.A.ON) write_FIFO_tx(ADRES1, 2);
                     else write_FIFO_tx(var, 2);
                 }
             }
-
         }
     }
-    if(get_count_tx() < max_fifo/7 && (info.A.ON || info.B.ON)) ADL0CONLbits.SLEN = 1;
+    if(get_count_tx() < max_fifo && (info.A.ON || info.B.ON)) ADL0CONLbits.SLEN = 1;
 }
 

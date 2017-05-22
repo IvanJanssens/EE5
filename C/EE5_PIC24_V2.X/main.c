@@ -22,7 +22,7 @@ int main(void) {
     info.allbits = 0;
     while(1){
         if (get_count_rx() != 0) read_FIFO_rx();
-        if(get_count_tx() != 0 && get_count_tx() >= max_fifo/7) {
+        if(get_count_tx() != 0 && get_count_tx() >= max_fifo) {
             send_FIFO_tx();
             ADL0CONLbits.SLEN = 1;
         }
