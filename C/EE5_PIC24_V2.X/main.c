@@ -17,20 +17,17 @@ void init_Chip(void);
 void init_ALL(void);
 int count = 0;
 
-
-
 int main(void) {
     init_ALL();
-    //SquareWave_10K();
     info.allbits = 0;
     while(1){
-        if (get_count_rx() != 0) {
-            read_FIFO_rx();
-            ADL0CONLbits.SLEN = 1;
-        }
-        if(get_count_tx() != 0 && get_count_tx() >= max_fifo) {
+        if (get_count_rx() != 0) read_FIFO_rx();
+        if(get_count_tx() != 0 && get_count_tx() >= max_fifo/7) {
             send_FIFO_tx();
             ADL0CONLbits.SLEN = 1;
+        }
+        if(get_count_tx() != 0 && info.MM.ON){
+            send_FIFO_tx();
         }
     }
     return 0;

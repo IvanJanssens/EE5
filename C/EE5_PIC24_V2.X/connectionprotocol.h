@@ -51,7 +51,7 @@ typedef union {
             unsigned char ON : 1;
         } B;
         
-        struct { //17bit
+        struct { //4bit
             unsigned char gain : 3;
             unsigned char ON : 1;
         } MM;

@@ -27,10 +27,10 @@ public class UI {
 	private static Oscilloscope oscilloscope;
 	private static Multimeter multimeter;
 	// messages to be send to the PIC
-	public static final byte MULTIMETERON = (byte) 0b11010000;
-	public static final byte MULTIMETEROFF = (byte) 0b11000000;
+	public static final byte MULTIMETERON = (byte) 0b11111000;
+	public static final byte MULTIMETEROFF = (byte) 0b11110000;
 	//max data shown on the oscilloscope graph
-	public static final int MAX_DATA = 100;
+	public static final int MAX_DATA = 500;
 	public static final double TRIGGER = 1.0;
 	public static final int ATTENUATION = 1;
 	public static File tempFile;

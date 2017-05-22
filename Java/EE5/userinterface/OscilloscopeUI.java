@@ -255,11 +255,16 @@ public class OscilloscopeUI extends UI{
 	private static RadioButton OnOffA() {
 		onOffA = new RadioButton();
 		onOffA.setText("input 1");
-		onOffA.setSelected(true);
 		onOffA.setOnMouseClicked(new EventHandler<Event>() {
 			@Override
 			public void handle(Event e){
-//				sendASpeedParam();
+				if(onOffA.isSelected())
+					Oscilloscope.AOn(true);
+				else {
+					Oscilloscope.AOn(false);
+					GraphUI.clearGraphA();
+				}
+				sendOsciAParam();
 			}
 		});
 		return onOffA;
@@ -271,7 +276,13 @@ public class OscilloscopeUI extends UI{
 		onOffB.setOnMouseClicked(new EventHandler<Event> () {
 			@Override
 			public void handle(Event e) {
-//				sendBSpeedParam();
+				if(onOffB.isSelected())
+					Oscilloscope.BOn(true);
+				else {
+					Oscilloscope.BOn(false);
+					GraphUI.clearGraphB();
+				}
+				sendOsciBParam();
 			}
 		});
 		return onOffB;
@@ -295,7 +306,7 @@ public class OscilloscopeUI extends UI{
 		acdcA.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
 																((ToggleButton) newToggle).setDisable(true);
 																((ToggleButton) oldToggle).setDisable(false);
-//																sendASpeedParam();
+																sendOsciAParam();
 		});
 		acdcBox.getChildren().addAll(acA,dcA);
 		return acdcBox;
@@ -319,7 +330,7 @@ public class OscilloscopeUI extends UI{
 		acdcB.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
 																((ToggleButton) newToggle).setDisable(true);
 																((ToggleButton) oldToggle).setDisable(false);
-//																sendBSpeedParam();
+																sendOsciBParam();
 		});
 		acdcBox.getChildren().addAll(acB,dcB);
 		return acdcBox;
@@ -351,7 +362,7 @@ public class OscilloscopeUI extends UI{
 		groupA.selectToggle(normal);
 		normal.setDisable(true);
 		groupA.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-																	sendAGainParam();
+																	sendOsciAParam();
 																	((ToggleButton) newToggle).setDisable(true);
 																	((ToggleButton) oldToggle).setDisable(false);
 																	});
@@ -385,7 +396,7 @@ public class OscilloscopeUI extends UI{
 		groupB.selectToggle(normal);
 		normal.setDisable(true);
 		groupB.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-																	sendBGainParam();
+																	sendOsciBParam();
 																	((ToggleButton) newToggle).setDisable(true);
 																	((ToggleButton) oldToggle).setDisable(false);
 																	});
@@ -414,6 +425,7 @@ public class OscilloscopeUI extends UI{
 																		((ToggleButton) newToggle).setDisable(true);
 																		((ToggleButton) oldToggle).setDisable(false);
 		});
+		triggerSource.getChildren().addAll(A,B);
 		return triggerSource;
 	}
 	
@@ -499,15 +511,7 @@ public class OscilloscopeUI extends UI{
 		sendOsciBParam();
 	}
 	
-	public static void sendOsciAParam() {
-		sendAGainParam();
-	}
-	
-	public static void sendOsciBParam() {
-		sendBGainParam();
-	}
-	
-	private static void sendAGainParam() {
+	private static void sendOsciAParam() {
 		byte message = 0b01000000;
 		if(onOffA.isSelected()) {
 			message = setBit(message, 5);
@@ -525,7 +529,7 @@ public class OscilloscopeUI extends UI{
 		Connection.send(message);
 	}
 	
-	private static void sendBGainParam() {
+	private static void sendOsciBParam() {
 		byte message = (byte) 0b10000000;
 		if(onOffB.isSelected()) {
 			message = setBit(message,5);

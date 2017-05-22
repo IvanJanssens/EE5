@@ -6,12 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import communication.Connection;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import userinterface.UI;
 
 public class testConnection {
 	
@@ -20,6 +24,7 @@ public class testConnection {
 	private static SerialPort serialPort;
 	private static OutputStream output;
 	private static InputStream input;
+	public static final byte MULTIMETERON = (byte) 0b11111000;
 
 	//Connection object
 	public testConnection(CommPortIdentifier commPortIdentifier) {
@@ -78,12 +83,28 @@ public class testConnection {
 	
 	public static class Writer implements Runnable {
 		public void run() {
+			Timer timer = null;
 			while(!Thread.interrupted()) {
 				Scanner input = new Scanner(System.in);
 
 				byte message = (byte) input.nextInt();
+				if((message & 0xFF) == 248) {
+					timer = new Timer();
+					System.out.println("start timer");
+					timer.scheduleAtFixedRate(new TimerTask() {
+						  @Override
+						  public void run() {
+//							System.out.println("Send= " + (MULTIMETERON & 0xFF));
+						    send(MULTIMETERON);
+						  }
+						},(long)1000, (long)1000);
+				}
+				if(message == 1)
+					if(timer != null)
+						timer.cancel();
 				System.out.println("Send: " + (message & 0xFF));
 				if(message == 0) {
+					input.close();
 					close();
 					Runtime.getRuntime().halt(0);
 				}
@@ -113,14 +134,14 @@ public class testConnection {
 			                	if(len> 0) {
 //			                		System.out.println(len);
 			                		for(int i = 0; i<len; i++){
-
-
-			                			if((buffer[i] & 0x20) == 0x00) {
-			                				var =  (buffer[i] & 0x1F)*32;
-			                			}
-			                			else if((buffer[i] & 0xE0) == 0x60) System.out.println("A: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
+			                			//System.out.println("all data " + Integer.toBinaryString((buffer[i]) & 0xFF) + " and " + (buffer[i] & 0xFF));
+			                			if((buffer[i] & 0xE0) == 0x60) System.out.println("A: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
 			                			else if((buffer[i] & 0xE0) == 0xA0) System.out.println("B: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
 			                			else if((buffer[i] & 0xE0) == 0xE0) System.out.println("MM: " + (var + (buffer[i] & 0x1F))*3.3/(1024));
+			                			else if((buffer[i] & 0xC0) != 0x00) var =  (buffer[i] & 0x1F)*32; //2^5
+			                			else if((buffer[i] & 0xF8) == 0x00) System.out.println("Gain: " + (buffer[i] &0xFF));
+			                			else 
+				                			System.out.println("data " + Integer.toBinaryString((buffer[i]) & 0xFF) + " and " + buffer[i]);
 			                			//System.out.println(" => var:" + buffer[i]);
 			                		}
 				                   

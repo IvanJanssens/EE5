@@ -72,16 +72,18 @@ void parse_Data(unsigned char new_data) {
             if(data.MOD.select == 1)info.A.offset = data.DAC.data;
             else if(data.MOD.select == 2) info.B.offset = data.DAC.data;
             else if (data.MOD.select == 3) {
-                info.B.ON = data.MM.ON;
+                info.MM.ON = data.MM.ON;
                 if (info.MM.ON) {
-                info.A.ON = 0;
-                info.B.ON = 0;
-                clear_tx();
+                    info.A.ON = 0;
+                    info.B.ON = 0;
+                    clear_tx();
                 }
+                write_FIFO_tx((0x07 & info.MM.gain), 0);
                 OSC();
                 ADC();
             }
             break;
         }
     }
+    if(info.A.ON || info.B.ON || info.MM.ON) ADL0CONLbits.SLEN = 1;
 }

@@ -460,3 +460,4 @@ Was expecting:
 	at org.apache.lucene.queryParser.QueryParser.parse(QueryParser.java:206) ~[org.apache.lucene.core_3.5.0.v20120725-1805.jar:3.5.0 1204988 - simon - 2011-11-22 14:46:51]
 	... 65 common frames omitted
 2017-05-19 10:49:33,860 [main] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache file is out-of-date. Remote download required.
+2017-05-19 17:27:26,683 [main] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache file is not out-of-date. No remote download required.
