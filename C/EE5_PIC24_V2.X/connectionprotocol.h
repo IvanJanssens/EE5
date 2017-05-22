@@ -28,7 +28,7 @@ typedef union {
         unsigned char module : 2; //11
     } MM;
     struct {
-        unsigned char data : 4;
+        unsigned char data : 4; 
         unsigned char select : 2; //A => 01, B = 10, MM = 11
         unsigned char module : 2; //11
     } DAC;

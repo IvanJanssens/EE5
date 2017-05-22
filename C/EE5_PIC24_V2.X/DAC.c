@@ -24,6 +24,19 @@ void init_DAC(void) {
     dac_bbits_mem = 0x7440; // bin : 0111010001000000
 }
 
+void modify_ADAC(char u_d) {
+
+    if (u_d){dac_abits_mem += 9*64 ; DAC1DAT = dac_abits_mem; } // 0000 0000 0000 1001
+    
+    else{  dac_abits_mem -= 9*64; DAC1DAT = dac_abits_mem;}
+}
+
+void modify_BDAC(char u_d) {
+
+    if (u_d){dac_bbits_mem += 9*64; DAC2DAT = dac_bbits_mem; }
+    else{  dac_bbits_mem -= 9*64; DAC2DAT = dac_bbits_mem;}
+}
+
 void OSC(void) {
     // switches between AC mode ( mode_x == 0 ) and DC mode (mode_x == 1)   
     DC_A = info.A.AC_DC;
@@ -69,12 +82,6 @@ void OSC(void) {
 }
 
 float get_osc_input(float famp, float acq, int a_not_b) {
-    // if a_not_b is one, the fucntion will calculate the input of osc_a, else of osc_b
-
-    // first_step = (1.65f) -((1.00f) / famp)*((acq) - (1.65f));
-    // input = DAC - (10.0f)*(first_step - DAC)
-
-
     if (a_not_b == 1) {
         dac_abits_mem = dac_abits_mem / (2 * 2 * 2 * 2 * 2 * 2);
         dac_a = (float) dac_abits_mem;
@@ -87,3 +94,24 @@ float get_osc_input(float famp, float acq, int a_not_b) {
     }
 
 }
+
+char DAC_A(void){
+    
+    int dummy = ADRES0 & 0x0FFF;
+    float out = (float) (       ( dummy   /     (4096.0f)  )*(3.3f)       )  ;
+        
+    if ( out <= (1.70f) && out >= (1.60f) ) return 1;
+    else if (out > (1.70f) ) {modify_ADAC(1); return -1;}
+    else {modify_ADAC(0); return -1;} }
+    
+
+char DAC_B(void){
+    
+    int dummy = ADRES1 & 0x0FFF;
+    float out = (float) (       ( dummy   /     (4096.0f)  )*(3.3f)       );
+    
+    if ( out <= (1.70f) && out >= (1.60f) ) return 1;
+    else if (out > (1.70f) ) {modify_BDAC(1); return -1;}
+    else {modify_BDAC(0); return -1;} }
+    
+
