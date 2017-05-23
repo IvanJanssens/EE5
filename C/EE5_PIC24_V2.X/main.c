@@ -1,6 +1,4 @@
 #include <xc.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <PPS.h>
 #include "config_EE5.h"
 #include "ADC.h"

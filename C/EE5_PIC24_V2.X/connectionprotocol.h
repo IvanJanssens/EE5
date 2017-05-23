@@ -33,8 +33,7 @@ typedef union {
         unsigned char module : 2; //11
     } MM;
     struct {
-        unsigned char nothing: 3;
-        unsigned char ON : 1;
+        unsigned char data: 3;
         unsigned char select : 3; //100
         unsigned char module : 2; //11
     } SAMPLE;
@@ -74,6 +73,8 @@ typedef union {
             unsigned char wave : 3;
         } FG;
         unsigned char CALI_ON: 1;
+        unsigned char SAMPLE: 3;
+        unsigned char TRIGGER: 4;
     };
 } info_t;
 

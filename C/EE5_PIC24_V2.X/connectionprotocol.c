@@ -65,18 +65,19 @@ void parse_Data(unsigned char new_data) {
             break;
         }
         default: { //11
-            if(data.MOD.select == 5) {
+            if(data.MOD.select == 0){
+                info.TRIGGER = data.TRIG.data;
+            }
+            else if(data.MOD.select == 4){
+                info.SAMPLE = data.SAMPLE.data;
+            }
+            else if(data.MOD.select == 5) {
                 info.CALI_ON = data.CAL.ON;
                 if(info.CALI_ON){
                     info.A.ON = 1;
                     info.B.ON = 1;
                 }
             }
-            else if(data.MOD.select == 4){
-                
-            }
-            //if(data.MOD.select == 1)info.A.offset = data.DAC.data;
-            //if(data.MOD.select == 2) info.B.offset = data.DAC.data;
             else if (data.MOD.select == 7) {
                 info.MM.ON = data.MM.ON;
                 if (info.MM.ON) {

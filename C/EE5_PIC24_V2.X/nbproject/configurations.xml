@@ -223,7 +223,7 @@
         <C30Global>
         </C30Global>
       </item>
-      <item path="DMA.c" ex="false" overriding="false">
+      <item path="DMA.c" ex="true" overriding="false">
         <C30>
         </C30>
         <C30-AR>
@@ -234,6 +234,8 @@
         </C30-LD>
         <C30Global>
         </C30Global>
+      </item>
+      <item path="DMA.h" ex="true" overriding="false">
       </item>
       <item path="FunctionGenerator.c" ex="false" overriding="false">
         <C30>

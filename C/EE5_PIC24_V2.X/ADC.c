@@ -76,16 +76,18 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
         IFS0bits.AD1IF = 0;
         if(ADL0STATbits.ADLIF) {
             ADL0STATbits.ADLIF = 0;
-            unsigned int var = ADRES0;
             if(info.CALI_ON){
                 if(DAC_A() == 0 && DAC_B() == 0) {
                     info.CALI_ON = 0;
                     info.A.ON = 0;
                     info.B.ON = 0;
                     ADC();
+                    write_FIFO_tx(info.A.offset, 1);
+                    write_FIFO_tx(info.B.offset, 2);
                 }
             }
             else {
+                unsigned int var = ADRES0;
                 if (info.MM.ON) {
                     write_FIFO_tx(var, 3);
                     MM(var);
@@ -96,8 +98,8 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
                     else write_FIFO_tx(var, 2);
                 }
             }
-        }
+        } 
     }
-    if(get_count_tx() < max_fifo && (info.A.ON || info.B.ON)) ADL0CONLbits.SLEN = 1;
+    if(get_count_tx() < max_fifo && (info.CALI_ON ||info.A.ON || info.B.ON)) ADL0CONLbits.SLEN = 1;
 }
 
