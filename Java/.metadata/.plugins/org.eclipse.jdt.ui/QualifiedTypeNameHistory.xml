@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="javafx.scene.layout.Background"/>
-<fullyQualifiedTypeName name="javafx.scene.layout.BackgroundFill"/>
 <fullyQualifiedTypeName name="javafx.scene.paint.Color"/>
 <fullyQualifiedTypeName name="javafx.scene.text.Font"/>
 <fullyQualifiedTypeName name="javafx.scene.layout.CornerRadii"/>
@@ -33,7 +31,6 @@
 <fullyQualifiedTypeName name="java.net.URLDecoder"/>
 <fullyQualifiedTypeName name="com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader"/>
 <fullyQualifiedTypeName name="userinterface.NoConnectionUI"/>
-<fullyQualifiedTypeName name="application.decodeProtocol"/>
 <fullyQualifiedTypeName name="userinterface.UI"/>
 <fullyQualifiedTypeName name="org.apache.poi.ss.usermodel.CreationHelper"/>
 <fullyQualifiedTypeName name="org.apache.poi.sl.usermodel.Sheet"/>
@@ -52,7 +49,6 @@
 <fullyQualifiedTypeName name="application.Oscilloscope"/>
 <fullyQualifiedTypeName name="javafx.event.ActionEvent"/>
 <fullyQualifiedTypeName name="javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory"/>
-<fullyQualifiedTypeName name="javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory"/>
 <fullyQualifiedTypeName name="userinterface.GraphUI"/>
 <fullyQualifiedTypeName name="java.lang.System"/>
 <fullyQualifiedTypeName name="java.util.Queue"/>
@@ -60,4 +56,8 @@
 <fullyQualifiedTypeName name="java.util.Timer"/>
 <fullyQualifiedTypeName name="java.util.concurrent.TimeUnit"/>
 <fullyQualifiedTypeName name="java.util.TimerTask"/>
+<fullyQualifiedTypeName name="application.decodeProtocol"/>
+<fullyQualifiedTypeName name="javafx.scene.chart.CategoryAxis"/>
+<fullyQualifiedTypeName name="java.util.concurrent.ConcurrentLinkedQueue"/>
+<fullyQualifiedTypeName name="javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory"/>
 </qualifiedTypeNameHistroy>

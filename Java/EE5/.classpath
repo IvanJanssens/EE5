@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path=""/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="javafx-0.2.jar"/>
 	<classpathentry kind="lib" path="rxtx-2.2.jar"/>
 	<classpathentry kind="lib" path="rxtx-native-macosx.jar"/>
