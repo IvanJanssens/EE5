@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ADC.c connectionprotocol.c DAC.c FunctionGenerator.c main.c multimeter_pic24.c UART.c FIFO.c
+SOURCEFILES_QUOTED_IF_SPACED=ADC.c connectionprotocol.c DAC.c FunctionGenerator.c main.c multimeter_pic24.c UART.c FIFO.c DMA.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADC.o ${OBJECTDIR}/connectionprotocol.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/FunctionGenerator.o ${OBJECTDIR}/main.o ${OBJECTDIR}/multimeter_pic24.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/FIFO.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/connectionprotocol.o.d ${OBJECTDIR}/DAC.o.d ${OBJECTDIR}/FunctionGenerator.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/multimeter_pic24.o.d ${OBJECTDIR}/UART.o.d ${OBJECTDIR}/FIFO.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADC.o ${OBJECTDIR}/connectionprotocol.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/FunctionGenerator.o ${OBJECTDIR}/main.o ${OBJECTDIR}/multimeter_pic24.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/FIFO.o ${OBJECTDIR}/DMA.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/connectionprotocol.o.d ${OBJECTDIR}/DAC.o.d ${OBJECTDIR}/FunctionGenerator.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/multimeter_pic24.o.d ${OBJECTDIR}/UART.o.d ${OBJECTDIR}/FIFO.o.d ${OBJECTDIR}/DMA.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ADC.o ${OBJECTDIR}/connectionprotocol.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/FunctionGenerator.o ${OBJECTDIR}/main.o ${OBJECTDIR}/multimeter_pic24.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/FIFO.o
+OBJECTFILES=${OBJECTDIR}/ADC.o ${OBJECTDIR}/connectionprotocol.o ${OBJECTDIR}/DAC.o ${OBJECTDIR}/FunctionGenerator.o ${OBJECTDIR}/main.o ${OBJECTDIR}/multimeter_pic24.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/FIFO.o ${OBJECTDIR}/DMA.o
 
 # Source Files
-SOURCEFILES=ADC.c connectionprotocol.c DAC.c FunctionGenerator.c main.c multimeter_pic24.c UART.c FIFO.c
+SOURCEFILES=ADC.c connectionprotocol.c DAC.c FunctionGenerator.c main.c multimeter_pic24.c UART.c FIFO.c DMA.c
 
 
 CFLAGS=
@@ -144,6 +144,13 @@ ${OBJECTDIR}/FIFO.o: FIFO.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  FIFO.c  -o ${OBJECTDIR}/FIFO.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/FIFO.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/FIFO.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/DMA.o: DMA.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/DMA.o.d 
+	@${RM} ${OBJECTDIR}/DMA.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  DMA.c  -o ${OBJECTDIR}/DMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/DMA.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/DMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/ADC.o: ADC.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -200,6 +207,13 @@ ${OBJECTDIR}/FIFO.o: FIFO.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/FIFO.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  FIFO.c  -o ${OBJECTDIR}/FIFO.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/FIFO.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/FIFO.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/DMA.o: DMA.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/DMA.o.d 
+	@${RM} ${OBJECTDIR}/DMA.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  DMA.c  -o ${OBJECTDIR}/DMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/DMA.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/DMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

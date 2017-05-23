@@ -73,7 +73,7 @@ void parse_Data(unsigned char new_data) {
                 }
             }
             else if(data.MOD.select == 4){
-                info.
+                
             }
             //if(data.MOD.select == 1)info.A.offset = data.DAC.data;
             //if(data.MOD.select == 2) info.B.offset = data.DAC.data;
