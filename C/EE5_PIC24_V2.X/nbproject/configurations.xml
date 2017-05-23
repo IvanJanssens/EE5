@@ -12,6 +12,7 @@
       <itemPath>UART.h</itemPath>
       <itemPath>FunctionGenerator.h</itemPath>
       <itemPath>FIFO.h</itemPath>
+      <itemPath>DMA.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -28,6 +29,7 @@
       <itemPath>multimeter_pic24.c</itemPath>
       <itemPath>UART.c</itemPath>
       <itemPath>FIFO.c</itemPath>
+      <itemPath>DMA.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -209,6 +211,30 @@
         <C30Global>
         </C30Global>
       </item>
+      <item path="DAC.h" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="DMA.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
       <item path="FunctionGenerator.c" ex="false" overriding="false">
         <C30>
         </C30>
@@ -357,7 +383,6 @@
         <property key="UART 3" value="true"/>
         <property key="UART 4" value="true"/>
         <property key="UCNFG1" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>

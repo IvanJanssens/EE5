@@ -54,19 +54,14 @@ void ADC(void){
         ADL0CONL = 0x2201; // 0010 0010 0000 0001 : 2 sample registers: A and B
         ADTBL0 = 0x000E; // 0000 0000 0000 1110 ==>RB14: VOA
         ADTBL1 = 0x0005; // 0000 0000 0000 0101 ==>RB5: VOB
-        ADCON3bits.SLEN0 = 1;
         ADL0CONLbits.SLEN = 1;
     }
     else if (info.A.ON || info.B.ON || info.MM.ON) {
-        ADCON3bits.SLEN0 = 1;
         ADL0CONL = 0x2200; // 0010 0010 0000 0001 : 1 sample registers: A OR B OR MM
         if(info.A.ON) ADTBL0 = 0x000E; // 0000 0000 0000 1110 ==>RB14: VOA
         else if(info.B.ON) ADTBL0 = 0x0005; // 0000 0000 0000 0101 ==>RB5: VOB
         else if(info.MM.ON) ADTBL0 = 0x0019; // 0000 0000 0001 1001 ==>RD2: Multimeter
         ADL0CONLbits.SLEN = 1;
-    }
-    else {
-        ADCON3bits.SLEN0 = 0;
     }
     
     int i;
@@ -82,20 +77,27 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
         if(ADL0STATbits.ADLIF) {
             ADL0STATbits.ADLIF = 0;
             unsigned int var = ADRES0;
-            if(info.MM.ON){
-                write_FIFO_tx(var, 3);
-                MM(var);
-                delay(10);
+            if(info.CALI_ON){
+                if(DAC_A() == 0 && DAC_B() == 0) {
+                    info.CALI_ON = 0;
+                    info.A.ON = 0;
+                    info.B.ON = 0;
+                    ADC();
+                }
             }
-            if(info.A.ON){
-                write_FIFO_tx(var, 1);
-            }
-            if(info.B.ON){
-                if(info.A.ON) write_FIFO_tx(ADRES1, 2);
-                else write_FIFO_tx(var, 2);
+            else {
+                if (info.MM.ON) {
+                    write_FIFO_tx(var, 3);
+                    MM(var);
+                }
+                if (info.A.ON) write_FIFO_tx(var, 1);
+                if (info.B.ON) {
+                    if (info.A.ON) write_FIFO_tx(ADRES1, 2);
+                    else write_FIFO_tx(var, 2);
+                }
             }
         }
     }
-    if(get_count_tx() < max_fifo) ADL0CONLbits.SLEN = 1;
+    if(get_count_tx() < max_fifo && (info.A.ON || info.B.ON)) ADL0CONLbits.SLEN = 1;
 }
 

@@ -19,6 +19,12 @@ void OSC(void);
 
 float get_osc_input(float famp, float acq, int a_not_b);
 
+void modify_ADAC(char u_d);
+void modify_BDAC(char u_d);
+char DAC_A(void);
+char DAC_B(void);
+
+
 
 #endif	/* DAC_H */
 

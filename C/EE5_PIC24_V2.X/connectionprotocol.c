@@ -53,35 +53,45 @@ void parse_Data(unsigned char new_data) {
         case 1: { //01
             info.A.AC_DC = data.O.AC_DC;
             info.A.ON = data.O.ON;
-            if(info.A.ON) info.MM.ON = 0;
             info.A.gain = data.O.gain;
-            OSC();
-            ADC();
+            if(info.A.ON) info.MM.ON = 0;
             break;
         }
         case 2: { //10
             info.B.AC_DC = data.O.AC_DC;
             info.B.ON = data.O.ON;
-            if(info.B.ON) info.MM.ON = 0;
             info.B.gain = data.O.gain;
-            OSC();
-            ADC();
+            if(info.B.ON) info.MM.ON = 0;
             break;
         }
         default: { //11
-            if(data.MOD.select == 1)info.A.offset = data.DAC.data;
-            else if(data.MOD.select == 2) info.B.offset = data.DAC.data;
-            else if (data.MOD.select == 3) {
-                info.B.ON = data.MM.ON;
-                if (info.MM.ON) {
-                info.A.ON = 0;
-                info.B.ON = 0;
-                clear_tx();
+            if(data.MOD.select == 5) {
+                info.CALI_ON = data.CAL.ON;
+                if(info.CALI_ON){
+                    info.A.ON = 1;
+                    info.B.ON = 1;
                 }
-                OSC();
-                ADC();
+            }
+            else if(data.MOD.select == 4){
+                info.
+            }
+            //if(data.MOD.select == 1)info.A.offset = data.DAC.data;
+            //if(data.MOD.select == 2) info.B.offset = data.DAC.data;
+            else if (data.MOD.select == 7) {
+                info.MM.ON = data.MM.ON;
+                if (info.MM.ON) {
+                    info.A.ON = 0;
+                    info.B.ON = 0;
+                    clear_tx();
+                }
             }
             break;
         }
+    }
+        
+    if(info.A.ON || info.B.ON || info.MM.ON) {
+        OSC();
+        ADC();
+        ADL0CONLbits.SLEN = 1;
     }
 }
