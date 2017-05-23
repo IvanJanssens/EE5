@@ -1,0 +1,141 @@
+package application;
+
+import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import communication.Connection;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import userinterface.MultimeterUI;
+import userinterface.UI;
+
+public class Multimeter extends Service<Object> {
+
+	private static Queue<Double> databuffer;
+	public Multimeter () {
+	}
+
+
+	@Override
+	protected Task<Object> createTask() {
+		return new Task<Object>() {
+			
+			@Override
+			protected Object call() throws Exception {
+
+				InputStream input = Connection.getInputStream();
+				Connection.send(UI.MULTIMETERON); //Send UI.MULTIMETER to start the multimeter datastream
+				int len = -1;
+				byte[] buffer = new byte[3];
+				int[] intbuffer = new int[3];
+				databuffer = new LinkedList<Double>();
+				Timer timer = new Timer();
+				timer.scheduleAtFixedRate(new TimerTask() {
+					  @Override
+					  public void run() {
+					    Connection.send(UI.MULTIMETERON);
+					  }
+					},(long)0, (long)100);
+				try {
+					while(! isCancelled()) {
+//						prepareBuffer(input);
+						if( (input.available()) > 2 ) {
+							len = input.read(buffer,0,3);
+							for(int i = 0; i< len; i ++) {
+								if((buffer[i] & 0xE0) == 0xE0) {
+									intbuffer[2] = buffer[i] & 0x1F;
+									processData(intbuffer);
+								}
+								else if((buffer[i] & 0xE0) == 0xC0)
+									intbuffer[1] = buffer[i] & 0x1F;
+								else if((buffer[i] & 0xF8) == 0x00)
+										intbuffer[0] = buffer[i] & 0xFF;
+							}
+							System.out.println("1: " + ((buffer[0] & 0xC0) == 0x00));
+							System.out.println("gain: "+Integer.toBinaryString(buffer[0]) +" is " + buffer[0]);
+							System.out.println("2: " + ((buffer[1] & 0xC0) == 0xC0));
+							System.out.println("var: " + Integer.toBinaryString(buffer[1]) +" is "+ buffer[1]);
+							System.out.println("3: " + ((buffer[2] & 0xE0) == 0xE0));
+							System.out.println("MM:" + Integer.toBinaryString(buffer[2]) +" is " + buffer[2]);
+							
+							if(((buffer[0] & 0xC0) == 0x00) && (buffer[1] & 0xC0) == 0xC0 && (buffer[2] & 0xE0) == 0xE0) {
+								System.out.println("mm");
+			            		for(int i = 0; i<len; i++){
+			            			intbuffer[i] = buffer[i] & 0x1F;
+			            		}
+			            		
+							}
+							else if (buffer[0] == -1 && buffer[1] == 0x00) {
+//								Connection.checkParam();
+							}
+		                   
+		            	}
+					}
+					if(isCancelled()) {
+						timer.cancel();
+						Connection.send(UI.MULTIMETEROFF);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+		};
+	}
+	
+//	private static void prepareBuffer(InputStream input) {
+//		byte[] result = new byte[1];
+//		try {
+//			while((result[0] & 0xE0) != 0xE0) {
+//				System.out.println("clear buffer");
+//				input.read(result,0,1);
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+	private static void processData(int[] buffer) {
+		double gain = getGain(buffer[0]);
+		double result = (double) (((((buffer[1] *32)+  buffer[2] )*3.3)/1024) * gain);
+		databuffer.add(result);
+		if(databuffer.size()>= 5) {
+			Platform.runLater(new Runnable() {
+                	@Override
+                	public void run() {
+                		try {
+                			double data = 0;
+                			System.out.println("databufferPoll" + databuffer.peek());
+                			System.out.println("data" + data);
+                			for(int i = 0; i <= 5; i++) {
+                				data += databuffer.poll();
+                			}
+            				MultimeterUI.updateMeter(data/5);
+                		}
+                		catch (Exception e) {
+                			e.printStackTrace();
+                		}
+                	}
+                });
+		}
+	}
+	
+	private static double getGain(int gainMessage) {
+		double gain = 0;
+		if(gainMessage == 0)
+			gain = 10;
+		else if(gainMessage == 1)
+			gain = 2;
+		else if(gainMessage == 2)
+			gain = 0.5;
+		else if(gainMessage == 3)
+			gain = 0.14286;
+		else if(gainMessage == 4)
+			gain = 0.1;
+		return gain;
+	}
+}
