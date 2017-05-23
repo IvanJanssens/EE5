@@ -2,6 +2,7 @@
 #include "connectionprotocol.h"
 #include "FIFO.h"
 #include "UART.h"
+#include "multimeter_pic24.h"
 
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
@@ -15,7 +16,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
         write_FIFO_tx(var, 0);
     }
     else{
-        write_FIFO_tx((0x07 & info.MM.gain), 0);
+        write_FIFO_tx(((COMP*8)|(0x07 & info.MM.gain)), 0);
         if(!info.MM.ON) write_FIFO_rx(var);
         else ADL0CONLbits.SLEN = 1;  
     }

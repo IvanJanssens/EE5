@@ -209,7 +209,7 @@
         <C30Global>
         </C30Global>
       </item>
-      <item path="DAC.h" ex="true" overriding="false">
+      <item path="DAC.h" ex="false" overriding="false">
         <C30>
         </C30>
         <C30-AR>
@@ -221,7 +221,7 @@
         <C30Global>
         </C30Global>
       </item>
-      <item path="DMA.c" ex="true" overriding="false">
+      <item path="DMA.c" ex="false" overriding="false">
         <C30>
         </C30>
         <C30-AR>
