@@ -16,7 +16,5 @@ void ADC(void);
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void);
 
-extern int AD_DONE;
-
 #endif	/* ADC_H */
 
