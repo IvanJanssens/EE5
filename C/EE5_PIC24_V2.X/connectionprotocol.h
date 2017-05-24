@@ -4,8 +4,8 @@
 typedef union {
     unsigned char allBits;
     struct {
-        unsigned char data : 4;
-        unsigned char select: 2;
+        unsigned char data : 3;
+        unsigned char select: 3;
         unsigned char module : 2;
     }MOD;
     
@@ -27,7 +27,7 @@ typedef union {
         unsigned char module : 2; //11
     } TRIG;
     struct {
-        unsigned char nothing: 3;
+        unsigned char nothing: 2;
         unsigned char ON : 1;
         unsigned char select : 3; //111
         unsigned char module : 2; //11

@@ -35,7 +35,8 @@ void init_Chip(void) {
     TRISB = 0x60E0; // 0110 0000 0000 1110 0000
     TRISCbits.TRISC12 = 1;
     TRISCbits.TRISC15 = 0;
-    TRISD = 0x0004; //0000 0000 0000 0100
+    TRISD = 0x000C; //0000 0000 0000 1100
+    ANSDbits.ANSD3 = 0;
     
     TRISBbits.TRISB13 = 1;
     TRISGbits.TRISG9 = 1;    

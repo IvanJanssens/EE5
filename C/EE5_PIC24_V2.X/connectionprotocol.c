@@ -65,7 +65,7 @@ void parse_Data(unsigned char new_data) {
             break;
         }
         default: { //11
-            if(data.MOD.select == 0){
+            if(data.MOD.select <= 4){
                 info.TRIGGER = data.TRIG.data;
             }
             else if(data.MOD.select == 4){

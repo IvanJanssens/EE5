@@ -68,7 +68,6 @@ void ADC(void){
     for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
     ADCON1bits.ADON = 1;
     while(!ADSTATHbits.ADREADY);
-    
 }
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
