@@ -8,7 +8,6 @@
 #define LSB ((Vrefp - Vrefm)/(resolution))
 
 void MM(int value);
-void delay(int x);
 void gain(int c);
 
 #endif	/* MULTIMETER_PIC24_H */

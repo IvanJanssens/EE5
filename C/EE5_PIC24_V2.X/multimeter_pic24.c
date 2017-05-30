@@ -2,6 +2,7 @@
 #include "multimeter_pic24.h"
 #include "connectionprotocol.h"
 
+//if we get a value of the ADC we may need to adjust the gain
 void MM(int value) {
     float voltage = value*LSB;
     int case_t = info.MM.gain;
@@ -59,13 +60,3 @@ void gain(int cas) {
     }
     info.MM.gain = cas;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-//DELAY.. 
-void delay(int x ){
-    int i, j, k;
-    for(i = 0;i<x;i++){
-            for(j = 0;j<x;j++){
-                for(k = 0;k<x;k++){}}} // delay   
-}
-////////////////////////////////////////////////////////////////////////////////

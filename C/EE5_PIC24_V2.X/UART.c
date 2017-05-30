@@ -4,19 +4,19 @@
 #include "UART.h"
 #include "multimeter_pic24.h"
 
-
+//the inturrupt for the receiving uart
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     IFS4bits.U2ERIF = 0;
     IFS1bits.U2RXIF = 0; // Clear the Recieve Interrupt Flag
-    unsigned char var = U2RXREG;
-    write_FIFO_rx(var);
+    //we write the data to the fifo
+    write_FIFO_rx(U2RXREG);
 }
   
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
     IFS4bits.U2ERIF = 0;
 	IFS1bits.U2TXIF = 0; // Clear the Transmit Interrupt Flag
 }
-
+//we initialize the UART-module
 void set_UART(void) {
     TRISF = 0x0008; // pin RF3 is input
     ANSFbits.ANSF3 = 0; // pin RF3 is digital (not analog) 

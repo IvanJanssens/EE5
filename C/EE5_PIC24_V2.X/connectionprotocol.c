@@ -102,9 +102,9 @@ void parse_Data(unsigned char new_data) {
         int temp = PORTDbits.RD3;
         write_FIFO_tx(((temp*8)+(0x07 & info.MM.gain)), 0);
     }
-    if(info.A.ON || info.B.ON || info.MM.ON) {
+    if(info.A.ON || info.B.ON || info.MM.ON ||info.CALI_ON ) {
         OSC();
         ADC();
-        ADL0CONLbits.SLEN = 1;
+        ADL0CONLbits.SLEN = (info.A.ON || info.B.ON || info.MM.ON);
     }
 }
