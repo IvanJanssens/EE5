@@ -10,6 +10,7 @@
 int AD_DONE;
 
 void init_ADC(void) {
+    
     ANSB = 0;
     
     ADCON1bits.ADON = 0;
@@ -29,12 +30,12 @@ void init_ADC(void) {
     
    //for interrupts
     INTCON1bits.NSTDIS = 1; //no nesting interrupts
-    IFS0= 0; //setting the flag on zero
-    IPC3bits.AD1IP = 7; //Highest priority
-    IEC0bits.AD1IE = 1; //enabling interrupts
+    IFS0= 0;                //setting the flag on zero
+    IPC3bits.AD1IP = 7;     //Highest priority
+    IEC0bits.AD1IE = 1;     //enabling interrupts
 
-    ADL0STAT = 0; //clearing the ADLIF: A/D Sample List Interrupt Event Flag bit
-    ADSTATL = 0; //clearing all interrupt flag bits
+    ADL0STAT = 0;           //clearing the ADLIF: A/D Sample List Interrupt Event Flag bit
+    ADSTATL = 0;            //clearing all interrupt flag bits
 }
 
 void ADC(void){
@@ -68,7 +69,6 @@ void ADC(void){
     for(i = 20; i>0; i--) ADCON1bits.ADCAL = 1;
     ADCON1bits.ADON = 1;
     while(!ADSTATHbits.ADREADY);
-    
 }
 
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
@@ -76,16 +76,20 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
         IFS0bits.AD1IF = 0;
         if(ADL0STATbits.ADLIF) {
             ADL0STATbits.ADLIF = 0;
-            unsigned int var = ADRES0;
             if(info.CALI_ON){
-                if(DAC_A() == 0 && DAC_B() == 0) {
+                int a = DAC_A();
+                int b = DAC_B();
+                if(a == 0 && b == 0) {
                     info.CALI_ON = 0;
                     info.A.ON = 0;
                     info.B.ON = 0;
                     ADC();
+                    write_FIFO_tx(info.A.offset, 1);
+                    write_FIFO_tx(info.B.offset, 2);
                 }
             }
             else {
+                unsigned int var = ADRES0;
                 if (info.MM.ON) {
                     write_FIFO_tx(var, 3);
                     MM(var);
@@ -96,8 +100,8 @@ void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
                     else write_FIFO_tx(var, 2);
                 }
             }
-        }
+        } 
     }
-    if(get_count_tx() < max_fifo && (info.A.ON || info.B.ON)) ADL0CONLbits.SLEN = 1;
+    if(get_count_tx() < max_fifo && (info.CALI_ON ||info.A.ON || info.B.ON)) ADL0CONLbits.SLEN = 1;
 }
 

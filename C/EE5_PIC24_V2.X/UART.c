@@ -2,23 +2,14 @@
 #include "connectionprotocol.h"
 #include "FIFO.h"
 #include "UART.h"
+#include "multimeter_pic24.h"
 
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     IFS4bits.U2ERIF = 0;
     IFS1bits.U2RXIF = 0; // Clear the Recieve Interrupt Flag
     unsigned char var = U2RXREG;
-    if((var & 0xF8) != 0xF8){
-        write_FIFO_rx(var);
-        write_FIFO_tx(255, 0);
-        write_FIFO_tx(0, 0);
-        write_FIFO_tx(var, 0);
-    }
-    else{
-        write_FIFO_tx((0x07 & info.MM.gain), 0);
-        if(!info.MM.ON) write_FIFO_rx(var);
-        else ADL0CONLbits.SLEN = 1;  
-    }
+    write_FIFO_rx(var);
 }
   
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {

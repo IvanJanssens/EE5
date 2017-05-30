@@ -1,4 +1,5 @@
 #include <xc.h>
+#include <p24FJ128GC006.h>
 #include "connectionprotocol.h"
 #include "FunctionGenerator.h"
 #include "ADC.h"
@@ -6,7 +7,7 @@
 #include "FIFO.h"
 
 info_t info;
-
+//We analyse the data and see what it means
 void parse_Data(unsigned char new_data) {
     data_t data;
     data.allBits = new_data;
@@ -65,18 +66,19 @@ void parse_Data(unsigned char new_data) {
             break;
         }
         default: { //11
-            if(data.MOD.select == 5) {
+            if(data.MOD.select <= 4){
+                info.TRIGGER = data.TRIG.data;
+            }
+            else if(data.MOD.select == 4){
+                info.SAMPLE = data.SAMPLE.data;
+            }
+            else if(data.MOD.select == 5) {
                 info.CALI_ON = data.CAL.ON;
                 if(info.CALI_ON){
                     info.A.ON = 1;
                     info.B.ON = 1;
                 }
             }
-            else if(data.MOD.select == 4){
-                info.
-            }
-            //if(data.MOD.select == 1)info.A.offset = data.DAC.data;
-            //if(data.MOD.select == 2) info.B.offset = data.DAC.data;
             else if (data.MOD.select == 7) {
                 info.MM.ON = data.MM.ON;
                 if (info.MM.ON) {
@@ -88,7 +90,18 @@ void parse_Data(unsigned char new_data) {
             break;
         }
     }
-        
+    //after we receive the data we resend the data back but only if the MM is off
+    if(!info.MM.ON){
+        ADL0CONHbits.SLINT = 0;
+        write_FIFO_tx(255, 0);
+        write_FIFO_tx(0, 0);
+        write_FIFO_tx(new_data, 0);
+        ADL0CONHbits.SLINT = 1;
+    }
+    else {
+        int temp = PORTDbits.RD3;
+        write_FIFO_tx(((temp*8)+(0x07 & info.MM.gain)), 0);
+    }
     if(info.A.ON || info.B.ON || info.MM.ON) {
         OSC();
         ADC();

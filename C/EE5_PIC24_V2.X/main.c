@@ -1,6 +1,4 @@
 #include <xc.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <PPS.h>
 #include "config_EE5.h"
 #include "ADC.h"
@@ -18,14 +16,20 @@ void init_ALL(void);
 int count = 0;
 
 int main(void) {
+    //intitializing all ports, registers
     init_ALL();
+    //setting al the info we have on 0
     info.allbits = 0;
     while(1){
+        //if data is received, we have to process it
         if (get_count_rx() != 0) read_FIFO_rx();
-        if(get_count_tx() != 0 && get_count_tx() >= max_fifo) {
+        //if we filled our fifo with data we know have to send it all (only for oscA and oscB)
+        if(get_count_tx() >= max_fifo) {
             send_FIFO_tx();
+            //We immediately restart the ADC-converter
             ADL0CONLbits.SLEN = 1;
         }
+        //if we have data to send and the multimeter is on
         if(get_count_tx() != 0 && info.MM.ON){
             send_FIFO_tx();
         }
@@ -37,7 +41,8 @@ void init_Chip(void) {
     TRISB = 0x60E0; // 0110 0000 0000 1110 0000
     TRISCbits.TRISC12 = 1;
     TRISCbits.TRISC15 = 0;
-    TRISD = 0x0004; //0000 0000 0000 0100
+    TRISD = 0x000C; //0000 0000 0000 1100
+    ANSDbits.ANSD3 = 0;
     
     TRISBbits.TRISB13 = 1;
     TRISGbits.TRISG9 = 1;    
