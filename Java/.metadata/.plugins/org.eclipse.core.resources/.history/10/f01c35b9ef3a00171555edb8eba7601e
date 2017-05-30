@@ -1,8 +1,0 @@
-package application;
-
-public class decodeProtocol {
-
-	public static void decode(byte message) {
-		
-	}
-}

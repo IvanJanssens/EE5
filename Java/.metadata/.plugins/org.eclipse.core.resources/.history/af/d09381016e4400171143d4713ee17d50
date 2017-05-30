@@ -1,0 +1,31 @@
+package application;
+
+public class decodeProtocol {
+
+	public static void decode(byte message) {
+		byte module = (byte) (message & 0xE0); //check first 3 bits
+		if(module == 0x60)
+			Oscilloscope.updateAttenuationA(checkGain(message));
+		else if(module == 0xA0)
+			Oscilloscope.updateAttenuationB(checkGain(message));
+	}
+	
+	private static int checkGain(byte message) {
+		System.out.println("check attenuation");
+		System.out.println("checkbit" + checkbit((byte) 0b00000100, 0));
+		System.out.println("checkbit" + checkbit((byte) 0b00000100, 1));
+		System.out.println("checkbit" + checkbit((byte) 0b00000100, 2));
+		int gain = 1;
+		if(checkbit(message,0))
+			gain = 2;
+		else if(checkbit(message,1))
+			gain = 5;
+		else if(checkbit(message,2))
+			gain = 10;
+		return gain;
+	}
+	
+	private static boolean checkbit(byte message, int pos) {
+		return ((message >> pos) & 1) != 0;
+	}
+}

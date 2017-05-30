@@ -1,29 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="javafx.scene.paint.Color"/>
-<fullyQualifiedTypeName name="javafx.scene.text.Font"/>
-<fullyQualifiedTypeName name="javafx.scene.layout.CornerRadii"/>
-<fullyQualifiedTypeName name="javafx.scene.layout.FlowPane"/>
-<fullyQualifiedTypeName name="java.util.Arrays"/>
-<fullyQualifiedTypeName name="java.util.Scanner"/>
-<fullyQualifiedTypeName name="javafx.geometry.Pos"/>
-<fullyQualifiedTypeName name="javafx.scene.control.TextField"/>
-<fullyQualifiedTypeName name="javafx.beans.value.ChangeListener"/>
-<fullyQualifiedTypeName name="java.io.BufferedReader"/>
-<fullyQualifiedTypeName name="java.io.FileReader"/>
-<fullyQualifiedTypeName name="javafx.scene.control.Button"/>
-<fullyQualifiedTypeName name="java.util.Locale"/>
-<fullyQualifiedTypeName name="javafx.scene.chart.XYChart"/>
-<fullyQualifiedTypeName name="java.math.BigInteger"/>
-<fullyQualifiedTypeName name="java.util.logging.Logger"/>
-<fullyQualifiedTypeName name="java.util.logging.Formatter"/>
-<fullyQualifiedTypeName name="java.util.logging.Handler"/>
-<fullyQualifiedTypeName name="userinterface.LoggerFormatter"/>
 <fullyQualifiedTypeName name="java.io.PrintWriter"/>
 <fullyQualifiedTypeName name="java.io.StringWriter"/>
 <fullyQualifiedTypeName name="java.util.logging.Level"/>
 <fullyQualifiedTypeName name="javafx.geometry.Orientation"/>
-<fullyQualifiedTypeName name="communication.Connection"/>
 <fullyQualifiedTypeName name="javafx.scene.chart.XYChart.Series"/>
 <fullyQualifiedTypeName name="userinterface.OscilloscopeUI"/>
 <fullyQualifiedTypeName name="application.Main"/>
@@ -31,7 +11,6 @@
 <fullyQualifiedTypeName name="java.net.URLDecoder"/>
 <fullyQualifiedTypeName name="com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader"/>
 <fullyQualifiedTypeName name="userinterface.NoConnectionUI"/>
-<fullyQualifiedTypeName name="userinterface.UI"/>
 <fullyQualifiedTypeName name="org.apache.poi.ss.usermodel.CreationHelper"/>
 <fullyQualifiedTypeName name="org.apache.poi.sl.usermodel.Sheet"/>
 <fullyQualifiedTypeName name="org.apache.poi.ss.usermodel.Sheet"/>
@@ -47,7 +26,6 @@
 <fullyQualifiedTypeName name="org.apache.poi.xssf.usermodel.XSSFSheet"/>
 <fullyQualifiedTypeName name="org.apache.poi.ss.usermodel.Row"/>
 <fullyQualifiedTypeName name="application.Oscilloscope"/>
-<fullyQualifiedTypeName name="javafx.event.ActionEvent"/>
 <fullyQualifiedTypeName name="javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory"/>
 <fullyQualifiedTypeName name="userinterface.GraphUI"/>
 <fullyQualifiedTypeName name="java.lang.System"/>
@@ -60,4 +38,26 @@
 <fullyQualifiedTypeName name="javafx.scene.chart.CategoryAxis"/>
 <fullyQualifiedTypeName name="java.util.concurrent.ConcurrentLinkedQueue"/>
 <fullyQualifiedTypeName name="javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory"/>
+<fullyQualifiedTypeName name="javafx.scene.control.Alert.AlertType"/>
+<fullyQualifiedTypeName name="javafx.scene.control.Alert"/>
+<fullyQualifiedTypeName name="javafx.scene.control.ButtonType"/>
+<fullyQualifiedTypeName name="javafx.scene.control.ProgressIndicator"/>
+<fullyQualifiedTypeName name="javafx.application.Platform"/>
+<fullyQualifiedTypeName name="javafx.scene.control.Button"/>
+<fullyQualifiedTypeName name="javafx.scene.control.Dialog"/>
+<fullyQualifiedTypeName name="javafx.event.Event"/>
+<fullyQualifiedTypeName name="javafx.event.EventHandler"/>
+<fullyQualifiedTypeName name="java.util.Optional"/>
+<fullyQualifiedTypeName name="com.sun.xml.internal.ws.spi.db.OldBridge"/>
+<fullyQualifiedTypeName name="javafx.scene.layout.BorderPane"/>
+<fullyQualifiedTypeName name="javafx.scene.control.Label"/>
+<fullyQualifiedTypeName name="javafx.geometry.Pos"/>
+<fullyQualifiedTypeName name="application.Fourrier"/>
+<fullyQualifiedTypeName name="java.util.Arrays"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="userinterface.UI"/>
+<fullyQualifiedTypeName name="communication.Connection"/>
+<fullyQualifiedTypeName name="application.Calibrate"/>
+<fullyQualifiedTypeName name="javafx.event.ActionEvent"/>
+<fullyQualifiedTypeName name="userinterface.CalibrateUI"/>
 </qualifiedTypeNameHistroy>
