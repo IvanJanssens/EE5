@@ -67,7 +67,7 @@ unsigned char write_SPI(unsigned char data_out)
   
     return 1;
 }
-
+//if this function is called, we change the frequency of our signal output
 void generator(void){ 
     unsigned long int freq = info.FG.freq; // n -> output of wanted frequency
     

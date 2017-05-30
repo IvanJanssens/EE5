@@ -20,7 +20,7 @@ void init_FIFO(void) {
     count_tx = 0;
     count_rx = 0;
 }
-
+//we write all the received data in a buffer
 void write_FIFO_rx(unsigned char data) {
     if(count_rx < 100){
         fifo_rx[i] = data;
@@ -29,7 +29,7 @@ void write_FIFO_rx(unsigned char data) {
         if (i >= 100) i = 0;
     }
 }
-
+//we read the data till we received it all
 void read_FIFO_rx(void) {
     while (count_rx) {
         j++;
@@ -38,7 +38,7 @@ void read_FIFO_rx(void) {
         parse_Data(fifo_rx[j]);
     }
 }
-
+//we write the data in a fifo and we give a parameter to say where it comes from
 void write_FIFO_tx(unsigned int data, char input){
     if(count_tx < max_fifo){
         fifo_tx[k] = (data & 0xFFF) + input*4096; // 2^12 = 4096
@@ -47,7 +47,7 @@ void write_FIFO_tx(unsigned int data, char input){
         if (k >= max_fifo) k = 0;
     }
 }
-
+//we really send the data from the fifo
 void send_FIFO_tx(void) {
     while (count_tx) {
         l++;

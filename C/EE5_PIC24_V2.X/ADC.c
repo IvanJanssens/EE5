@@ -8,7 +8,7 @@
 #include "FIFO.h"
 
 int AD_DONE;
-
+//intitialises the ADC, so the ADC can work at a high speed
 void init_ADC(void) {
     
     ANSB = 0;
@@ -38,6 +38,7 @@ void init_ADC(void) {
     ADSTATL = 0;            //clearing all interrupt flag bits
 }
 
+//a function that sets the right pins as output or input. so when a funciton isn't used we get no strange behaviours
 void ADC(void){
     ADCON1bits.ADON = 0;
     
@@ -70,7 +71,7 @@ void ADC(void){
     ADCON1bits.ADON = 1;
     while(!ADSTATHbits.ADREADY);
 }
-
+//interrupt of the ADC. If an interrupt happens, we have to transfer the data to the right fifo and set maybe some bits right
 void __attribute__((__interrupt__, auto_psv )) _ADC1Interrupt(void){
     if (IFS0bits.AD1IF == 1) {
         IFS0bits.AD1IF = 0;
