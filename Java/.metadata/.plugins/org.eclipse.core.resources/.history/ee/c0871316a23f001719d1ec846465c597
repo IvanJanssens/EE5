@@ -1,0 +1,11 @@
+package userinterface;
+
+import javafx.scene.control.Dialog;
+
+public class CalibrateUI {
+
+	public static void start() {
+		Dialog<> calibrate = new Dialog<>();
+		
+	}
+}

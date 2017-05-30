@@ -1,0 +1,31 @@
+package userinterface;
+
+import java.util.Optional;
+
+import communication.Connection;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Alert.AlertType;
+
+public class CalibrateUI {
+
+	private static ProgressIndicator loadingIndicator = new ProgressIndicator();
+	
+	public static void start() {
+		Alert calibrate = new Alert(AlertType.CONFIRMATION);
+		calibrate.setTitle("Calibration");
+		calibrate.setHeaderText("To ensure better measurements we will calibrate the device.\n Please connect both inputs of the oscilloscope to the ground (OV)");
+		calibrate.setContentText("Click OK when both are connected to ground (OV)");
+		calibrate.setGraphic(loadingIndicator);
+		loadingIndicator.setVisible(false);
+		
+		Optional<ButtonType> result = calibrate.showAndWait();
+		if(result.get() == ButtonType.OK) {
+//			Connection.send();
+			calibrate.getButtonTypes().remove(ButtonType.OK);
+			loadingIndicator.setVisible(true);
+		}
+			
+	}
+}
