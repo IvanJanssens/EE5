@@ -1,0 +1,43 @@
+package application;
+
+import communication.Connection;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+
+public class Sync extends Service<Object>{
+
+	public Sync() {
+		
+	}
+	@Override
+	protected Task<Object> createTask() {
+		return new Task<Object>() {
+			
+
+			@Override
+			protected Object call() {
+				int paramFlag = 0, len = 0;
+				byte[] buffer = new byte[2];
+
+
+				while(!isCancelled()) {
+					len = Connection.getData(buffer);
+						for(int i = 0; i<len; i++) {
+								if(paramFlag == 1) {
+									if(buffer[i] == 0x00)
+										paramFlag = 2;
+									else
+										paramFlag = 0;
+								}
+								else if(paramFlag == 2) {
+									System.out.println("Check param");
+									paramFlag = 0;
+									Connection.calibrateMes(buffer[i]);
+								}
+						}
+				}
+				return null;
+			}
+		};
+	}
+}

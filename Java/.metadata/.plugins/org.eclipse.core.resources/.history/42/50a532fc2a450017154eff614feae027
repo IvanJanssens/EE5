@@ -1,0 +1,59 @@
+package userinterface;
+
+
+
+import java.util.Optional;
+
+import application.Sync;
+import communication.Connection;
+import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Button;
+
+public class CalibrateUI {
+
+	private static ProgressIndicator loadingIndicator = new ProgressIndicator();
+	private static Dialog<ButtonType> calibrate;
+	
+	public static void start() {
+		Sync cal = new Sync();
+		cal.start();
+		calibrate = new Dialog<>();
+		calibrate.setTitle("Calibration");
+		calibrate.setHeaderText("To ensure better measurements we will calibrate the device.\n Please connect both inputs of the oscilloscope to the ground (0V)");
+		BorderPane main = new BorderPane();
+		main.setCenter(new Label("Click OK when both are connected to ground (0V)"));
+		calibrate.setGraphic(loadingIndicator);
+		calibrate.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+		Button ok = new Button("Ok");
+		ok.setPrefWidth(120);
+		ok.addEventFilter(ActionEvent.ACTION,event -> {
+			loadingIndicator.setVisible(true);
+			Connection.send(UI.CALIBRATE);
+//			event.consume();
+		});
+		main.setBottom(ok);
+		BorderPane.setAlignment(ok, Pos.CENTER);
+		calibrate.getDialogPane().setContent(main);
+		calibrate.getDialogPane().getChildren().add(new Button("Ok"));
+		loadingIndicator.setVisible(false);
+		
+		Optional<ButtonType> result = calibrate.showAndWait();
+		if(result.get() == ButtonType.CANCEL) {
+			cal.cancel();
+			System.exit(0);
+			
+		}
+	}
+	
+	public static void calibrated() {
+		calibrate.setResult(ButtonType.FINISH);
+	}
+	
+	
+}

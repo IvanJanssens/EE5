@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="java.io.PrintWriter"/>
-<fullyQualifiedTypeName name="java.io.StringWriter"/>
-<fullyQualifiedTypeName name="java.util.logging.Level"/>
 <fullyQualifiedTypeName name="javafx.geometry.Orientation"/>
 <fullyQualifiedTypeName name="javafx.scene.chart.XYChart.Series"/>
 <fullyQualifiedTypeName name="userinterface.OscilloscopeUI"/>
-<fullyQualifiedTypeName name="application.Main"/>
 <fullyQualifiedTypeName name="java.util.function.Consumer"/>
 <fullyQualifiedTypeName name="java.net.URLDecoder"/>
 <fullyQualifiedTypeName name="com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader"/>
@@ -60,4 +56,8 @@
 <fullyQualifiedTypeName name="application.Calibrate"/>
 <fullyQualifiedTypeName name="javafx.event.ActionEvent"/>
 <fullyQualifiedTypeName name="userinterface.CalibrateUI"/>
+<fullyQualifiedTypeName name="application.Sync"/>
+<fullyQualifiedTypeName name="application.Main"/>
+<fullyQualifiedTypeName name="java.net.URLEncoder"/>
+<fullyQualifiedTypeName name="java.io.File"/>
 </qualifiedTypeNameHistroy>

@@ -1,2 +1,5 @@
 1496046176583	Infer generic type arguments
 1496046181447	Infer generic type arguments
+1496142321781	Convert local variable 'in' to field
+1496143359034	Rename type 'Calibrate'
+1496143658025	Delete element
