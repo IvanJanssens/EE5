@@ -1,0 +1,235 @@
+package application;
+
+
+
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
+
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import communication.Connection;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import userinterface.GraphUI;
+import userinterface.OscilloscopeUI;
+import userinterface.UI;
+
+public class Oscilloscope extends Service<Object>{
+
+
+	static double trigger = UI.TRIGGER;
+	static int max_data = UI.MAX_DATA;
+	static int attenuationA = UI.ATTENUATION, attenuationB = UI.ATTENUATION;
+	static String triggerSource = "A";
+	private static XSSFWorkbook workbook;
+	private static boolean AOn, BOn;
+	private static ConcurrentLinkedQueue<Double> databufferA, databufferB;
+	private static double result, prevValue;
+	private static int currentDataPoint;
+	
+	public Oscilloscope() {
+	}
+	
+	//update triggerValue
+	public static void updateTrigger(double newValue) {
+		trigger = newValue;
+	}
+	
+	//update maxData value
+	public static void updateTimeDiv(int newValue) {
+		max_data = newValue;
+	}
+	
+	//update Attenuation of A
+	public static void updateAttenuationA(int newValue) {
+		attenuationA = newValue;
+		checkAttenuation();
+	}
+	
+	// update attenuation of B
+	public static void updateAttenuationB(int newValue) {
+		attenuationB = newValue;
+		checkAttenuation();
+	}
+	
+	//check attenuation values and adapt graph axis
+	private static void checkAttenuation() {
+		if(attenuationA >= attenuationB)
+			GraphUI.updateYAxis(attenuationA);
+		else
+			GraphUI.updateYAxis(attenuationB);
+	}
+	
+	//update trigger source
+	public static void updateTriggerSource(String newValue) {
+		triggerSource = newValue;
+	}
+	
+	//update dataA
+	public static void AOn(boolean on) {
+		AOn = on;
+		if(!on) {
+			databufferA.clear();
+		}
+		restartValues();
+	}
+	
+	//update dataB
+	public static void BOn(boolean on) {
+		BOn = on;
+		if(!on) {
+			databufferB.clear();
+		}
+		restartValues();
+	}
+	
+	//reset values if both off
+	private static void restartValues() {
+
+		if(!BOn & !AOn) {
+			currentDataPoint = 0;
+		}
+	}
+	
+	//save excel file
+	public static void save(File file) {
+		FileOutputStream fileOut;
+		try {
+			fileOut = new FileOutputStream(file);
+			workbook.write(fileOut);
+			fileOut.close();
+		} catch (Exception ex) {
+			Main.LOGGER.log(Level.SEVERE,"Couldn't save to excel file",ex);
+		}
+	}
+	
+	@Override
+	protected Task<Object> createTask() {
+		return new Task<Object>() {
+			
+
+			@Override
+			protected Object call() {
+				
+				int len = -1;
+				result = 0;
+				int paramFlag = 0;
+				byte[] buffer = new byte[2];
+				int[] intbuffer = new int[1];
+				databufferA = new ConcurrentLinkedQueue<Double>();
+				databufferB = new ConcurrentLinkedQueue<Double>();
+				currentDataPoint = 0;
+				prevValue = 0;
+				try {
+					workbook = new XSSFWorkbook(); //Start excel file
+					Sheet sheet = workbook.createSheet("EE5 Measurements");
+					
+					Row row = sheet.createRow((short)0);
+					
+					row.createCell(0).setCellValue("Data Oscilloscope A"); // first column header
+					row.createCell(1).setCellValue("Data Oscilloscope B"); // second column header
+
+					Row dataRow = sheet.createRow(sheet.getLastRowNum() + 1);
+
+					OscilloscopeUI.sendOsciParam(); //Send UI.OSCILLOSCOPE to start the oscilloscope datastream
+					while(!isCancelled()) {
+						len = Connection.getData(buffer);
+							for(int i = 0; i<len; i++) {
+									if(paramFlag == 1) { // check for incoming parameters
+										if(buffer[i] == 0x00)
+											paramFlag = 2;
+										else
+											paramFlag = 0;
+									}
+									else if(paramFlag == 2) {
+										paramFlag = 0;
+											Connection.checkParam(buffer[i]);
+									}
+									else if((buffer[i] & 0xE0) == 0x40 || (buffer[i] & 0xE0) == 0x80){ //Other 5 bits {
+										intbuffer[0] = buffer[i] & 0x1F;
+									}
+									else if(AOn & (buffer[i] & 0xE0) == 0x60) { //Oscilloscope A
+				            			result = (double) (1.65 - UI.DACA - ((((((intbuffer[0] *32) + (buffer[i] & 0x1F))*3.3)/1024) -1.65)/attenuationA))*(-10) + UI.DACA;
+				            			if(dataRow.getCell(0) != null)
+				            				dataRow = sheet.createRow(sheet.getLastRowNum() + 1);
+				            			dataRow.createCell(0).setCellValue(result); //add result in the excel
+				            			databufferA.add(result); // add result in the buffer, for different thread
+				            			
+			            				Platform.runLater(new Runnable() {
+					                    	@Override
+					                    	public void run() {
+					                    		if(databufferA != null) { // check if buffer exists
+						                    		try {	// use data to add to graph
+					                    			double newDataPoint = databufferA.poll();
+						                    			if(triggerSource.equals("A")) {
+							                    			if(currentDataPoint >= max_data && newDataPoint > (double)trigger && prevValue <= (double)trigger)
+							                    				currentDataPoint = 0;
+							                    			prevValue = newDataPoint;
+							                    		}
+						                    			if(currentDataPoint <= max_data)
+						                    				GraphUI.addDataA(newDataPoint,0,max_data,currentDataPoint,GraphUI.OsciUI);
+						                    			currentDataPoint++;
+					                    			}
+						                    		catch (Exception ex) {
+						                				Main.LOGGER.log(Level.WARNING,"Couldn't add new datapoint to graph",ex);
+						                    		}
+					                    		}
+					                    	}
+					                    });
+				            		}
+				            		else if(BOn & (buffer[i] & 0xE0) == 0xA0) { //Oscilloscope B
+				            			result = (double) (1.65 - UI.DACB - ((((((intbuffer[0] *32) + (buffer[i] & 0x1F))*3.3)/1024) -1.65)/attenuationB))*(-10) + UI.DACB;
+				            			if(dataRow.getCell(0) != null)
+				            				dataRow = sheet.createRow(sheet.getLastRowNum() + 1);
+				            			dataRow.createCell(1).setCellValue(result);
+				            			databufferB.add(result);
+				            			
+				            			Platform.runLater(new Runnable() {
+				            				@Override
+				            				public void run() {
+				            					if(databufferB != null) {
+					            					try {
+					            						double newDataPoint = databufferB.poll();
+					            						if(triggerSource.equals("B")) {
+						            						if(currentDataPoint >= max_data && newDataPoint > (double)trigger && prevValue <= (double)trigger)
+							                    				currentDataPoint = 0;
+						            						prevValue = newDataPoint;
+						                    			}
+						                    			if(currentDataPoint <= max_data)
+						                    				GraphUI.addDataB(newDataPoint,0,max_data,currentDataPoint,GraphUI.OsciUI);
+						                    			if(!AOn)
+						                    				currentDataPoint++;
+						                    		}
+						                    		catch (Exception ex) {
+						                				Main.LOGGER.log(Level.WARNING,"Couldn't add new datapoint to graph",ex);
+						                    		}
+				            					}
+				            				}
+				            			});
+				            		}
+					            		
+								if (buffer[i] == -1){ //parameter bits confirmation
+									paramFlag = 1;
+								}
+							}
+	            	}
+					if(isCancelled()) { // stop datastream
+					}
+				} catch (Exception ex) {
+					Main.LOGGER.log(Level.SEVERE,"Couldn't write to Excel file",ex);
+				}
+				return null;
+			}
+			
+			
+		};
+		
+	}
+}

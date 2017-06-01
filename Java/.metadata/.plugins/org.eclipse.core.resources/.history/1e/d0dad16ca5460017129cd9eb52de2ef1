@@ -1,0 +1,160 @@
+package communication;
+
+
+import java.io.OutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.logging.Level;
+
+import application.Main;
+import application.Sync;
+import application.decodeProtocol;
+import gnu.io.CommPort;
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import userinterface.PicUI;
+
+public class Connection {
+	
+	private CommPortIdentifier commPortIdentifier;
+	private static CommPort port;
+	private static SerialPort serialPort;
+	private static OutputStream output;
+	private static InputStream input;
+	private static LinkedList<Byte> dataBuffer;
+
+	private static Connection connection = null; // Make singleton
+	//Connection object
+	private Connection() {
+	}
+	
+	public static Connection getInstance() {
+		if(connection == null){
+			connection = new Connection();
+		}
+		return connection;
+	}
+	
+	public void initConnection(CommPortIdentifier commPortIdentifier) {
+		this.commPortIdentifier = commPortIdentifier;
+	}
+	
+	
+	//get a list of all the comm-ports available on this PC
+	public static ObservableList<CommPortIdentifier> refresh() {
+		ObservableList<CommPortIdentifier> choices = FXCollections.observableArrayList();
+		
+			@SuppressWarnings("unchecked")
+			Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
+
+		    //add the different ports of the enumeration to the ObservableList (needed for combobox)
+		    while (portList.hasMoreElements()) {
+		      CommPortIdentifier cpi = portList.nextElement();
+		      choices.add(cpi);
+		    }
+	    return choices;
+	}
+	
+	//start up a new connection
+	public int load() throws Exception {
+		//check if COM-port is used by another program
+		if(this.commPortIdentifier.isCurrentlyOwned()) {
+			Main.LOGGER.log(Level.SEVERE,"Error: Port is currently in use");
+			return 1;
+		}
+		else {
+			//open COM-port
+			try {
+				port = this.commPortIdentifier.open(this.getClass().getName(),2000);
+			} catch (Exception e) {
+				Main.LOGGER.log(Level.SEVERE,"couldn't start program",e);
+			}
+			
+			if(port instanceof SerialPort) {
+				serialPort = (SerialPort) port;
+                serialPort.setSerialPortParams(9600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE); // serial port parameters
+
+		        input = serialPort.getInputStream();
+		        Connection.output = serialPort.getOutputStream();
+		        dataBuffer = new LinkedList<Byte>();
+                return 0;
+			}
+			else {
+				return 1;
+			}
+		}
+	}
+	
+	 
+	 
+	 //send an int to the port
+	public static void send(byte message) {
+		try {
+				System.out.println("send" + message);
+				output.write(message);
+				dataBuffer.add(message);
+		}
+		catch (IOException ex) {
+			Main.LOGGER.log(Level.SEVERE,"Couldn't send data",ex);
+		}
+	}
+	
+	//check parameter with databuffer of previous send data, if matching decode and update values in graph
+	public static void checkParam(byte message) {
+		
+		byte prevMessage = dataBuffer.poll();
+		if(message != prevMessage) {
+			System.out.println("Connection error");
+			send(prevMessage);
+		}
+		else {
+			System.out.println("decode");
+			decodeProtocol.decode(prevMessage);
+		}
+		
+	}
+	
+	//sync pic databuffer and java buffer
+	public static void syncParam(byte message) {
+		byte prevMessage = dataBuffer.peek();
+		System.out.println("syncing");
+		if(message == prevMessage) {
+			PicUI.stopSync();
+			dataBuffer.poll();
+		}
+		
+	}
+	
+	//get data from PIC, size of buffer
+	public static int getData(byte[] buffer) {
+		int len = 0;
+		try {
+			System.out.println(input.available());
+			if(input.available() > buffer.length - 1) {
+				len = input.read(buffer, 0, buffer.length);
+			}
+		} catch (Exception e){
+			Main.LOGGER.log(Level.SEVERE, "Couldn't receive data", e);
+		}
+		return len;
+	}
+	
+	//close connection
+	public static void close() {
+		if(serialPort!=null){
+			try {
+				input.close();
+				output.close();
+			}
+			catch (IOException e){
+				Main.LOGGER.log(Level.WARNING, "Couldn't close connection", e);
+			}
+			serialPort.close();
+	        port.close(); //close serial port
+	    }
+	}
+}

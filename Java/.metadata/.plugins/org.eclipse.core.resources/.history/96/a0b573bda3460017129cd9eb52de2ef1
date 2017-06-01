@@ -1,0 +1,47 @@
+package application;
+
+import communication.Connection;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+
+public class Sync extends Service<Object>{
+
+	//Sync class is made to sync the buffer of the pic and java, sometimes there is still data from previous use of program.
+	public Sync() {
+		
+	}
+	@Override
+	protected Task<Object> createTask() {
+		return new Task<Object>() {
+			
+
+			@Override
+			protected Object call() {
+				int paramFlag = 0, len = 0;
+				byte[] buffer = new byte[2];
+
+
+				while(!isCancelled()) {
+					len = Connection.getData(buffer);
+						for(int i = 0; i<len; i++) {
+							System.out.println("syncing");
+							if(paramFlag == 1) {
+								if(buffer[i] == 0x00)
+									paramFlag = 2;
+								else
+									paramFlag = 0;
+							}
+							else if(paramFlag == 2) {
+								paramFlag = 0;
+								Connection.syncParam(buffer[i]);
+							}
+							else if (buffer[i] == -1){ //parameter bits confirmation
+								paramFlag = 1;
+							}
+						}
+				}
+				return null;
+			}
+		};
+	}
+}

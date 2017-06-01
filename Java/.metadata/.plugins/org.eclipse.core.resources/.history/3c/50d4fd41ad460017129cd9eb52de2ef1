@@ -1,0 +1,129 @@
+package application;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import communication.Connection;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import userinterface.MultimeterUI;
+import userinterface.UI;
+
+public class Multimeter extends Service<Object> {
+
+	//LinkedQueue to pass the data to other thread
+	private static ConcurrentLinkedQueue<Double> databuffer = new ConcurrentLinkedQueue<Double>();
+	private static int buffercount = 0;
+	
+	public Multimeter () {
+	}
+
+
+	@Override
+	protected Task<Object> createTask() {
+		return new Task<Object>() {
+			
+			@Override
+			protected Object call() throws Exception {
+
+				Connection.send(UI.MULTIMETERON); //Send UI.MULTIMETER to start the multimeter datastream
+				int len = -1;
+				byte[] buffer = new byte[3];
+				int[] intbuffer = new int[3];
+				int paramFlag = 0;
+				Timer timer = new Timer();
+				timer.scheduleAtFixedRate(new TimerTask() { // send multimeter every 100ms to Pic
+					  @Override
+					  public void run() {
+					    Connection.send(UI.MULTIMETERON); 
+					  }
+					},(long)0, (long)100);
+				try {
+					while(! isCancelled()) {
+						len = Connection.getData(buffer);
+							for(int i = 0; i< len; i ++) {
+								if(paramFlag == 1) { //check if data is data or parameters (Parameters all 1 then all 0 then parameters
+									if(buffer[i] == 0x00)
+										paramFlag = 2;
+									else
+										paramFlag = 0;
+								}
+								else if(paramFlag == 2) {
+									paramFlag = 0;
+										Connection.checkParam(buffer[i]);
+								}
+								else if((buffer[i] & 0xE0) == 0xE0) { //MM header
+									intbuffer[2] = buffer[i] & 0x1F;
+									processData(intbuffer);
+								}
+								else if((buffer[i] & 0xE0) == 0xC0) //Other 5 bits
+									intbuffer[1] = buffer[i] & 0x1F;
+								else if((buffer[i] & 0xF0) == 0x00){ //Gain + sign
+										intbuffer[0] = buffer[i] & 0xFF;			
+								}
+								if (buffer[i] == -1){ //parameter bits confirmation
+									paramFlag = 1;
+								}
+								
+							}
+		                   
+		            	}
+					if(isCancelled()) {
+						timer.cancel();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+		};
+	}
+	
+	//when process the values
+	private static void processData(int[] buffer) {
+		double gain = getGain((buffer[0] & 0x07));
+		double result = (double) (((((buffer[1] *32)+  buffer[2] )*3.3)/1024) * gain); // add the 2 parts together
+		if((buffer[0] & 0x08) == 0x00)
+			result = -result;
+		databuffer.add(result);
+		buffercount ++;
+		if(buffercount >= 5) { // running average
+			buffercount -= 5;
+			Platform.runLater(new Runnable() {
+                	@Override
+                	public void run() {
+                		if(databuffer != null) { //if task is closed, buffer becomes null, but runnable still in line, so check buffer
+	                		try {
+	                			double data = 0;
+	                			for(int i = 0; i < 5; i++) {
+	                				data += databuffer.poll();
+	                			}
+	            				MultimeterUI.updateMeter(data/5);
+	                		}
+	                		catch (Exception e) {
+	                			e.printStackTrace();
+	                		}
+                		}
+                	}
+                });
+		}
+	}
+	
+	//get gain from message
+	private static double getGain(int gainMessage) {
+		double gain = 0;
+		if(gainMessage == 0)
+			gain = 10; 
+		else if(gainMessage == 1)
+			gain = 2;
+		else if(gainMessage == 2)
+			gain = 0.5;
+		else if(gainMessage == 3)
+			gain = 0.14286;
+		else if(gainMessage == 4)
+			gain = 0.1;
+		return gain;
+	}
+}

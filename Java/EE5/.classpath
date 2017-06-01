@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="TestFiles/|application/Fourrier.java" kind="src" path="src"/>
+	<classpathentry excluding="application/Fourrier.java|TestFiles/" kind="src" path="src"/>
 	<classpathentry kind="lib" path="javafx-0.2.jar"/>
 	<classpathentry kind="lib" path="rxtx-2.2.jar"/>
 	<classpathentry kind="lib" path="rxtx-native-macosx.jar"/>
